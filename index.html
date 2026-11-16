@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Personal Finance Tracker</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%B0%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --plum-900: #1A1030;
+    --plum-800: #24173F;
+    --plum-700: #33215A;
+    --mint: #3DDC97;
+    --mint-dark: #17A56B;
+    --coral: #FF6B6B;
+    --amber: #FFB547;
+    --sky: #5AB8FF;
+    --ink: #1C1630;
+    --muted: #6B6680;
+    --line: #E5E1EF;
+    --bg: #F5F3FA;
+    --card: #FFFFFF;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  *, *::before, *::after { box-sizing: inherit; margin: 0; }
+  body { font-family: "Inter", "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--ink); font-size: 15px; line-height: 1.45; }
+  .num { font-variant-numeric: tabular-nums; }
+  .disp { font-family: "Sora", "Segoe UI", Arial, sans-serif; font-weight: 700; }
+  [hidden] { display: none !important; }
+
+  /* Shared texture for lock screen, header, scoreboard and footer */
+  .tex {
+    color: #fff; background-color: var(--plum-900);
+    background-image:
+      radial-gradient(ellipse at 95% -10%, rgba(61,220,151,.30), transparent 55%),
+      radial-gradient(ellipse at -5% 110%, rgba(255,181,71,.18), transparent 55%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30'%3E%3Cpath d='M0 15 Q15 5 30 15 T60 15' fill='none' stroke='%23ffffff' stroke-opacity='.05' stroke-width='1.4'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- Lock screen ---------- */
+  #lock { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+  .lockcard { width: 100%; max-width: 360px; text-align: center; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 22px; padding: 28px 22px; backdrop-filter: blur(6px); }
+  .coin { width: 72px; height: 72px; margin: 0 auto 14px; border-radius: 22px; display: grid; place-items: center; font-size: 38px; background: linear-gradient(135deg, var(--mint), var(--amber)); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .lockcard h1 { font-family: "Sora", Arial, sans-serif; font-size: 26px; line-height: 1.15; }
+  .lockcard p { color: #C9C2DD; font-size: 14px; margin-top: 4px; }
+  .lockcard .tagline { color: var(--mint); font-style: italic; font-weight: 600; margin-top: 2px; }
+  .lockcard input { width: 100%; margin-top: 18px; font: 600 24px "Sora", Arial, sans-serif; letter-spacing: 8px; text-align: center; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,.25); background: rgba(0,0,0,.25); color: #fff; }
+  .lockcard input:focus { outline: 2px solid var(--mint); }
+  .lockcard .btn { width: 100%; margin-top: 12px; }
+  .lockmsg { min-height: 20px; margin-top: 10px; font-size: 14px; color: #FFB0B0; }
+
+  /* ---------- Header ---------- */
+  header.tex { position: relative; overflow: hidden; }
+  header.tex::after { content: ""; position: absolute; right: -50px; top: -50px; width: 190px; height: 190px; border-radius: 50%; border: 20px solid rgba(61,220,151,.12); pointer-events: none; }
+  .head { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; padding: 18px 16px 8px; display: flex; align-items: center; gap: 14px; }
+  .head .coin { width: 54px; height: 54px; font-size: 28px; margin: 0; border-radius: 16px; flex: none; }
+  .head h1 { font-family: "Sora", Arial, sans-serif; font-size: clamp(22px, 6vw, 34px); line-height: 1.05; }
+  .head .who { color: #C9C2DD; font-size: 14px; margin-top: 4px; }
+  .head .lockbtn { margin-left: auto; background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; padding: 7px 14px; font: 600 13px "Inter", Arial, sans-serif; cursor: pointer; }
+
+  .score { padding: 6px 16px 20px; border-top: 1px solid rgba(255,255,255,.07); }
+  .score-in { max-width: 1040px; margin: 0 auto; }
+  .months { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 4px 0 14px; }
+  .months::-webkit-scrollbar { display: none; }
+  .mbtn { flex: none; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: #DCD5EE; border-radius: 999px; padding: 5px 13px; font: 600 13px "Inter", Arial, sans-serif; cursor: pointer; }
+  .mbtn[aria-pressed="true"] { background: var(--mint); color: var(--plum-900); border-color: var(--mint); }
+  .nw { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 4px 16px; margin-bottom: 14px; }
+  .nw .lbl { font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--mint); font-weight: 700; }
+  .nw .val { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: clamp(40px, 11vw, 66px); line-height: 1; }
+  .nw .val small { font-size: .36em; color: #C9C2DD; margin-right: 6px; font-weight: 600; }
+  .nw .note { color: #C9C2DD; font-size: 14px; padding-bottom: 6px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .kpi { border-radius: 14px; padding: 12px 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); position: relative; overflow: hidden; }
+  .kpi::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); }
+  .kpi .k { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #C9C2DD; }
+  .kpi .v { font-family: "Sora", Arial, sans-serif; font-weight: 700; font-size: 25px; line-height: 1.2; }
+  .kpi .s { font-size: 12px; color: #C9C2DD; }
+
+  /* ---------- Tabs ---------- */
+  .tabs-wrap { position: sticky; top: 0; z-index: 20; background: var(--plum-800); border-top: 3px solid var(--mint); box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+  .tabs { max-width: 1040px; margin: 0 auto; display: flex; gap: 2px; padding: 0 8px; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: none; background: transparent; border: 0; color: #C9C2DD; font: 700 13px "Inter", Arial, sans-serif; text-transform: uppercase; letter-spacing: 1px; padding: 15px 13px 12px; cursor: pointer; border-bottom: 3px solid transparent; }
+  .tab[aria-selected="true"] { color: var(--mint); border-bottom-color: var(--mint); }
+  .tab:focus-visible, .btn:focus-visible, .chip:focus-visible, .mbtn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+  main { max-width: 1040px; margin: 0 auto; padding: 20px 14px 40px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; margin-bottom: 18px; overflow: hidden; }
+  .phead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 16px 16px 10px; }
+  .phead h2 { font-family: "Sora", Arial, sans-serif; font-size: 20px; color: var(--plum-700); }
+  .phead .aside { font-size: 13px; color: var(--muted); }
+  .empty { padding: 16px; color: var(--muted); }
+  .notice { border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; font-size: 14px; background: #FDE8E8; border: 1px solid #EBA3A3; color: #7A1A1A; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 12px; }
+  .chip { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 5px 12px; font: 600 13px "Inter", Arial, sans-serif; cursor: pointer; color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--plum-700); color: var(--mint); border-color: var(--plum-700); }
+  .search { margin: 0 16px 12px; width: calc(100% - 32px); font: 15px "Inter", Arial, sans-serif; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); }
+  .search:focus { outline: 2px solid var(--mint); border-color: var(--mint); }
+
+  /* In vs out bars */
+  .vs { padding: 0 16px 16px; display: grid; gap: 10px; }
+  .vsrow .t { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; }
+  .vsrow .t b { font-family: "Sora", Arial, sans-serif; }
+  .bar { height: 14px; border-radius: 8px; background: #EEEAF6; overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; border-radius: 8px; transition: width .7s ease; }
+  .bar i.in { background: linear-gradient(90deg, var(--mint-dark), var(--mint)); }
+  .bar i.out { background: linear-gradient(90deg, #FF8E8E, var(--coral)); }
+  .rate { margin: 2px 16px 16px; padding: 12px 14px; border-radius: 14px; background: #EFFBF5; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+  .rate.neg { background: #FFF0F0; }
+  .rate b { font-family: "Sora", Arial, sans-serif; font-size: 22px; color: var(--mint-dark); }
+  .rate.neg b { color: #D23C3C; }
+
+  /* Trend columns */
+  .trend { display: flex; gap: 12px; overflow-x: auto; padding: 6px 16px 14px; align-items: flex-end; }
+  .tcol { flex: 0 0 58px; text-align: center; cursor: pointer; border-radius: 12px; padding: 4px 0; }
+  .tcol.sel { background: #F1EDFA; }
+  .tcol .pair { height: 120px; display: flex; align-items: flex-end; justify-content: center; gap: 4px; }
+  .tcol .b { width: 18px; border-radius: 6px 6px 2px 2px; min-height: 2px; transition: height .6s ease; }
+  .tcol .b.in { background: linear-gradient(180deg, var(--mint), var(--mint-dark)); }
+  .tcol .b.out { background: linear-gradient(180deg, #FF9C9C, var(--coral)); }
+  .tcol .m { font-weight: 700; font-size: 13px; margin-top: 5px; }
+  .tcol .net { font-size: 11px; font-weight: 700; }
+  .up, .ghead span.up { color: var(--mint-dark); font-weight: 700; } .down, .ghead span.down { color: #D23C3C; font-weight: 700; }
+  .legend { display: flex; gap: 14px; padding: 0 16px; font-size: 13px; color: var(--muted); }
+  .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+  /* Budgets */
+  .blist { padding: 0 16px 14px; display: grid; gap: 4px; }
+  .brow { padding: 10px 0; border-top: 1px solid #F0EDF6; }
+  .brow:first-child { border-top: 0; }
+  .brow .t { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .brow .n { font-weight: 600; }
+  .brow .a { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .brow .a b { color: var(--ink); }
+  .brow .bar { height: 10px; }
+  .brow .bar i { background: linear-gradient(90deg, var(--mint-dark), var(--mint)); }
+  .brow.warn .bar i { background: linear-gradient(90deg, #FFCB6B, var(--amber)); }
+  .brow.over .bar i { background: linear-gradient(90deg, #FF8E8E, var(--coral)); }
+  .brow .left { font-size: 12px; font-weight: 700; margin-top: 4px; color: var(--mint-dark); }
+  .brow.warn .left { color: #B07400; } .brow.over .left { color: #D23C3C; }
+  .ring { display: flex; align-items: center; gap: 16px; padding: 0 16px 16px; }
+  .ring svg { width: 96px; height: 96px; flex: none; }
+  .ring .txt b { font-family: "Sora", Arial, sans-serif; font-size: 24px; display: block; }
+  .ring .txt span { font-size: 13px; color: var(--muted); }
+
+  /* Accounts */
+  .agrid { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .acard { border-radius: 18px; padding: 16px; color: #fff; position: relative; overflow: hidden; min-height: 140px; display: flex; flex-direction: column; justify-content: space-between; }
+  .acard::after { content: ""; position: absolute; right: -30px; top: -30px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,.12); }
+  .acard .top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+  .acard .ic { font-size: 24px; }
+  .acard .ty { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: .85; }
+  .acard .nm { font-weight: 700; font-size: 16px; margin-top: 10px; position: relative; z-index: 1; }
+  .acard .bal { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: 28px; position: relative; z-index: 1; }
+  .acard .flow { display: flex; gap: 12px; font-size: 12px; opacity: .9; position: relative; z-index: 1; }
+  .a-bank { background: linear-gradient(135deg, #4C3B8F, #2B1E5C); }
+  .a-cash { background: linear-gradient(135deg, #17A56B, #0E6E47); }
+  .a-card { background: linear-gradient(135deg, #FF6B6B, #B83A55); }
+  .a-save { background: linear-gradient(135deg, #F2A33A, #C2671A); }
+  .a-wallet { background: linear-gradient(135deg, #3A8BD6, #1F5A97); }
+
+  /* Feed (transactions, latest) */
+  .feed { padding: 0 16px 6px; }
+  .group + .group { margin-top: 14px; }
+  .ghead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px; padding: 8px 2px; border-bottom: 2px solid var(--line); }
+  .ghead b { font-family: "Sora", Arial, sans-serif; font-size: 15px; color: var(--plum-700); }
+  .ghead span { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .item { display: grid; grid-template-columns: 42px 1fr auto; gap: 12px; align-items: center; padding: 10px 2px; border-bottom: 1px solid #F0EDF6; }
+  .item:last-child { border-bottom: 0; }
+  .ico { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 20px; }
+  .ico.in { background: #E3F8EE; } .ico.out { background: #FFECEC; } .ico.tr { background: #E8F2FF; }
+  .item .who { font-weight: 600; line-height: 1.3; }
+  .item .sub { font-size: 13px; color: var(--muted); margin-top: 2px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #F1EDFA; color: var(--plum-700); }
+  .pill { font-family: "Sora", Arial, sans-serif; font-weight: 700; font-size: 16px; padding: 3px 12px; border-radius: 999px; white-space: nowrap; }
+  .pill.in { background: #E3F8EE; color: var(--mint-dark); }
+  .pill.out { background: #FFECEC; color: #D23C3C; }
+  .pill.tr { background: #E8F2FF; color: #2C6CB0; }
+  .feed-total { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 4px 16px 16px; padding: 12px 16px; border-radius: 14px; background: linear-gradient(90deg, var(--plum-800), var(--plum-700)); color: #fff; font-weight: 600; font-size: 14px; }
+  .feed-total b { font-family: "Sora", Arial, sans-serif; }
+  .feed-total .i { color: var(--mint); } .feed-total .o { color: #FF9C9C; }
+
+  /* Forms */
+  form.add { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  form.add label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  form.add input, form.add select { font: 16px "Inter", Arial, sans-serif; color: var(--ink); padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+  form.add input:focus, form.add select:focus { outline: 2px solid var(--mint); border-color: var(--mint); }
+  form.add .actions { grid-column: 1 / -1; }
+  .seg { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 4px; border-radius: 14px; background: #F1EDFA; }
+  .seg button { border: 0; border-radius: 10px; padding: 10px; font: 700 14px "Inter", Arial, sans-serif; background: transparent; color: var(--muted); cursor: pointer; }
+  .seg button[aria-pressed="true"].in { background: var(--mint); color: var(--plum-900); }
+  .seg button[aria-pressed="true"].out { background: var(--coral); color: #fff; }
+  .seg button[aria-pressed="true"].tr { background: var(--sky); color: #fff; }
+  .btn { background: var(--plum-700); color: var(--mint); border: 0; border-radius: 999px; padding: 11px 22px; font: 700 15px "Inter", Arial, sans-serif; cursor: pointer; }
+  .btn.mint { background: var(--mint); color: var(--plum-900); }
+  .save-status { position: sticky; top: 56px; z-index: 5; margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; border: 1px solid var(--line); background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+  .save-status.busy { border-color: #EBCB72; background: #FFF6DA; color: #5A4300; }
+  .save-status.ok { border-color: #9FD3AC; background: #E6F5E9; color: #1D5C2B; }
+  .save-status.bad { border-color: #EBA3A3; background: #FDE8E8; color: #7A1A1A; }
+
+  footer.tex { text-align: center; padding: 26px 20px 30px; border-top: 4px solid var(--mint); }
+  footer .coin { width: 48px; height: 48px; font-size: 26px; border-radius: 14px; margin: 0 auto 10px; }
+  footer .l1 { font-family: "Sora", Arial, sans-serif; font-weight: 700; font-size: 18px; }
+  footer .l2 { color: #C9C2DD; font-size: 13px; margin-top: 4px; }
+
+  @media (prefers-reduced-motion: reduce) { .bar i, .tcol .b { transition: none; } }
+</style>
+</head>
+<body>
+
+<!-- ===== Lock screen ===== -->
+<section id="lock" class="tex">
+  <form class="lockcard" id="lockForm">
+    <div class="coin" aria-hidden="true">💰</div>
+    <h1>Personal Finance Tracker</h1>
+    <p class="tagline">Every rupee, accounted for</p>
+    <p>Enter your PIN to continue</p>
+    <input type="password" id="pinInput" inputmode="numeric" autocomplete="current-password" aria-label="PIN" required>
+    <button class="btn mint" type="submit" id="unlockBtn">Unlock</button>
+    <div class="lockmsg" id="lockMsg" role="alert"></div>
+  </form>
+</section>
+
+<!-- ===== App (shown after unlocking) ===== -->
+<div id="app" hidden>
+  <header class="tex">
+    <div class="head">
+      <div class="coin" aria-hidden="true">💰</div>
+      <div><h1>Personal Finance Tracker</h1><div class="who" id="ownerLine"></div></div>
+      <button class="lockbtn" id="lockBtn">Lock</button>
+    </div>
+  </header>
+
+  <section class="score tex" aria-label="Summary">
+    <div class="score-in">
+      <div class="months" id="months" role="group" aria-label="Choose a month"></div>
+      <div class="nw">
+        <div><div class="lbl">Net worth</div><div class="val num" id="nw"><small>LKR</small>–</div></div>
+        <div class="note" id="nwNote">All accounts together</div>
+      </div>
+      <div class="kpis">
+        <div class="kpi" style="--c:var(--mint)"><div class="k">Income</div><div class="v num" id="kIn">–</div><div class="s" id="kMonth1"></div></div>
+        <div class="kpi" style="--c:var(--coral)"><div class="k">Expenses</div><div class="v num" id="kOut">–</div><div class="s" id="kMonth2"></div></div>
+        <div class="kpi" style="--c:var(--amber)"><div class="k">Saved</div><div class="v num" id="kNet">–</div><div class="s" id="kRate"></div></div>
+        <div class="kpi" style="--c:var(--sky)"><div class="k">Budget left</div><div class="v num" id="kBudget">–</div><div class="s" id="kBudgetS"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="tabs-wrap">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="overview">Overview</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="budgets">Budgets</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="accounts">Accounts</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="txns">Transactions</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="add">+ Add</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="notice" id="error" hidden></div>
+
+    <!-- OVERVIEW -->
+    <div id="tab-overview">
+      <section class="panel">
+        <div class="phead"><h2 id="ovTitle">This month</h2><span class="aside" id="ovAside"></span></div>
+        <div class="vs" id="ovVs"></div>
+        <div class="rate" id="ovRate"></div>
+      </section>
+      <section class="panel">
+        <div class="phead"><h2>Month by month</h2><span class="aside">Tap a month to view it</span></div>
+        <div class="legend"><span><i style="background:#3DDC97"></i>Income</span><span><i style="background:#FF6B6B"></i>Expenses</span></div>
+        <div class="trend" id="trend"></div>
+      </section>
+      <section class="panel">
+        <div class="phead"><h2>Top spending</h2><span class="aside" id="topAside"></span></div>
+        <div class="blist" id="topSpend"></div>
+      </section>
+      <section class="panel">
+        <div class="phead"><h2>Latest</h2></div>
+        <div class="feed" id="latest"></div>
+      </section>
+    </div>
+
+    <!-- BUDGETS -->
+    <div id="tab-budgets" hidden>
+      <section class="panel">
+        <div class="phead"><h2 id="bTitle">Budgets</h2><span class="aside" id="bAside"></span></div>
+        <div class="ring" id="bRing"></div>
+        <div class="blist" id="bList"></div>
+      </section>
+      <section class="panel" id="unbudgetedPanel">
+        <div class="phead"><h2>Spending without a budget</h2></div>
+        <div class="blist" id="unbudgeted"></div>
+      </section>
+    </div>
+
+    <!-- ACCOUNTS -->
+    <div id="tab-accounts" hidden>
+      <section class="panel">
+        <div class="phead"><h2>Accounts</h2><span class="aside" id="accAside"></span></div>
+        <div class="agrid" id="accGrid"></div>
+      </section>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div id="tab-txns" hidden>
+      <section class="panel">
+        <div class="phead"><h2 id="txTitle">Transactions</h2><span class="aside" id="txAside"></span></div>
+        <div class="chips" id="txTypes"></div>
+        <div class="chips" id="txAccounts"></div>
+        <input class="search" id="txSearch" type="search" placeholder="Search description, category or notes" aria-label="Search transactions">
+        <div class="feed" id="txFeed"></div>
+        <div class="feed-total" id="txTotal"></div>
+      </section>
+    </div>
+
+    <!-- ADD -->
+    <div id="tab-add" hidden>
+      <div class="save-status" id="saveStatus" role="status" aria-live="polite" hidden></div>
+      <section class="panel">
+        <div class="phead"><h2>Add a transaction</h2></div>
+        <form class="add" id="txForm">
+          <div class="seg" role="group" aria-label="Type">
+            <button type="button" class="in" data-type="Income" aria-pressed="false">↓ Income</button>
+            <button type="button" class="out" data-type="Expense" aria-pressed="true">↑ Expense</button>
+            <button type="button" class="tr" data-type="Transfer" aria-pressed="false">⇄ Transfer</button>
+          </div>
+          <label>Amount (LKR)<input type="number" name="amount" min="1" step="any" inputmode="decimal" required></label>
+          <label id="catWrap">Category<select name="category" id="catSel"></select></label>
+          <label id="catNewWrap" hidden>New category<input name="catNew" id="catNew"></label>
+          <label><span id="accLbl">Paid from</span><select name="account" id="accSel" required></select></label>
+          <label id="toWrap" hidden>To account<select name="to" id="toSel"></select></label>
+          <label>Date<input type="date" name="date" required></label>
+          <label>Description<input name="description" placeholder="e.g. Keells groceries"></label>
+          <label>Notes<input name="notes"></label>
+          <div class="actions"><button class="btn" type="submit">Save</button></div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="phead"><h2>Set a monthly budget</h2></div>
+        <form class="add" id="budgetForm">
+          <label>Category<select name="category" id="bCatSel"></select></label>
+          <label id="bCatNewWrap" hidden>New category<input name="catNew" id="bCatNew"></label>
+          <label>Monthly budget (LKR)<input type="number" name="amount" min="0" step="any" inputmode="decimal" placeholder="Leave blank to remove"></label>
+          <div class="actions"><button class="btn" type="submit">Save budget</button></div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="phead"><h2>Add or update an account</h2></div>
+        <form class="add" id="accForm">
+          <label>Account name<input name="name" required placeholder="e.g. Commercial Bank"></label>
+          <label>Type<select name="type" id="accTypeSel"></select></label>
+          <label>Opening balance (LKR)<input type="number" name="opening" step="any" inputmode="decimal" placeholder="Balance when you started"></label>
+          <label>Notes<input name="notes"></label>
+          <div class="actions"><button class="btn" type="submit">Save account</button></div>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer class="tex">
+    <div class="coin" aria-hidden="true">💰</div>
+    <div class="l1">Personal Finance Tracker</div>
+    <div class="l2" style="color:var(--mint);font-style:italic">Every rupee, accounted for</div>
+    <div class="l2">Private: your sheet is only read through your own script, with your PIN.</div>
+  </footer>
+</div>
+
+<script>
+/* ===== Settings you may edit ===== */
+// Web app URL from Apps Script (Deploy → Manage deployments).
+const API_URL = "https://script.google.com/macros/s/AKfycbyuqeEGmYhJwTBS4Kxyc8ggQ9vONh60dh2sAIBOnSC330RCS3z_wN4N1ZTtjq6kic9aAA/exec";
+const OWNER = "Hashmath";
+const AUTO_REFRESH_SECONDS = 60;
+// Lock again after this many minutes without using the page.
+const IDLE_LOCK_MINUTES = 15;
+/* ================================= */
+
+const $ = id => document.getElementById(id);
+const norm = s => String(s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const fmt = n => Math.round(n).toLocaleString("en-US");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const FULL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const mShort = k => { const [y, m] = k.split("-"); return `${MON[+m - 1]} ${y}`; };
+const mLong = k => { const [y, m] = k.split("-"); return `${FULL[+m - 1]} ${y}`; };
+const localISO = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString();
+const thisMonth = () => localISO().slice(0, 7);
+
+/* Icons per category (anything else gets a generic one) */
+const ICONS = {
+  salary: "💼", bonus: "🎁", freelance: "🧑‍💻", business: "🏪", rental: "🏠", interest: "📈", gifts: "🎁", refunds: "↩️",
+  food: "🛒", dining: "🍽️", transport: "⛽", utilities: "💡", phone: "📶", rent: "🏠", health: "🩺", education: "📚",
+  shopping: "🛍️", family: "👨‍👩‍👧", charity: "🤲", entertainment: "🎬", sports: "🏏", travel: "✈️", insurance: "🛡️",
+  loan: "🏦", personal: "💈", home: "🛠️"
+};
+const iconFor = (t) => t.type === "Transfer" ? "⇄" : (Object.entries(ICONS).find(([k]) => norm(t.cat).startsWith(k)) || [, t.type === "Income" ? "💰" : "🧾"])[1];
+
+/* ===== Talking to the script (every call carries the PIN) ===== */
+let PIN = "";
+async function api(payload) {
+  if (!API_URL || API_URL.startsWith("PASTE_")) throw new Error("The Apps Script web app URL hasn't been added to index.html yet.");
+  const r = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ ...payload, pin: PIN }) });
+  const text = await r.text();
+  let j; try { j = JSON.parse(text); } catch { throw new Error("Couldn't reach your sheet. Try again in a moment."); }
+  if (!j.ok) throw new Error(j.error || "Something went wrong.");
+  return j;
+}
+
+/* ===== Lock / unlock ===== */
+function showLock(msg) {
+  PIN = ""; DATA = null;
+  try { sessionStorage.removeItem("pft-pin"); } catch {}
+  $("app").hidden = true; $("lock").hidden = false;
+  $("pinInput").value = ""; $("lockMsg").textContent = msg || "";
+  setTimeout(() => $("pinInput").focus(), 50);
+}
+$("lockForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  PIN = $("pinInput").value.trim();
+  $("unlockBtn").disabled = true; $("unlockBtn").textContent = "Unlocking…"; $("lockMsg").textContent = "";
+  try {
+    const j = await api({ action: "data" });
+    try { sessionStorage.setItem("pft-pin", PIN); } catch {}   // only for this browser tab; gone when it closes
+    $("lock").hidden = true; $("app").hidden = false;
+    render(j.data);
+  } catch (err) {
+    showLock(err.message);
+  } finally {
+    $("unlockBtn").disabled = false; $("unlockBtn").textContent = "Unlock";
+  }
+});
+$("lockBtn").addEventListener("click", () => showLock("Locked."));
+
+// Lock after a period without any taps or keys.
+let lastUse = Date.now();
+["click", "keydown", "touchstart", "scroll"].forEach(ev => addEventListener(ev, () => { lastUse = Date.now(); }, { passive: true }));
+setInterval(() => { if (PIN && Date.now() - lastUse > IDLE_LOCK_MINUTES * 60000) showLock("Locked after a while without use."); }, 30000);
+
+/* ===== Data ===== */
+let DATA = null, selMonth = thisMonth(), txType = "", txAcc = "", txQuery = "";
+
+function balances(d) {
+  const bal = {};
+  d.accounts.forEach(a => bal[norm(a.name)] = a.opening);
+  d.txns.forEach(t => {
+    const a = norm(t.account), b = norm(t.to);
+    if (t.type === "Income") bal[a] = (bal[a] || 0) + t.amount;
+    else if (t.type === "Expense") bal[a] = (bal[a] || 0) - t.amount;
+    else if (t.type === "Transfer") { bal[a] = (bal[a] || 0) - t.amount; bal[b] = (bal[b] || 0) + t.amount; }
+  });
+  return bal;
+}
+function monthTotals(k) {
+  const list = DATA.txns.filter(t => t.date.slice(0, 7) === k);
+  const inc = list.filter(t => t.type === "Income").reduce((a, t) => a + t.amount, 0);
+  const exp = list.filter(t => t.type === "Expense").reduce((a, t) => a + t.amount, 0);
+  return { list, inc, exp, net: inc - exp };
+}
+function spendByCat(k) {
+  const m = {};
+  DATA.txns.filter(t => t.type === "Expense" && t.date.slice(0, 7) === k).forEach(t => { m[t.cat] = (m[t.cat] || 0) + t.amount; });
+  return m;
+}
+
+function render(d) {
+  DATA = d;
+  $("error").hidden = true;
+  $("ownerLine").textContent = `${OWNER}'s finances · LKR`;
+
+  const months = [...new Set([thisMonth(), ...d.txns.map(t => t.date.slice(0, 7)).filter(Boolean)])].sort();
+  if (!months.includes(selMonth)) selMonth = thisMonth();
+  $("months").innerHTML = [...months].reverse().map(k => `<button class="mbtn" data-m="${k}" aria-pressed="${k === selMonth}">${mShort(k)}</button>`).join("");
+
+  const bal = balances(d);
+  const nw = d.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0);
+  $("nw").innerHTML = `<small>LKR</small>${nw < 0 ? "−" : ""}${fmt(Math.abs(nw))}`;
+  const owed = d.accounts.filter(a => /card/i.test(a.type) && (bal[norm(a.name)] || 0) < 0).reduce((s, a) => s - bal[norm(a.name)], 0);
+  $("nwNote").textContent = `${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}${owed ? ` · LKR ${fmt(owed)} owed on cards` : ""}`;
+
+  const mt = monthTotals(selMonth);
+  $("kIn").textContent = fmt(mt.inc); $("kOut").textContent = fmt(mt.exp);
+  $("kMonth1").textContent = $("kMonth2").textContent = mShort(selMonth);
+  $("kNet").textContent = (mt.net < 0 ? "−" : "") + fmt(Math.abs(mt.net));
+  $("kRate").textContent = mt.inc ? `${Math.round(mt.net / mt.inc * 100)}% of income` : "No income yet";
+  const budTotal = d.budgets.reduce((a, b) => a + b.budget, 0);
+  const sp = spendByCat(selMonth);
+  const budSpent = d.budgets.filter(b => b.budget > 0).reduce((a, b) => a + (sp[b.cat] || 0), 0);
+  $("kBudget").textContent = budTotal ? (budTotal - budSpent < 0 ? "−" : "") + fmt(Math.abs(budTotal - budSpent)) : "–";
+  $("kBudgetS").textContent = budTotal ? `of ${fmt(budTotal)}` : "No budgets set";
+
+  renderOverview(); renderBudgets(); renderAccounts(bal); renderTxns(); fillForms();
+}
+
+/* ===== Overview ===== */
+function renderOverview() {
+  const mt = monthTotals(selMonth), max = Math.max(mt.inc, mt.exp, 1);
+  $("ovTitle").textContent = mLong(selMonth);
+  $("ovAside").textContent = `${mt.list.length} transaction${mt.list.length === 1 ? "" : "s"}`;
+  $("ovVs").innerHTML = `
+    <div class="vsrow"><div class="t"><span>Income</span><b class="num">LKR ${fmt(mt.inc)}</b></div><div class="bar"><i class="in" style="width:${mt.inc / max * 100}%"></i></div></div>
+    <div class="vsrow"><div class="t"><span>Expenses</span><b class="num">LKR ${fmt(mt.exp)}</b></div><div class="bar"><i class="out" style="width:${mt.exp / max * 100}%"></i></div></div>`;
+  $("ovRate").className = "rate" + (mt.net < 0 ? " neg" : "");
+  $("ovRate").innerHTML = `<span>${mt.net < 0 ? "Spent more than earned" : "Saved this month"}</span><b class="num">${mt.net < 0 ? "−" : "+"}${fmt(Math.abs(mt.net))}</b>`;
+
+  // Last 12 months trend
+  const keys = [];
+  for (let i = 11; i >= 0; i--) { const d = new Date(+selMonth.slice(0, 4), +selMonth.slice(5) - 1 - i, 1); keys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`); }
+  const rows = keys.map(k => ({ k, ...monthTotals(k) }));
+  const top = Math.max(1, ...rows.map(r => Math.max(r.inc, r.exp)));
+  $("trend").innerHTML = rows.map(r => `<div class="tcol${r.k === selMonth ? " sel" : ""}" data-m="${r.k}" title="${mLong(r.k)}: in ${fmt(r.inc)}, out ${fmt(r.exp)}">
+      <div class="pair"><div class="b in" style="height:${r.inc / top * 100}%"></div><div class="b out" style="height:${r.exp / top * 100}%"></div></div>
+      <div class="m">${MON[+r.k.slice(5) - 1]}</div><div class="net num ${r.net >= 0 ? "up" : "down"}">${r.inc || r.exp ? (r.net >= 0 ? "+" : "−") + fmt(Math.abs(r.net) / 1000) + "k" : ""}</div></div>`).join("");
+  $("trend").scrollLeft = $("trend").scrollWidth;
+
+  // Top 5 categories this month
+  const sp = Object.entries(spendByCat(selMonth)).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const big = sp.length ? sp[0][1] : 1;
+  $("topAside").textContent = sp.length ? "" : "Nothing spent yet";
+  $("topSpend").innerHTML = sp.map(([c, a]) => `<div class="brow"><div class="t"><span class="n">${iconFor({ type: "Expense", cat: c })} ${esc(c)}</span><span class="a"><b class="num">${fmt(a)}</b> · ${mt.exp ? Math.round(a / mt.exp * 100) : 0}%</span></div><div class="bar"><i style="width:${a / big * 100}%"></i></div></div>`).join("");
+
+  // Latest 6 transactions overall
+  const latest = [...DATA.txns].sort((a, b) => b.date.localeCompare(a.date) || b.row - a.row).slice(0, 6);
+  $("latest").innerHTML = latest.length ? latest.map(itemHTML).join("") : `<div class="empty">No transactions yet. Add one from the + Add tab.</div>`;
+}
+
+/* ===== Budgets ===== */
+function renderBudgets() {
+  const sp = spendByCat(selMonth);
+  const list = DATA.budgets.filter(b => b.budget > 0).map(b => ({ ...b, spent: sp[b.cat] || 0 }))
+    .sort((a, b) => b.spent / b.budget - a.spent / a.budget);
+  const tot = list.reduce((a, b) => a + b.budget, 0), used = list.reduce((a, b) => a + b.spent, 0);
+  $("bTitle").textContent = `Budgets, ${mShort(selMonth)}`;
+  $("bAside").textContent = list.length ? `${list.filter(b => b.spent > b.budget).length} over budget` : "";
+  const pct = tot ? Math.min(used / tot, 1) : 0, C = 2 * Math.PI * 40;
+  const col = used > tot ? "#FF6B6B" : used > tot * .8 ? "#FFB547" : "#3DDC97";
+  $("bRing").innerHTML = list.length ? `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="none" stroke="#EEEAF6" stroke-width="12"/>
+      <circle cx="50" cy="50" r="40" fill="none" stroke="${col}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C * pct} ${C}" transform="rotate(-90 50 50)"/>
+      <text x="50" y="56" text-anchor="middle" font-family="Sora,Arial" font-weight="700" font-size="18" fill="#1C1630">${tot ? Math.round(used / tot * 100) : 0}%</text></svg>
+    <div class="txt"><b class="num">LKR ${fmt(Math.max(tot - used, 0))} left</b><span>LKR ${fmt(used)} spent of ${fmt(tot)} budgeted</span></div>` : "";
+  $("bList").innerHTML = list.length ? list.map(b => {
+    const p = b.spent / b.budget, cls = p > 1 ? "over" : p >= .8 ? "warn" : "";
+    const left = b.budget - b.spent;
+    return `<div class="brow ${cls}"><div class="t"><span class="n">${iconFor({ type: "Expense", cat: b.cat })} ${esc(b.cat)}</span><span class="a"><b class="num">${fmt(b.spent)}</b> / ${fmt(b.budget)}</span></div>
+      <div class="bar"><i style="width:${Math.min(p, 1) * 100}%"></i></div>
+      <div class="left">${left >= 0 ? `LKR ${fmt(left)} left` : `LKR ${fmt(-left)} over`}</div></div>`;
+  }).join("") : `<div class="empty">No budgets yet. Set one from the + Add tab.</div>`;
+  const budgeted = new Set(list.map(b => norm(b.cat)));
+  const extra = Object.entries(sp).filter(([c]) => !budgeted.has(norm(c))).sort((a, b) => b[1] - a[1]);
+  $("unbudgetedPanel").hidden = !extra.length;
+  $("unbudgeted").innerHTML = extra.map(([c, a]) => `<div class="brow"><div class="t"><span class="n">${iconFor({ type: "Expense", cat: c })} ${esc(c)}</span><span class="a"><b class="num">${fmt(a)}</b></span></div></div>`).join("");
+}
+
+/* ===== Accounts ===== */
+function renderAccounts(bal) {
+  const cls = t => /card/i.test(t) ? "a-card" : /cash/i.test(t) ? "a-cash" : /sav/i.test(t) ? "a-save" : /wallet|online/i.test(t) ? "a-wallet" : "a-bank";
+  const ico = t => /card/i.test(t) ? "💳" : /cash/i.test(t) ? "💵" : /sav/i.test(t) ? "🐷" : /wallet|online/i.test(t) ? "📱" : "🏦";
+  const inOut = name => {
+    let i = 0, o = 0;
+    DATA.txns.filter(t => t.date.slice(0, 7) === selMonth).forEach(t => {
+      if (norm(t.account) === norm(name)) { if (t.type === "Income") i += t.amount; else o += t.amount; }
+      if (t.type === "Transfer" && norm(t.to) === norm(name)) i += t.amount;
+    });
+    return { i, o };
+  };
+  $("accAside").textContent = `Money in and out for ${mShort(selMonth)}`;
+  $("accGrid").innerHTML = DATA.accounts.length ? DATA.accounts.map(a => {
+    const b = bal[norm(a.name)] || 0, f = inOut(a.name), card = /card/i.test(a.type);
+    return `<div class="acard ${cls(a.type)}">
+      <div class="top"><span class="ic">${ico(a.type)}</span><span class="ty">${esc(a.type)}</span></div>
+      <div class="nm">${esc(a.name)}</div>
+      <div><div class="bal num">${b < 0 ? "−" : ""}${fmt(Math.abs(b))}</div>
+      <div class="flow">${card && b < 0 ? `<span>Amount owed</span>` : ""}<span>In +${fmt(f.i)}</span><span>Out −${fmt(f.o)}</span></div></div>
+    </div>`;
+  }).join("") : `<div class="empty">No accounts yet.</div>`;
+}
+
+/* ===== Transactions ===== */
+function itemHTML(t) {
+  const cls = t.type === "Income" ? "in" : t.type === "Expense" ? "out" : "tr";
+  const title = t.desc || (t.type === "Transfer" ? "Transfer" : t.cat);
+  // The category tag is skipped when it's already the title (no description given).
+  const sub = t.type === "Transfer" ? `<span class="tag">${esc(t.account)} → ${esc(t.to)}</span>` : `${t.desc ? `<span class="tag">${esc(t.cat)}</span>` : ""}<span>${esc(t.account)}</span>`;
+  const sign = t.type === "Income" ? "+" : t.type === "Expense" ? "−" : "";
+  return `<div class="item"><div class="ico ${cls}" aria-hidden="true">${iconFor(t)}</div>
+    <div><div class="who">${esc(title)}</div><div class="sub">${sub}${t.notes ? `<span>${esc(t.notes)}</span>` : ""}</div></div>
+    <span class="pill ${cls} num">${sign}${fmt(t.amount)}</span></div>`;
+}
+function renderTxns() {
+  const all = DATA.txns.filter(t => t.date.slice(0, 7) === selMonth);
+  $("txTitle").textContent = mLong(selMonth);
+  $("txTypes").innerHTML = ["", "Income", "Expense", "Transfer"].map(x => `<button class="chip" data-type="${x}" aria-pressed="${x === txType}">${x || "All"}</button>`).join("");
+  $("txAccounts").innerHTML = [`<button class="chip" data-acc="" aria-pressed="${!txAcc}">All accounts</button>`, ...DATA.accounts.map(a => `<button class="chip" data-acc="${esc(a.name)}" aria-pressed="${a.name === txAcc}">${esc(a.name)}</button>`)].join("");
+  const q = txQuery.toLowerCase();
+  const list = all.filter(t => (!txType || t.type === txType) && (!txAcc || norm(t.account) === norm(txAcc) || norm(t.to) === norm(txAcc)) &&
+    (!q || [t.desc, t.cat, t.notes, t.account].join(" ").toLowerCase().includes(q)));
+  $("txAside").textContent = `${list.length} of ${all.length}`;
+  const g = new Map();
+  [...list].sort((a, b) => b.date.localeCompare(a.date) || b.row - a.row).forEach(t => { if (!g.has(t.date)) g.set(t.date, []); g.get(t.date).push(t); });
+  $("txFeed").innerHTML = g.size ? [...g.entries()].map(([d, items]) => {
+    const dt = new Date(d + "T00:00");
+    const net = items.reduce((a, t) => a + (t.type === "Income" ? t.amount : t.type === "Expense" ? -t.amount : 0), 0);
+    return `<div class="group"><div class="ghead"><b>${WEEK[dt.getDay()]}, ${dt.getDate()} ${MON[dt.getMonth()]}</b><span class="num ${net >= 0 ? "up" : "down"}">${net ? (net > 0 ? "+" : "−") + fmt(Math.abs(net)) : ""}</span></div>${items.map(itemHTML).join("")}</div>`;
+  }).join("") : `<div class="empty">Nothing here for ${mShort(selMonth)}.</div>`;
+  const inc = list.filter(t => t.type === "Income").reduce((a, t) => a + t.amount, 0), exp = list.filter(t => t.type === "Expense").reduce((a, t) => a + t.amount, 0);
+  $("txTotal").innerHTML = `<span>In <b class="i num">+${fmt(inc)}</b></span><span>Out <b class="o num">−${fmt(exp)}</b></span><span>Net <b class="num">${inc - exp < 0 ? "−" : "+"}${fmt(Math.abs(inc - exp))}</b></span>`;
+}
+$("txTypes").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; txType = b.dataset.type; renderTxns(); });
+$("txAccounts").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; txAcc = b.dataset.acc; renderTxns(); });
+$("txSearch").addEventListener("input", e => { txQuery = e.target.value; renderTxns(); });
+
+/* Month buttons and trend columns */
+function pickMonth(k) { selMonth = k; render(DATA); }
+$("months").addEventListener("click", e => { const b = e.target.closest(".mbtn"); if (b) pickMonth(b.dataset.m); });
+$("trend").addEventListener("click", e => { const c = e.target.closest(".tcol"); if (c) pickMonth(c.dataset.m); });
+
+/* ===== Add forms ===== */
+let txKind = "Expense";
+const opts = (list, keep) => list.map(v => `<option value="${esc(v)}"${v === keep ? " selected" : ""}>${esc(v)}</option>`).join("");
+function catsFor(kind) {
+  const L = DATA.lists || {};
+  const key = Object.keys(L).find(h => norm(h).startsWith(kind === "Income" ? "income" : "expense"));
+  return key ? L[key] : [];
+}
+function fillForms() {
+  if (!DATA) return;
+  const kc = $("catSel").value;
+  $("catSel").innerHTML = opts(catsFor(txKind), kc) + `<option value="__new">Add new category…</option>`;
+  const names = DATA.accounts.map(a => a.name);
+  const ka = $("accSel").value, kt = $("toSel").value;
+  $("accSel").innerHTML = opts(names, ka);
+  $("toSel").innerHTML = opts(names, kt || names[1]);
+  const kb = $("bCatSel").value;
+  $("bCatSel").innerHTML = opts(catsFor("Expense"), kb) + `<option value="__new">Add new category…</option>`;
+  const types = (DATA.lists && DATA.lists[Object.keys(DATA.lists).find(h => /account\s*type/i.test(h))]) || ["Bank", "Cash", "Credit Card"];
+  $("accTypeSel").innerHTML = opts(types, $("accTypeSel").value);
+}
+function setKind(kind) {
+  txKind = kind;
+  document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.type === kind));
+  $("catWrap").hidden = kind === "Transfer";
+  $("catNewWrap").hidden = true;
+  $("toWrap").hidden = kind !== "Transfer";
+  $("accLbl").textContent = kind === "Income" ? "Received into" : kind === "Transfer" ? "From account" : "Paid from";
+  $("catSel").innerHTML = "";
+  fillForms();
+}
+document.querySelector(".seg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setKind(b.dataset.type); });
+const toggleNew = (sel, wrap, input) => $(sel).addEventListener("change", e => { const on = e.target.value === "__new"; $(wrap).hidden = !on; $(input).required = on; if (on) $(input).focus(); });
+toggleNew("catSel", "catNewWrap", "catNew");
+toggleNew("bCatSel", "bCatNewWrap", "bCatNew");
+
+// Saves run one after another in the background, so the form is free for the next entry straight away.
+let saveQueue = Promise.resolve(), pending = 0;
+function showSave(text, kind) { const b = $("saveStatus"); b.hidden = false; b.className = "save-status " + (kind || ""); b.textContent = text; }
+function queueSave(payload, summary) {
+  const requestId = (crypto.randomUUID && crypto.randomUUID()) || (Date.now() + "-" + Math.random().toString(36).slice(2));
+  pending++; showSave(`Saving ${pending === 1 ? summary : pending + " entries"}…`, "busy");
+  saveQueue = saveQueue.then(async () => {
+    let res = null, err = null;
+    for (let i = 1; i <= 3 && !res; i++) {
+      try { res = await api({ ...payload, requestId }); }
+      catch (e) { err = e; if (/PIN|Choose|Enter|must/i.test(e.message)) break; await new Promise(r => setTimeout(r, 1000 * i)); }
+    }
+    pending--;
+    if (res) showSave(pending ? `${res.message} ${pending} more saving…` : res.message, pending ? "busy" : "ok");
+    else showSave(`Not saved: ${summary}. ${err ? err.message : ""}`, "bad");
+    if (!pending) refresh();
+  });
+}
+function wire(id, build, describe, after) {
+  const form = $(id);
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const p = build(Object.fromEntries(new FormData(form)));
+    queueSave(p, describe(p));
+    const keep = form.elements.date ? form.elements.date.value : null;
+    form.reset(); if (keep) form.elements.date.value = keep;
+    if (after) after();
+  });
+}
+wire("txForm", f => ({
+  action: "txn", type: txKind, amount: f.amount, date: f.date, description: f.description, notes: f.notes, account: f.account,
+  to: txKind === "Transfer" ? f.to : "", category: txKind === "Transfer" ? "" : (f.category === "__new" ? f.catNew.trim() : f.category)
+}), p => `${p.type.toLowerCase()} of LKR ${fmt(+p.amount)}`, () => { $("catNewWrap").hidden = true; fillForms(); });
+wire("budgetForm", f => ({ action: "budget", category: f.category === "__new" ? f.catNew.trim() : f.category, amount: f.amount }),
+  p => `budget for ${p.category}`, () => { $("bCatNewWrap").hidden = true; });
+wire("accForm", f => ({ action: "account", ...f }), p => `account ${p.name}`);
+
+/* ===== Tabs ===== */
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === t));
+  ["overview", "budgets", "accounts", "txns", "add"].forEach(n => $("tab-" + n).hidden = t.dataset.tab !== n);
+  if (t.dataset.tab === "overview") $("trend").scrollLeft = $("trend").scrollWidth;
+}));
+
+/* ===== Refresh ===== */
+async function refresh() {
+  if (!PIN) return;
+  try { const j = await api({ action: "data" }); render(j.data); }
+  catch (err) {
+    if (/PIN/i.test(err.message)) return showLock(err.message);
+    $("error").textContent = err.message + " Showing the last figures; trying again shortly.";
+    $("error").hidden = false;
+  }
+}
+setInterval(() => { if (!document.hidden) refresh(); }, AUTO_REFRESH_SECONDS * 1000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+
+// Start: today's date in the form, and unlock straight away if this tab was already unlocked.
+document.querySelectorAll('form.add input[type="date"]').forEach(i => i.value = localISO().slice(0, 10));
+(() => {
+  let saved = ""; try { saved = sessionStorage.getItem("pft-pin") || ""; } catch {}
+  if (saved) { $("pinInput").value = saved; $("lockForm").requestSubmit(); }
+  else showLock("");
+})();
+</script>
+</body>
+</html>
