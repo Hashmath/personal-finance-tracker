@@ -103,6 +103,14 @@
   .nwval { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: clamp(34px, 9vw, 52px); line-height: 1.05; margin-top: 14px; }
   .nwval small { font-size: .4em; font-weight: 700; margin-right: 6px; opacity: .7; }
   .nwnote { font-size: 13px; font-weight: 600; opacity: .8; margin-top: 6px; }
+  /* Summary under the net worth: what makes it up (accounts + owed to me − I owe) */
+  .nwsum { display: grid; gap: 6px; margin-top: 12px; }
+  .nwsum .p { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 2px 10px; border-radius: 12px; padding: 7px 10px; background: rgba(255,255,255,.3); border: 1px solid rgba(255,255,255,.38); }
+  .nwsum .i { grid-row: span 2; width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: rgba(255,255,255,.45); }
+  .nwsum .i .ic { width: 15px; height: 15px; }
+  .nwsum .k { font-size: 12.5px; font-weight: 700; }
+  .nwsum .v { grid-row: span 2; font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: 16px; white-space: nowrap; }
+  .nwsum .s { font-size: 11.5px; font-weight: 600; opacity: .72; }
   .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .kpi { border-radius: 16px; padding: 12px 14px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.11); display: flex; gap: 10px; align-items: center; }
   .kpi .b { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: none; }
@@ -301,6 +309,13 @@
   .catpick { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
   .catpick button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font: 600 12px "Inter", Arial, sans-serif; color: var(--ink); text-align: center; line-height: 1.2; }
   .catpick button[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 12%, var(--card)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 35%, transparent); }
+  .check { flex-direction: row !important; align-items: flex-start; gap: 10px !important; padding: 10px 12px; border-radius: 12px; background: var(--soft); color: var(--ink) !important; cursor: pointer; }
+  .check input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: var(--accDark); }
+  .check small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+  .share { grid-column: 1 / -1; display: grid; gap: 10px; }
+  .shareRow { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; padding: 12px; border-radius: 14px; border: 1px dashed var(--line); }
+  .sharesum { grid-column: 1 / -1; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .sharesum b { color: var(--ink); }
   .save-status { position: sticky; top: 60px; z-index: 5; margin-bottom: 16px; padding: 12px 16px; border-radius: 14px; font-size: 14px; font-weight: 600; display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); background: var(--card); box-shadow: 0 6px 18px rgba(0,0,0,.08); }
   .save-status.busy { color: #8A6100; background: color-mix(in srgb, #F5A524 14%, var(--card)); }
   .save-status.ok { color: var(--in); background: var(--inBg); }
@@ -378,9 +393,9 @@
       <div class="months" id="months" role="group" aria-label="Choose a month"></div>
       <div class="hero">
         <div class="nwcard">
-          <div class="nwtop"><span>Net worth</span><span class="chip" aria-hidden="true"></span></div>
+          <div class="nwtop"><span>My net worth</span><span class="chip" aria-hidden="true"></span></div>
           <div class="nwval num" id="nw"><small>LKR</small>–</div>
-          <div class="nwnote" id="nwNote"></div>
+          <div class="nwsum" id="nwNote"></div>
         </div>
         <div class="kpis">
           <div class="kpi"><div class="b" style="background:color-mix(in srgb,#12A36A 25%,transparent);color:#5BE3A6"><svg class="ic"><use href="#i-arrow-down-left"/></svg></div><div><div class="k">Income</div><div class="v num" id="kIn">–</div><div class="s" id="kMonth1"></div></div></div>
@@ -496,17 +511,26 @@
           <div class="loanseg" id="loanSeg" hidden>
             <button type="button" data-loan="Loan Given" aria-pressed="true"><span class="cat sm" style="--c:#E5484D"><svg class="ic"><use href="#i-arrow-up-right"/></svg></span><span>I lent money<small>Loan given to someone</small></span></button>
             <button type="button" data-loan="Loan Received Back" aria-pressed="false"><span class="cat sm" style="--c:#12A36A"><svg class="ic"><use href="#i-arrow-down-left"/></svg></span><span>I got money back<small>They repaid me</small></span></button>
-            <button type="button" data-loan="Loan Taken" aria-pressed="false"><span class="cat sm" style="--c:#12A36A"><svg class="ic"><use href="#i-arrow-down-left"/></svg></span><span>I borrowed<small>A loan I need to pay</small></span></button>
+            <button type="button" data-loan="Loan Taken" aria-pressed="false"><span class="cat sm" style="--c:#12A36A"><svg class="ic"><use href="#i-arrow-down-left"/></svg></span><span>I borrowed / hold their money<small>Money I need to give back</small></span></button>
             <button type="button" data-loan="Loan Repaid" aria-pressed="false"><span class="cat sm" style="--c:#E5484D"><svg class="ic"><use href="#i-arrow-up-right"/></svg></span><span>I paid back<small>Repaying what I borrowed</small></span></button>
           </div>
           <label class="bigamt">Amount (LKR)<input type="number" name="amount" min="1" step="any" inputmode="decimal" required placeholder="0"></label>
           <label id="personWrap" hidden>Person<input name="person" id="personIn" list="peopleList" autocomplete="off"></label>
+          <label id="noAccWrap" class="check" hidden><input type="checkbox" name="noAccount" id="noAcc"><span>Already in my balances<small>Don't change any account (e.g. money they gave me earlier)</small></span></label>
           <datalist id="peopleList"></datalist>
           <div class="catpick" id="catPick" role="group" aria-label="Category"></div>
           <input type="hidden" name="category" id="catSel">
           <label id="catNewWrap" hidden>New category<input name="catNew" id="catNew"></label>
           <label id="subWrap">Sub-category<select name="sub" id="subSel"></select></label>
           <label id="subNewWrap" hidden>New sub-category<input name="subNew" id="subNew"></label>
+          <div class="share" id="shareBox">
+            <label class="check"><input type="checkbox" name="shared" id="sharedChk"><span>Shared expense<small>Someone pays part of this back to me</small></span></label>
+            <div class="shareRow" id="shareRow" hidden>
+              <label>With<input name="sharePerson" id="sharePerson" list="peopleList" autocomplete="off"></label>
+              <label>Their share (LKR)<input type="number" name="shareAmt" id="shareAmt" min="0" step="any" inputmode="decimal"></label>
+              <div class="sharesum" id="shareSum"></div>
+            </div>
+          </div>
           <label><span id="accLbl">Paid from</span><select name="account" id="accSel" required></select></label>
           <label id="toWrap" hidden>To account<select name="to" id="toSel"></select></label>
           <label>Date<input type="date" name="date" required></label>
@@ -569,6 +593,11 @@ const OWNER = "Hashmath";
 const AUTO_REFRESH_SECONDS = 60;
 // Lock again after this many minutes without using the page.
 const IDLE_LOCK_MINUTES = 15;
+// Expenses shared with someone. When this sub-category is chosen, "Shared expense" is ticked and
+// their share is worked out: here the total is split 3.5 (me) : 1.5 (Miswara).
+const SHARED = [
+  { sub: "School Three-wheeler", person: "Miswara", mine: 3.5, theirs: 1.5 }
+];
 /* ================================= */
 
 const $ = id => document.getElementById(id);
@@ -716,7 +745,8 @@ function loanBook() {
     if (t.type === "Loan Repaid") x.iOwe -= t.amount;
     x.items.push(t);
   });
-  return [...p.values()];
+  // One net figure per person: e.g. if Miswara overpaid her share, what she owes me turns into what I owe her.
+  return [...p.values()].map(x => { const net = x.owedToMe - x.iOwe; return { ...x, owedToMe: Math.max(net, 0), iOwe: Math.max(-net, 0) }; });
 }
 function subSpend(cat, k) {
   const m = {};
@@ -764,15 +794,16 @@ function render(d) {
   $("nw").innerHTML = `<small>LKR</small>${nw < 0 ? "−" : ""}${fmt(Math.abs(nw))}`;
   const owed = d.accounts.filter(a => /card/i.test(a.type) && (bal[norm(a.name)] || 0) < 0).reduce((s, a) => s - bal[norm(a.name)], 0);
   const funds = d.funds || [], held = funds.filter(f => f.ok).reduce((a, f) => a + f.balance, 0);
-  // Teams with money left: that's team money I hold (set aside). Teams below zero owe me what I paid for them.
+  // Summary: Net worth = money in my accounts + what others owe me − what I owe (loans and team money I hold).
   const teamHeldPos = funds.filter(f => f.ok && f.balance > 0).reduce((a, f) => a + f.balance, 0);
   const teamOwesMe = funds.filter(f => f.ok && f.balance < 0).reduce((a, f) => a - f.balance, 0);
-  const parts = [`${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}`];
-  if (owed) parts.push(`${fmt(owed)} owed on cards`);
-  if (owedToMe + teamOwesMe) parts.push(`others owe me ${fmt(owedToMe + teamOwesMe)}`);
-  if (iOwe) parts.push(`I owe ${fmt(iOwe)}`);
-  if (teamHeldPos) parts.push(`${fmt(teamHeldPos)} team money set aside`);
-  $("nwNote").textContent = parts.join(" · ");
+  const inAcc = d.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0);
+  const gets = owedToMe + teamOwesMe, gives = iOwe + teamHeldPos;
+  const sub = (a, b, la, lb) => [a ? `${fmt(a)} ${la}` : "", b ? `${fmt(b)} ${lb}` : ""].filter(Boolean).join(" + ") || "Nothing";
+  $("nwNote").innerHTML = `
+    <div class="p"><span class="i">${icon("wallet")}</span><span class="k">In my accounts</span><span class="v num">${inAcc < 0 ? "−" : ""}${fmt(Math.abs(inAcc))}</span><span class="s">${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}${owed ? ` · card owed ${fmt(owed)}` : ""}</span></div>
+    <div class="p"><span class="i">${icon("arrow-down-left")}</span><span class="k">Others owe me</span><span class="v num">+${fmt(gets)}</span><span class="s">${sub(owedToMe, teamOwesMe, "loans", "teams")}</span></div>
+    <div class="p"><span class="i">${icon("arrow-up-right")}</span><span class="k">I owe</span><span class="v num">−${fmt(gives)}</span><span class="s">${sub(iOwe, teamHeldPos, "loans", "team money")}</span></div>`;
 
   const mt = monthTotals(selMonth);
   $("kIn").textContent = fmt(mt.inc); $("kOut").textContent = fmt(mt.exp);
@@ -914,7 +945,7 @@ function renderFunds(funds, bal) {
 }
 
 /* ===== Loans ===== */
-const LOAN_TEXT = { "Loan Given": "Lent to", "Loan Received Back": "Paid back by", "Loan Taken": "Borrowed from", "Loan Repaid": "Repaid to" };
+const LOAN_TEXT = { "Loan Given": "Lent to", "Loan Received Back": "Paid back by", "Loan Taken": "Got money from (to give back)", "Loan Repaid": "Repaid to" };
 function renderLoans(book, owedToMe, iOwe) {
   // Team money I hold is owed back to the teams. It's money I'm holding, not money I've spent,
   // so it's shown here as a debt but leaves net worth unchanged (the cash and the debt cancel out).
@@ -937,7 +968,7 @@ function renderLoans(book, owedToMe, iOwe) {
       return `<div><span>${dt.getDate()} ${MON[dt.getMonth()]} ${dt.getFullYear()} · ${esc(LOAN_TEXT[t.type] || t.type)}</span><b class="num ${inn ? "up" : "down"}">${inn ? "+" : "−"}${fmt(t.amount)}</b></div>`;
     }).join("");
     return `<div class="lcard"><div class="top"><span class="avatar">${esc((x.name.trim()[0] || "?").toUpperCase())}</span><span class="nm">${esc(x.name)}</span>${st}</div>
-      ${x.owedToMe > 0 && x.iOwe > 0 ? `<div style="margin-top:6px"><span class="st they">I also owe ${fmt(x.iOwe)}</span></div>` : ""}<div class="hist">${hist}</div></div>`;
+      <div class="hist">${hist}</div></div>`;
   }).join("") : (teams.length ? "" : `<div class="empty">${icon("handshake")} No loans recorded. Add one from + Add → Loan.</div>`));
 }
 
@@ -987,6 +1018,29 @@ $("txSearch").addEventListener("input", e => { txQuery = e.target.value; renderT
 function pickMonth(k) { selMonth = k; render(DATA); }
 $("months").addEventListener("click", e => { const b = e.target.closest(".mbtn"); if (b) pickMonth(b.dataset.m); });
 $("trend").addEventListener("click", e => { const c = e.target.closest(".tcol"); if (c) pickMonth(c.dataset.m); });
+
+/* ===== Shared expenses ===== */
+let shareAuto = true;   // keep their share in step with the amount until it's typed by hand
+function sharePreset() { const sub = $("subSel").value; return SHARED.find(x => norm(x.sub) === norm(sub)); }
+function updateShare() {
+  const on = $("sharedChk").checked && txKind === "Expense";
+  $("shareRow").hidden = !on; $("sharePerson").required = on;
+  const amt = +($("txForm").elements.amount.value || 0), pre = sharePreset();
+  if (on && shareAuto && pre && amt) $("shareAmt").value = Math.round(amt * pre.theirs / (pre.mine + pre.theirs));
+  const theirs = +($("shareAmt").value || 0), who = $("sharePerson").value || "them";
+  $("shareSum").innerHTML = on && amt ? (theirs >= amt ? `<span style="color:var(--out)">Their share must be less than the full amount.</span>`
+    : `You pay <b class="num">${fmt(amt)}</b> · your share <b class="num">${fmt(amt - theirs)}</b> (expense) · ${esc(who)} owes you <b class="num">${fmt(theirs)}</b>`) : "";
+}
+function applyPreset() {
+  const pre = sharePreset();
+  if (pre && txKind === "Expense") { $("sharedChk").checked = true; $("sharePerson").value = pre.person; shareAuto = true; }
+  updateShare();
+}
+$("sharedChk").addEventListener("change", () => { shareAuto = true; updateShare(); });
+$("shareAmt").addEventListener("input", () => { shareAuto = false; updateShare(); });
+$("sharePerson").addEventListener("input", updateShare);
+$("txForm").elements.amount.addEventListener("input", updateShare);
+$("subSel").addEventListener("change", applyPreset);
 
 /* ===== Add forms ===== */
 let txKind = "Expense", loanKind = "Loan Given";
@@ -1044,11 +1098,15 @@ function setKind(kind) {
   $("catNewWrap").hidden = true; $("subNewWrap").hidden = true;
   $("toWrap").hidden = kind !== "Transfer";
   $("loanSeg").hidden = !loan; $("personWrap").hidden = !loan; $("personIn").required = loan;
+  $("noAccWrap").hidden = !loan; if (!loan) $("noAcc").checked = false;
+  $("shareBox").hidden = kind !== "Expense"; if (kind !== "Expense") $("sharedChk").checked = false;
+  updateShare();
   $("accLbl").textContent = kind === "Income" ? "Received into" : kind === "Transfer" ? "From account"
     : loan ? (LOAN_IN.includes(loanKind) ? "Money went into" : "Money came from") : "Paid from";
   fillForms();
 }
 document.querySelector(".seg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setKind(b.dataset.type); });
+$("noAcc").addEventListener("change", () => { $("accSel").disabled = $("noAcc").checked; });
 $("loanSeg").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   loanKind = b.dataset.loan;
@@ -1096,13 +1154,16 @@ function wire(id, build, describe, check, after) {
   });
 }
 wire("txForm", f => txKind === "Loan"
-  ? { action: "txn", type: loanKind, amount: f.amount, date: f.date, description: f.description, notes: f.notes, account: f.account, sub: (f.person || "").trim() }
+  ? { action: "txn", type: loanKind, amount: f.amount, date: f.date, description: f.description, notes: f.notes, account: f.noAccount ? "" : f.account,
+      sub: (f.person || "").trim(), noAccount: f.noAccount ? "true" : "" }
   : { action: "txn", type: txKind, amount: f.amount, date: f.date, description: f.description, notes: f.notes, account: f.account,
       to: txKind === "Transfer" ? f.to : "", category: txKind === "Transfer" ? "" : (f.category === "__new" ? (f.catNew || "").trim() : f.category),
-      sub: txKind === "Transfer" ? "" : (f.sub === "__new" ? (f.subNew || "").trim() : f.sub) },
+      sub: txKind === "Transfer" ? "" : (f.sub === "__new" ? (f.subNew || "").trim() : f.sub),
+      split: txKind === "Expense" && f.shared ? { person: (f.sharePerson || "").trim(), theirs: f.shareAmt } : null },
   p => `${/^loan/i.test(p.type) ? p.type.toLowerCase() + " (" + p.sub + ")" : p.type.toLowerCase()} of LKR ${fmt(+p.amount)}`,
-  f => (txKind === "Income" || txKind === "Expense") && !f.category ? "Choose a category first." : "",
-  () => { $("catSel").value = ""; $("catNewWrap").hidden = true; $("subNewWrap").hidden = true; fillForms(); });
+  f => (txKind === "Income" || txKind === "Expense") && !f.category ? "Choose a category first."
+    : txKind === "Expense" && f.shared && !(+f.shareAmt > 0 && +f.shareAmt < +f.amount) ? "Enter their share (less than the full amount)." : "",
+  () => { $("catSel").value = ""; $("catNewWrap").hidden = true; $("subNewWrap").hidden = true; $("accSel").disabled = false; shareAuto = true; fillForms(); updateShare(); });
 wire("budgetForm", f => ({ action: "budget", category: f.category === "__new" ? f.catNew.trim() : f.category, amount: f.amount }),
   p => `budget for ${p.category}`, null, () => { $("bCatNewWrap").hidden = true; });
 wire("accForm", f => ({ action: "account", ...f }), p => `account ${p.name}`);
