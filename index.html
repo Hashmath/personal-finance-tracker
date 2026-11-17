@@ -1,317 +1,409 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="plum">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1A1030">
 <title>Personal Finance Tracker</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%B0%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233DDC97'/%3E%3Cstop offset='1' stop-color='%23FFB547'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M18 24h28a4 4 0 0 1 4 4v14a4 4 0 0 1-4 4H18a4 4 0 0 1-4-4V24' fill='none' stroke='%231A1030' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='42' cy='35' r='3' fill='%231A1030'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --plum-900: #1A1030;
-    --plum-800: #24173F;
-    --plum-700: #33215A;
-    --mint: #3DDC97;
-    --mint-dark: #17A56B;
-    --coral: #FF6B6B;
-    --amber: #FFB547;
-    --sky: #5AB8FF;
-    --ink: #1C1630;
-    --muted: #6B6680;
-    --line: #E5E1EF;
-    --bg: #F5F3FA;
-    --card: #FFFFFF;
-    box-sizing: border-box;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* ================= Themes ================= */
+  :root, [data-theme="plum"] {
+    --h900: #1A1030; --h800: #24173F; --h700: #33215A; --hText: #C9C2DD;
+    --acc: #3DDC97; --accDark: #12945E; --acc2: #FFB547; --glow1: rgba(61,220,151,.30); --glow2: rgba(255,181,71,.18);
+    --bg: #F5F3FA; --card: #FFFFFF; --soft: #F3F0FA; --ink: #1C1630; --muted: #6B6680; --line: #E7E2F1;
   }
+  [data-theme="ocean"] {
+    --h900: #071B33; --h800: #0B2747; --h700: #12385F; --hText: #B7CBE2;
+    --acc: #38BDF8; --accDark: #0369A1; --acc2: #A7F3D0; --glow1: rgba(56,189,248,.32); --glow2: rgba(167,243,208,.16);
+    --bg: #F1F6FB; --card: #FFFFFF; --soft: #EAF2FA; --ink: #0F2133; --muted: #5C6E80; --line: #DDE7F1;
+  }
+  [data-theme="forest"] {
+    --h900: #0B2418; --h800: #103221; --h700: #17452E; --hText: #BCD8C6;
+    --acc: #A3E635; --accDark: #4D7C0F; --acc2: #FCD34D; --glow1: rgba(163,230,53,.28); --glow2: rgba(252,211,77,.18);
+    --bg: #F2F6F1; --card: #FFFFFF; --soft: #EAF2E8; --ink: #14241A; --muted: #5E6E63; --line: #DCE7DD;
+  }
+  [data-theme="sunset"] {
+    --h900: #2A0F1C; --h800: #3B1527; --h700: #561E39; --hText: #E7C3CF;
+    --acc: #FF8A65; --accDark: #C2410C; --acc2: #FDE68A; --glow1: rgba(255,138,101,.34); --glow2: rgba(253,230,138,.18);
+    --bg: #FBF4F2; --card: #FFFFFF; --soft: #FAEDEA; --ink: #2A141C; --muted: #7A5E66; --line: #F0E0DC;
+  }
+  [data-theme="midnight"] {
+    --h900: #0B0D14; --h800: #121521; --h700: #1B2031; --hText: #A9B1C7;
+    --acc: #7C9CFF; --accDark: #9DB3FF; --acc2: #F0ABFC; --glow1: rgba(124,156,255,.30); --glow2: rgba(240,171,252,.16);
+    --bg: #0E1119; --card: #161A26; --soft: #1D2232; --ink: #E8EBF5; --muted: #98A0B6; --line: #262C3E;
+    color-scheme: dark;
+  }
+  :root { --in: #12A36A; --inBg: color-mix(in srgb, #12A36A 14%, var(--card)); --out: #E5484D; --outBg: color-mix(in srgb, #E5484D 13%, var(--card));
+          --tr: #2E7CD6; --trBg: color-mix(in srgb, #2E7CD6 13%, var(--card));
+          box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
   html { scroll-padding-top: env(safe-area-inset-top, 0px); }
   *, *::before, *::after { box-sizing: inherit; margin: 0; }
-  body { font-family: "Inter", "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--ink); font-size: 15px; line-height: 1.45; }
+  body { font-family: "Inter", "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--ink); font-size: 15px; line-height: 1.45; transition: background .3s; }
   .num { font-variant-numeric: tabular-nums; }
-  .disp { font-family: "Sora", "Segoe UI", Arial, sans-serif; font-weight: 700; }
   [hidden] { display: none !important; }
+  .ic { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; vertical-align: -.2em; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--acc); outline-offset: 2px; }
 
-  /* Shared texture for lock screen, header, scoreboard and footer */
-  .tex {
-    color: #fff; background-color: var(--plum-900);
-    background-image:
-      radial-gradient(ellipse at 95% -10%, rgba(61,220,151,.30), transparent 55%),
-      radial-gradient(ellipse at -5% 110%, rgba(255,181,71,.18), transparent 55%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30'%3E%3Cpath d='M0 15 Q15 5 30 15 T60 15' fill='none' stroke='%23ffffff' stroke-opacity='.05' stroke-width='1.4'/%3E%3C/svg%3E");
+  /* Dark textured surfaces: lock screen, header, footer */
+  .tex { color: #fff; background-color: var(--h900);
+    background-image: radial-gradient(ellipse at 95% -10%, var(--glow1), transparent 55%), radial-gradient(ellipse at -5% 110%, var(--glow2), transparent 55%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30'%3E%3Cpath d='M0 15 Q15 5 30 15 T60 15' fill='none' stroke='%23ffffff' stroke-opacity='.05' stroke-width='1.4'/%3E%3C/svg%3E"); }
+  .logo { width: 48px; height: 48px; border-radius: 15px; display: grid; place-items: center; flex: none; color: var(--h900);
+          background: linear-gradient(135deg, var(--acc), var(--acc2)); box-shadow: 0 8px 22px rgba(0,0,0,.35); }
+  .logo .ic { width: 26px; height: 26px; stroke-width: 2.2; }
+
+  /* ================= Lock screen ================= */
+  #lock { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+  .lockcard { width: 100%; max-width: 380px; text-align: center; }
+  .lockart { width: 220px; max-width: 70%; margin: 0 auto 6px; display: block; }
+  .lockcard h1 { font-family: "Sora", Arial, sans-serif; font-size: 26px; line-height: 1.15; }
+  .tagline { color: var(--acc); font-style: italic; font-weight: 600; margin-top: 4px; }
+  .lockbox { margin-top: 20px; padding: 18px; border-radius: 22px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); backdrop-filter: blur(8px); }
+  .lockbox p { color: var(--hText); font-size: 14px; }
+  .lockbox input { width: 100%; margin-top: 12px; font: 600 24px "Sora", Arial, sans-serif; letter-spacing: 10px; text-align: center; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,.22); background: rgba(0,0,0,.25); color: #fff; }
+  .lockbox input:focus { outline: 2px solid var(--acc); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 999px; padding: 12px 22px; font: 700 15px "Inter", Arial, sans-serif; cursor: pointer; background: var(--h700); color: var(--acc); }
+  .btn.acc { background: var(--acc); color: var(--h900); }
+  .btn.full { width: 100%; margin-top: 12px; }
+  .btn:disabled { opacity: .6; cursor: wait; }
+  .lockmsg { min-height: 20px; margin-top: 10px; font-size: 14px; color: #FFB0B0; }
+  .secure { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 12px; color: var(--hText); }
+
+  /* ================= Header ================= */
+  header.tex { position: relative; overflow: hidden; padding-bottom: 22px; }
+  header.tex::after { content: ""; position: absolute; right: -60px; top: -60px; width: 220px; height: 220px; border-radius: 50%; border: 22px solid color-mix(in srgb, var(--acc) 12%, transparent); pointer-events: none; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 16px; position: relative; z-index: 1; }
+  .topbar { display: flex; align-items: center; gap: 12px; padding-top: 16px; }
+  .topbar h1 { font-family: "Sora", Arial, sans-serif; font-size: clamp(18px, 5vw, 24px); line-height: 1.1; }
+  .greet { color: var(--hText); font-size: 13px; margin-top: 2px; }
+  .tbtns { margin-left: auto; display: flex; gap: 8px; }
+  .iconbtn { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; cursor: pointer; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); color: #fff; }
+  .iconbtn:hover { background: rgba(255,255,255,.16); }
+  .months { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 16px 0 14px; padding-bottom: 2px; }
+  .months::-webkit-scrollbar { display: none; }
+  .mbtn { flex: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.06); color: var(--hText); border-radius: 999px; padding: 6px 13px; font: 600 13px "Inter", Arial, sans-serif; cursor: pointer; }
+  .mbtn[aria-pressed="true"] { background: var(--acc); color: var(--h900); border-color: var(--acc); }
+
+  /* Net worth card, styled like a premium bank card */
+  .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 14px; }
+  @media (max-width: 760px) { .hero { grid-template-columns: 1fr; } }
+  .nwcard { position: relative; overflow: hidden; border-radius: 22px; padding: 18px 20px; min-height: 170px; color: var(--h900);
+            background: linear-gradient(135deg, var(--acc), color-mix(in srgb, var(--acc) 45%, var(--acc2)) 55%, var(--acc2)); box-shadow: 0 14px 34px rgba(0,0,0,.35); }
+  .nwcard::before { content: ""; position: absolute; inset: auto -40px -70px auto; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,.18); }
+  .nwcard::after { content: ""; position: absolute; left: -30px; top: -60px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,.12); }
+  .nwcard > * { position: relative; z-index: 1; }
+  .nwtop { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; opacity: .8; }
+  .chip { width: 38px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, rgba(255,255,255,.75), rgba(255,255,255,.35)); border: 1px solid rgba(0,0,0,.12); }
+  .nwval { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: clamp(34px, 9vw, 52px); line-height: 1.05; margin-top: 14px; }
+  .nwval small { font-size: .4em; font-weight: 700; margin-right: 6px; opacity: .7; }
+  .nwnote { font-size: 13px; font-weight: 600; opacity: .8; margin-top: 6px; }
+  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .kpi { border-radius: 16px; padding: 12px 14px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.11); display: flex; gap: 10px; align-items: center; }
+  .kpi .b { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: none; }
+  .kpi .k { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--hText); }
+  .kpi .v { font-family: "Sora", Arial, sans-serif; font-weight: 700; font-size: 19px; line-height: 1.2; }
+  .kpi .s { font-size: 11px; color: var(--hText); }
+
+  /* ================= Navigation ================= */
+  .nav { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--h800) 94%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,.08); }
+  .nav .wrap { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  .nav .wrap::-webkit-scrollbar { display: none; }
+  .tab { flex: none; display: inline-flex; align-items: center; gap: 7px; background: transparent; border: 0; color: var(--hText); font: 700 13px "Inter", Arial, sans-serif; letter-spacing: .5px; padding: 15px 14px 12px; cursor: pointer; border-bottom: 3px solid transparent; }
+  .tab[aria-selected="true"] { color: var(--acc); border-bottom-color: var(--acc); }
+  .tab.add { margin-left: auto; color: var(--h900); background: var(--acc); border-radius: 999px; padding: 8px 16px; margin-top: 7px; margin-bottom: 7px; border: 0; }
+  .tab.add[aria-selected="true"] { box-shadow: 0 0 0 3px color-mix(in srgb, var(--acc) 35%, transparent); }
+  /* Phones: an app-style bar at the bottom */
+  @media (max-width: 720px) {
+    .nav { position: fixed; top: auto; bottom: 0; left: 0; right: 0; padding-bottom: env(safe-area-inset-bottom, 0px); border-top: 1px solid rgba(255,255,255,.08); border-bottom: 0; }
+    .nav .wrap { justify-content: space-around; padding: 0 4px; gap: 0; }
+    .tab { flex: 1; flex-direction: column; gap: 3px; font-size: 10.5px; letter-spacing: .2px; padding: 9px 2px 8px; border-bottom: 0; border-top: 3px solid transparent; }
+    .tab .ic { width: 22px; height: 22px; }
+    .tab[aria-selected="true"] { border-top-color: var(--acc); border-bottom: 0; }
+    .tab.add { flex: none; width: 54px; height: 54px; margin: -16px 2px 6px; padding: 0; border-radius: 18px; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,.35); }
+    .tab.add span { display: none; }
+    .tab.add .ic { width: 26px; height: 26px; }
+    body { padding-bottom: 76px; }
   }
 
-  /* ---------- Lock screen ---------- */
-  #lock { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-  .lockcard { width: 100%; max-width: 360px; text-align: center; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 22px; padding: 28px 22px; backdrop-filter: blur(6px); }
-  .coin { width: 72px; height: 72px; margin: 0 auto 14px; border-radius: 22px; display: grid; place-items: center; font-size: 38px; background: linear-gradient(135deg, var(--mint), var(--amber)); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-  .lockcard h1 { font-family: "Sora", Arial, sans-serif; font-size: 26px; line-height: 1.15; }
-  .lockcard p { color: #C9C2DD; font-size: 14px; margin-top: 4px; }
-  .lockcard .tagline { color: var(--mint); font-style: italic; font-weight: 600; margin-top: 2px; }
-  .lockcard input { width: 100%; margin-top: 18px; font: 600 24px "Sora", Arial, sans-serif; letter-spacing: 8px; text-align: center; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,.25); background: rgba(0,0,0,.25); color: #fff; }
-  .lockcard input:focus { outline: 2px solid var(--mint); }
-  .lockcard .btn { width: 100%; margin-top: 12px; }
-  .lockmsg { min-height: 20px; margin-top: 10px; font-size: 14px; color: #FFB0B0; }
-
-  /* ---------- Header ---------- */
-  header.tex { position: relative; overflow: hidden; }
-  header.tex::after { content: ""; position: absolute; right: -50px; top: -50px; width: 190px; height: 190px; border-radius: 50%; border: 20px solid rgba(61,220,151,.12); pointer-events: none; }
-  .head { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; padding: 18px 16px 8px; display: flex; align-items: center; gap: 14px; }
-  .head .coin { width: 54px; height: 54px; font-size: 28px; margin: 0; border-radius: 16px; flex: none; }
-  .head h1 { font-family: "Sora", Arial, sans-serif; font-size: clamp(22px, 6vw, 34px); line-height: 1.05; }
-  .head .who { color: #C9C2DD; font-size: 14px; margin-top: 4px; }
-  .head .lockbtn { margin-left: auto; background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.2); border-radius: 999px; padding: 7px 14px; font: 600 13px "Inter", Arial, sans-serif; cursor: pointer; }
-
-  .score { padding: 6px 16px 20px; border-top: 1px solid rgba(255,255,255,.07); }
-  .score-in { max-width: 1040px; margin: 0 auto; }
-  .months { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 4px 0 14px; }
-  .months::-webkit-scrollbar { display: none; }
-  .mbtn { flex: none; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.06); color: #DCD5EE; border-radius: 999px; padding: 5px 13px; font: 600 13px "Inter", Arial, sans-serif; cursor: pointer; }
-  .mbtn[aria-pressed="true"] { background: var(--mint); color: var(--plum-900); border-color: var(--mint); }
-  .nw { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 4px 16px; margin-bottom: 14px; }
-  .nw .lbl { font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--mint); font-weight: 700; }
-  .nw .val { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: clamp(40px, 11vw, 66px); line-height: 1; }
-  .nw .val small { font-size: .36em; color: #C9C2DD; margin-right: 6px; font-weight: 600; }
-  .nw .note { color: #C9C2DD; font-size: 14px; padding-bottom: 6px; }
-  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-  .kpi { border-radius: 14px; padding: 12px 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); position: relative; overflow: hidden; }
-  .kpi::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); }
-  .kpi .k { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #C9C2DD; }
-  .kpi .v { font-family: "Sora", Arial, sans-serif; font-weight: 700; font-size: 25px; line-height: 1.2; }
-  .kpi .s { font-size: 12px; color: #C9C2DD; }
-
-  /* ---------- Tabs ---------- */
-  .tabs-wrap { position: sticky; top: 0; z-index: 20; background: var(--plum-800); border-top: 3px solid var(--mint); box-shadow: 0 6px 18px rgba(0,0,0,.18); }
-  .tabs { max-width: 1040px; margin: 0 auto; display: flex; gap: 2px; padding: 0 8px; overflow-x: auto; scrollbar-width: none; }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tab { flex: none; background: transparent; border: 0; color: #C9C2DD; font: 700 13px "Inter", Arial, sans-serif; text-transform: uppercase; letter-spacing: 1px; padding: 15px 13px 12px; cursor: pointer; border-bottom: 3px solid transparent; }
-  .tab[aria-selected="true"] { color: var(--mint); border-bottom-color: var(--mint); }
-  .tab:focus-visible, .btn:focus-visible, .chip:focus-visible, .mbtn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
-
-  main { max-width: 1040px; margin: 0 auto; padding: 20px 14px 40px; }
-  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; margin-bottom: 18px; overflow: hidden; }
-  .phead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 16px 16px 10px; }
-  .phead h2 { font-family: "Sora", Arial, sans-serif; font-size: 20px; color: var(--plum-700); }
-  .phead .aside { font-size: 13px; color: var(--muted); }
-  .empty { padding: 16px; color: var(--muted); }
-  .notice { border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; font-size: 14px; background: #FDE8E8; border: 1px solid #EBA3A3; color: #7A1A1A; }
+  /* ================= Content ================= */
+  main { max-width: 1060px; margin: 0 auto; padding: 20px 14px 36px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; align-items: start; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 20px; margin-bottom: 18px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,.03), 0 8px 24px rgba(30,20,60,.04); }
+  .phead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 16px 16px 12px; }
+  .phead .pi { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--soft); color: var(--accDark); }
+  .phead h2 { font-family: "Sora", Arial, sans-serif; font-size: 18px; }
+  .phead .aside { margin-left: auto; font-size: 13px; color: var(--muted); }
+  .empty { padding: 18px 16px; color: var(--muted); display: flex; gap: 10px; align-items: center; }
+  .notice { border-radius: 14px; padding: 13px 16px; margin-bottom: 18px; font-size: 14px; background: var(--outBg); border: 1px solid color-mix(in srgb, var(--out) 35%, transparent); color: var(--out); }
   .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 16px 12px; }
-  .chip { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 5px 12px; font: 600 13px "Inter", Arial, sans-serif; cursor: pointer; color: var(--ink); }
-  .chip[aria-pressed="true"] { background: var(--plum-700); color: var(--mint); border-color: var(--plum-700); }
-  .search { margin: 0 16px 12px; width: calc(100% - 32px); font: 15px "Inter", Arial, sans-serif; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); }
-  .search:focus { outline: 2px solid var(--mint); border-color: var(--mint); }
+  .chipb { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 12px; font: 600 13px "Inter", Arial, sans-serif; cursor: pointer; color: var(--ink); }
+  .chipb[aria-pressed="true"] { background: var(--h700); color: var(--acc); border-color: var(--h700); }
+  .search { display: flex; align-items: center; gap: 8px; margin: 0 16px 12px; padding: 0 12px; border-radius: 14px; border: 1px solid var(--line); background: var(--soft); color: var(--muted); }
+  .search input { flex: 1; border: 0; background: transparent; font: 15px "Inter", Arial, sans-serif; padding: 11px 0; color: var(--ink); outline: none; }
 
-  /* In vs out bars */
-  .vs { padding: 0 16px 16px; display: grid; gap: 10px; }
-  .vsrow .t { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; }
-  .vsrow .t b { font-family: "Sora", Arial, sans-serif; }
-  .bar { height: 14px; border-radius: 8px; background: #EEEAF6; overflow: hidden; margin-top: 6px; }
-  .bar i { display: block; height: 100%; border-radius: 8px; transition: width .7s ease; }
-  .bar i.in { background: linear-gradient(90deg, var(--mint-dark), var(--mint)); }
-  .bar i.out { background: linear-gradient(90deg, #FF8E8E, var(--coral)); }
-  .rate { margin: 2px 16px 16px; padding: 12px 14px; border-radius: 14px; background: #EFFBF5; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
-  .rate.neg { background: #FFF0F0; }
-  .rate b { font-family: "Sora", Arial, sans-serif; font-size: 22px; color: var(--mint-dark); }
-  .rate.neg b { color: #D23C3C; }
+  /* Category icon tiles: each category has its own colour */
+  .cat { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; flex: none; color: var(--c); background: color-mix(in srgb, var(--c) 15%, var(--card)); }
+  .cat .ic { width: 21px; height: 21px; }
+  .cat.sm { width: 32px; height: 32px; border-radius: 10px; } .cat.sm .ic { width: 17px; height: 17px; }
 
-  /* Trend columns */
-  .trend { display: flex; gap: 12px; overflow-x: auto; padding: 6px 16px 14px; align-items: flex-end; }
-  .tcol { flex: 0 0 58px; text-align: center; cursor: pointer; border-radius: 12px; padding: 4px 0; }
-  .tcol.sel { background: #F1EDFA; }
+  /* Income vs expenses */
+  .vs { padding: 0 16px 6px; display: grid; gap: 14px; }
+  .vsrow .t { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+  .vsrow .t b { margin-left: auto; font-family: "Sora", Arial, sans-serif; }
+  .bar { height: 12px; border-radius: 8px; background: var(--soft); overflow: hidden; margin-top: 8px; }
+  .bar i { display: block; height: 100%; border-radius: 8px; transition: width .8s cubic-bezier(.2,.8,.2,1); background: var(--c, var(--acc)); }
+  .rate { display: flex; align-items: center; gap: 12px; margin: 14px 16px 16px; padding: 14px; border-radius: 16px; background: var(--inBg); }
+  .rate.neg { background: var(--outBg); }
+  .rate .t { font-weight: 600; } .rate .s { font-size: 12px; color: var(--muted); }
+  .rate b { margin-left: auto; font-family: "Sora", Arial, sans-serif; font-size: 22px; color: var(--in); }
+  .rate.neg b { color: var(--out); }
+
+  /* Donut for spending split */
+  .donutwrap { display: flex; gap: 18px; align-items: center; padding: 0 16px 16px; flex-wrap: wrap; }
+  .donut { width: 150px; height: 150px; flex: none; position: relative; }
+  .donut .mid { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .donut .mid b { font-family: "Sora", Arial, sans-serif; font-size: 18px; display: block; }
+  .donut .mid span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+  .legend2 { flex: 1; min-width: 180px; display: grid; gap: 8px; }
+  .lg { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .lg .n { font-weight: 600; } .lg .a { margin-left: auto; font-weight: 700; }
+  .lg .p { width: 38px; text-align: right; font-size: 12px; color: var(--muted); }
+
+  /* Trend */
+  .trend { display: flex; gap: 10px; overflow-x: auto; padding: 4px 16px 14px; align-items: flex-end; }
+  .tcol { flex: 0 0 52px; text-align: center; cursor: pointer; border-radius: 14px; padding: 6px 0 4px; border: 0; background: transparent; }
+  .tcol.sel { background: var(--soft); }
   .tcol .pair { height: 120px; display: flex; align-items: flex-end; justify-content: center; gap: 4px; }
-  .tcol .b { width: 18px; border-radius: 6px 6px 2px 2px; min-height: 2px; transition: height .6s ease; }
-  .tcol .b.in { background: linear-gradient(180deg, var(--mint), var(--mint-dark)); }
-  .tcol .b.out { background: linear-gradient(180deg, #FF9C9C, var(--coral)); }
-  .tcol .m { font-weight: 700; font-size: 13px; margin-top: 5px; }
-  .tcol .net { font-size: 11px; font-weight: 700; }
-  .up, .ghead span.up { color: var(--mint-dark); font-weight: 700; } .down, .ghead span.down { color: #D23C3C; font-weight: 700; }
-  .legend { display: flex; gap: 14px; padding: 0 16px; font-size: 13px; color: var(--muted); }
-  .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .tcol .b { width: 16px; border-radius: 6px 6px 3px 3px; min-height: 3px; transition: height .7s ease; }
+  .tcol .b.in { background: linear-gradient(180deg, color-mix(in srgb, var(--in) 60%, #fff), var(--in)); }
+  .tcol .b.out { background: linear-gradient(180deg, color-mix(in srgb, var(--out) 60%, #fff), var(--out)); }
+  .tcol .m { font-weight: 700; font-size: 12px; margin-top: 6px; color: var(--ink); }
+  .tcol .net { font-size: 10.5px; font-weight: 700; }
+  .up { color: var(--in); } .down { color: var(--out); }
+  .legend { display: flex; gap: 14px; padding: 0 16px 6px; font-size: 13px; color: var(--muted); }
+  .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 4px; margin-right: 5px; vertical-align: -1px; }
 
-  /* Budgets */
-  .blist { padding: 0 16px 14px; display: grid; gap: 4px; }
-  .brow { padding: 10px 0; border-top: 1px solid #F0EDF6; }
+  /* Budget rows */
+  .blist { padding: 0 16px 12px; }
+  .brow { display: grid; grid-template-columns: 42px 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
   .brow:first-child { border-top: 0; }
   .brow .t { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
   .brow .n { font-weight: 600; }
   .brow .a { font-size: 13px; color: var(--muted); white-space: nowrap; }
   .brow .a b { color: var(--ink); }
-  .brow .bar { height: 10px; }
-  .brow .bar i { background: linear-gradient(90deg, var(--mint-dark), var(--mint)); }
-  .brow.warn .bar i { background: linear-gradient(90deg, #FFCB6B, var(--amber)); }
-  .brow.over .bar i { background: linear-gradient(90deg, #FF8E8E, var(--coral)); }
-  .brow .left { font-size: 12px; font-weight: 700; margin-top: 4px; color: var(--mint-dark); }
-  .brow.warn .left { color: #B07400; } .brow.over .left { color: #D23C3C; }
-  .ring { display: flex; align-items: center; gap: 16px; padding: 0 16px 16px; }
-  .ring svg { width: 96px; height: 96px; flex: none; }
-  .ring .txt b { font-family: "Sora", Arial, sans-serif; font-size: 24px; display: block; }
-  .ring .txt span { font-size: 13px; color: var(--muted); }
+  .brow .bar { height: 9px; margin-top: 7px; }
+  .brow.warn .bar i { background: #F5A524; } .brow.over .bar i { background: var(--out); }
+  .brow .left { font-size: 12px; font-weight: 700; margin-top: 5px; color: var(--in); }
+  .brow.warn .left { color: #B7791F; } .brow.over .left { color: var(--out); }
+  .subs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .subs span { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--soft); color: var(--ink); }
+  .subs span .ic { width: 13px; height: 13px; color: var(--muted); }
+  .ring { display: flex; align-items: center; gap: 18px; padding: 0 16px 14px; }
+  .ring svg { width: 104px; height: 104px; flex: none; }
+  .ring b { font-family: "Sora", Arial, sans-serif; font-size: 22px; display: block; }
+  .ring span { font-size: 13px; color: var(--muted); }
 
-  /* Sub-category chips under a category */
-  .subs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
-  .subs span { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #F1EDFA; color: var(--plum-700); }
-  .subs b { font-weight: 700; }
+  /* Account cards */
+  .agrid { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .acard { border-radius: 20px; padding: 16px 18px; color: #fff; position: relative; overflow: hidden; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 26px rgba(0,0,0,.14); }
+  .acard::before { content: ""; position: absolute; right: -40px; bottom: -60px; width: 170px; height: 170px; border-radius: 50%; background: rgba(255,255,255,.13); }
+  .acard::after { content: ""; position: absolute; right: 40px; top: -50px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,.08); }
+  .acard > * { position: relative; z-index: 1; }
+  .acard .top { display: flex; justify-content: space-between; align-items: center; }
+  .acard .top .b { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: rgba(255,255,255,.2); }
+  .acard .ty { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; opacity: .85; }
+  .acard .nm { font-weight: 700; font-size: 15px; margin-top: 12px; }
+  .acard .bal { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: 27px; }
+  .acard .flow { display: flex; gap: 12px; font-size: 12px; opacity: .9; }
+  .a-bank { background: linear-gradient(135deg, #5B47B0, #2C1F63); } .a-cash { background: linear-gradient(135deg, #1DB074, #0B6B45); }
+  .a-card { background: linear-gradient(135deg, #FF6B6B, #B3324E); } .a-save { background: linear-gradient(135deg, #F7A53B, #BF5F12); }
+  .a-wallet { background: linear-gradient(135deg, #3E95E6, #1C5895); }
+
+  /* Activity feed */
+  .feed { padding: 0 16px 8px; }
+  .group + .group { margin-top: 12px; }
+  .ghead { display: flex; align-items: center; gap: 8px; padding: 8px 2px; font-size: 13px; color: var(--muted); }
+  .ghead b { font-family: "Sora", Arial, sans-serif; font-size: 14px; color: var(--ink); }
+  .ghead span { margin-left: auto; font-weight: 700; }
+  .item { display: grid; grid-template-columns: 42px 1fr auto; gap: 12px; align-items: center; padding: 10px; border-radius: 14px; }
+  .item:hover { background: var(--soft); }
+  .item .who { font-weight: 600; line-height: 1.3; }
+  .item .sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .tag { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: var(--soft); color: var(--ink); }
+  .amt { font-family: "Sora", Arial, sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
+  .amt.in { color: var(--in); } .amt.out { color: var(--ink); } .amt.tr { color: var(--tr); }
+  .totbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 16px 16px; }
+  .totbar div { flex: 1; min-width: 100px; padding: 10px 12px; border-radius: 14px; background: var(--soft); }
+  .totbar span { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); display: block; }
+  .totbar b { font-family: "Sora", Arial, sans-serif; font-size: 17px; }
 
   /* Loans */
   .ltiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px 14px; }
-  .ltile { border-radius: 14px; padding: 12px 14px; }
-  .ltile.me { background: #E3F8EE; color: #0E6E47; } .ltile.they { background: #FFECEC; color: #A3262A; }
-  .ltile .k { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
-  .ltile .v { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: 24px; }
+  .ltile { border-radius: 16px; padding: 14px; display: flex; gap: 10px; align-items: center; }
+  .ltile.me { background: var(--inBg); color: var(--in); } .ltile.they { background: var(--outBg); color: var(--out); }
+  .ltile .k { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
+  .ltile .v { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: 22px; }
   .lgrid { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-  .lcard { border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: #FCFBFE; }
-  .lcard .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .lcard .nm { font-weight: 700; font-size: 16px; }
-  .lcard .st { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
-  .st.me { background: #E3F8EE; color: #0E6E47; } .st.they { background: #FFECEC; color: #A3262A; } .st.done { background: #EEF0F4; color: #5B6170; }
-  .lcard .hist { margin-top: 10px; display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  .lcard { border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: var(--card); }
+  .lcard .top { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-family: "Sora", Arial, sans-serif; color: #fff; background: linear-gradient(135deg, var(--acc), var(--acc2)); flex: none; }
+  .lcard .nm { font-weight: 700; }
+  .st { margin-left: auto; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .st.me { background: var(--inBg); color: var(--in); } .st.they { background: var(--outBg); color: var(--out); } .st.done { background: var(--soft); color: var(--muted); }
+  .lcard .hist { margin-top: 10px; display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
   .lcard .hist div { display: flex; justify-content: space-between; gap: 8px; }
-  .loanseg { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-  .loanseg button { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 9px; font: 600 13px "Inter", Arial, sans-serif; cursor: pointer; color: var(--ink); text-align: left; }
-  .loanseg button small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
-  .loanseg button[aria-pressed="true"] { border-color: var(--sky); background: #E8F2FF; }
-  .seg { grid-template-columns: repeat(4, 1fr) !important; }
-  .seg button[aria-pressed="true"].ln { background: var(--amber); color: var(--plum-900); }
-
-  /* Accounts */
-  .agrid { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-  .acard { border-radius: 18px; padding: 16px; color: #fff; position: relative; overflow: hidden; min-height: 140px; display: flex; flex-direction: column; justify-content: space-between; }
-  .acard::after { content: ""; position: absolute; right: -30px; top: -30px; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,.12); }
-  .acard .top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
-  .acard .ic { font-size: 24px; }
-  .acard .ty { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: .85; }
-  .acard .nm { font-weight: 700; font-size: 16px; margin-top: 10px; position: relative; z-index: 1; }
-  .acard .bal { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: 28px; position: relative; z-index: 1; }
-  .acard .flow { display: flex; gap: 12px; font-size: 12px; opacity: .9; position: relative; z-index: 1; }
-  .a-bank { background: linear-gradient(135deg, #4C3B8F, #2B1E5C); }
-  .a-cash { background: linear-gradient(135deg, #17A56B, #0E6E47); }
-  .a-card { background: linear-gradient(135deg, #FF6B6B, #B83A55); }
-  .a-save { background: linear-gradient(135deg, #F2A33A, #C2671A); }
-  .a-wallet { background: linear-gradient(135deg, #3A8BD6, #1F5A97); }
-
-  /* Feed (transactions, latest) */
-  .feed { padding: 0 16px 6px; }
-  .group + .group { margin-top: 14px; }
-  .ghead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px; padding: 8px 2px; border-bottom: 2px solid var(--line); }
-  .ghead b { font-family: "Sora", Arial, sans-serif; font-size: 15px; color: var(--plum-700); }
-  .ghead span { font-size: 13px; color: var(--muted); white-space: nowrap; }
-  .item { display: grid; grid-template-columns: 42px 1fr auto; gap: 12px; align-items: center; padding: 10px 2px; border-bottom: 1px solid #F0EDF6; }
-  .item:last-child { border-bottom: 0; }
-  .ico { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 20px; }
-  .ico.in { background: #E3F8EE; } .ico.out { background: #FFECEC; } .ico.tr { background: #E8F2FF; }
-  .item .who { font-weight: 600; line-height: 1.3; }
-  .item .sub { font-size: 13px; color: var(--muted); margin-top: 2px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-  .tag { display: inline-block; padding: 1px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #F1EDFA; color: var(--plum-700); }
-  .pill { font-family: "Sora", Arial, sans-serif; font-weight: 700; font-size: 16px; padding: 3px 12px; border-radius: 999px; white-space: nowrap; }
-  .pill.in { background: #E3F8EE; color: var(--mint-dark); }
-  .pill.out { background: #FFECEC; color: #D23C3C; }
-  .pill.tr { background: #E8F2FF; color: #2C6CB0; }
-  .feed-total { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 4px 16px 16px; padding: 12px 16px; border-radius: 14px; background: linear-gradient(90deg, var(--plum-800), var(--plum-700)); color: #fff; font-weight: 600; font-size: 14px; }
-  .feed-total b { font-family: "Sora", Arial, sans-serif; }
-  .feed-total .i { color: var(--mint); } .feed-total .o { color: #FF9C9C; }
 
   /* Forms */
-  form.add { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
-  form.add label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: var(--muted); }
-  form.add input, form.add select { font: 16px "Inter", Arial, sans-serif; color: var(--ink); padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
-  form.add input:focus, form.add select:focus { outline: 2px solid var(--mint); border-color: var(--mint); }
+  form.add { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  form.add label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  form.add input, form.add select { font: 16px "Inter", Arial, sans-serif; color: var(--ink); padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+  form.add input:focus, form.add select:focus { outline: 2px solid var(--acc); border-color: var(--acc); }
   form.add .actions { grid-column: 1 / -1; }
-  .seg { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 4px; border-radius: 14px; background: #F1EDFA; }
-  .seg button { border: 0; border-radius: 10px; padding: 10px; font: 700 14px "Inter", Arial, sans-serif; background: transparent; color: var(--muted); cursor: pointer; }
-  .seg button[aria-pressed="true"].in { background: var(--mint); color: var(--plum-900); }
-  .seg button[aria-pressed="true"].out { background: var(--coral); color: #fff; }
-  .seg button[aria-pressed="true"].tr { background: var(--sky); color: #fff; }
-  .btn { background: var(--plum-700); color: var(--mint); border: 0; border-radius: 999px; padding: 11px 22px; font: 700 15px "Inter", Arial, sans-serif; cursor: pointer; }
-  .btn.mint { background: var(--mint); color: var(--plum-900); }
-  .save-status { position: sticky; top: 56px; z-index: 5; margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; border: 1px solid var(--line); background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.08); }
-  .save-status.busy { border-color: #EBCB72; background: #FFF6DA; color: #5A4300; }
-  .save-status.ok { border-color: #9FD3AC; background: #E6F5E9; color: #1D5C2B; }
-  .save-status.bad { border-color: #EBA3A3; background: #FDE8E8; color: #7A1A1A; }
+  .bigamt input { font: 700 26px "Sora", Arial, sans-serif !important; }
+  .seg { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 5px; border-radius: 16px; background: var(--soft); }
+  .seg button { display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; border-radius: 12px; padding: 9px 4px; font: 700 13px "Inter", Arial, sans-serif; background: transparent; color: var(--muted); cursor: pointer; }
+  .seg button .ic { width: 20px; height: 20px; }
+  .seg button[aria-pressed="true"] { color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+  .seg button[aria-pressed="true"].in { background: var(--in); } .seg button[aria-pressed="true"].out { background: var(--out); }
+  .seg button[aria-pressed="true"].tr { background: var(--tr); } .seg button[aria-pressed="true"].ln { background: #E08A00; }
+  .loanseg { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .loanseg button { display: flex; gap: 10px; align-items: center; text-align: left; border: 1px solid var(--line); background: var(--card); border-radius: 14px; padding: 10px; font: 600 13px "Inter", Arial, sans-serif; cursor: pointer; color: var(--ink); }
+  .loanseg button small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+  .loanseg button[aria-pressed="true"] { border-color: #E08A00; background: color-mix(in srgb, #E08A00 10%, var(--card)); }
+  .catpick { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+  .catpick button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font: 600 12px "Inter", Arial, sans-serif; color: var(--ink); text-align: center; line-height: 1.2; }
+  .catpick button[aria-pressed="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 12%, var(--card)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 35%, transparent); }
+  .save-status { position: sticky; top: 60px; z-index: 5; margin-bottom: 16px; padding: 12px 16px; border-radius: 14px; font-size: 14px; font-weight: 600; display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); background: var(--card); box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+  .save-status.busy { color: #8A6100; background: color-mix(in srgb, #F5A524 14%, var(--card)); }
+  .save-status.ok { color: var(--in); background: var(--inBg); }
+  .save-status.bad { color: var(--out); background: var(--outBg); }
 
-  footer.tex { text-align: center; padding: 26px 20px 30px; border-top: 4px solid var(--mint); }
-  footer .coin { width: 48px; height: 48px; font-size: 26px; border-radius: 14px; margin: 0 auto 10px; }
-  footer .l1 { font-family: "Sora", Arial, sans-serif; font-weight: 700; font-size: 18px; }
-  footer .l2 { color: #C9C2DD; font-size: 13px; margin-top: 4px; }
+  /* Theme picker */
+  .sheet { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.45); display: grid; place-items: end center; }
+  @media (min-width: 721px) { .sheet { place-items: center; } }
+  .sheetbox { width: 100%; max-width: 440px; background: var(--card); color: var(--ink); border-radius: 22px 22px 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom, 0px)); }
+  @media (min-width: 721px) { .sheetbox { border-radius: 22px; } }
+  .sheetbox h3 { font-family: "Sora", Arial, sans-serif; display: flex; align-items: center; gap: 8px; }
+  .themes { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 14px; }
+  .themes button { border: 2px solid var(--line); border-radius: 16px; padding: 10px; background: var(--card); cursor: pointer; text-align: left; font-weight: 700; color: var(--ink); }
+  .themes button[aria-pressed="true"] { border-color: var(--acc); }
+  .sw { height: 44px; border-radius: 10px; margin-bottom: 8px; }
 
-  @media (prefers-reduced-motion: reduce) { .bar i, .tcol .b { transition: none; } }
+  /* ================= Footer ================= */
+  footer.tex { position: relative; margin-top: 10px; padding: 46px 16px 30px; text-align: center; }
+  footer .wave { position: absolute; top: -1px; left: 0; width: 100%; height: 40px; color: var(--bg); }
+  .fbrand { display: inline-flex; align-items: center; gap: 12px; text-align: left; }
+  .fbrand b { font-family: "Sora", Arial, sans-serif; font-size: 18px; display: block; }
+  .fbrand span { color: var(--acc); font-style: italic; font-size: 13px; font-weight: 600; }
+  .fbadges { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 18px 0 14px; }
+  .fbadges span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 12px; color: var(--hText); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); }
+  .fbadges .ic { color: var(--acc); }
+  .fcopy { font-size: 12px; color: color-mix(in srgb, var(--hText) 70%, transparent); }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><!-- Icons: Lucide (lucide.dev), ISC licence --><defs><symbol id="i-utensils" viewBox="0 0 24 24"><svg class="lucide lucide-utensils" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/> <path d="M7 2v20"/> <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></symbol><symbol id="i-utensils-crossed" viewBox="0 0 24 24"><svg class="lucide lucide-utensils-crossed" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/> <path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/> <path d="m2.1 21.8 6.4-6.3"/> <path d="m19 5-7 7"/></symbol><symbol id="i-shopping-cart" viewBox="0 0 24 24"><svg class="lucide lucide-shopping-cart" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="8" cy="21" r="1"/> <circle cx="19" cy="21" r="1"/> <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></symbol><symbol id="i-milk" viewBox="0 0 24 24"><svg class="lucide lucide-milk" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M8 2h8"/> <path d="M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2"/> <path d="M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/></symbol><symbol id="i-drumstick" viewBox="0 0 24 24"><svg class="lucide lucide-drumstick" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15.4 15.63a7.875 6 135 1 1 6.23-6.23 4.5 3.43 135 0 0-6.23 6.23"/> <path d="m8.29 12.71-2.6 2.6a2.5 2.5 0 1 0-1.65 4.65A2.5 2.5 0 1 0 8.7 18.3l2.59-2.59"/></symbol><symbol id="i-fuel" viewBox="0 0 24 24"><svg class="lucide lucide-fuel" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <line x1="3" x2="15" y1="22" y2="22"/> <line x1="4" x2="14" y1="9" y2="9"/> <path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"/> <path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"/></symbol><symbol id="i-bus" viewBox="0 0 24 24"><svg class="lucide lucide-bus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M8 6v6"/> <path d="M15 6v6"/> <path d="M2 12h19.6"/> <path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/> <circle cx="7" cy="18" r="2"/> <path d="M9 18h5"/> <circle cx="16" cy="18" r="2"/></symbol><symbol id="i-wrench" viewBox="0 0 24 24"><svg class="lucide lucide-wrench" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol><symbol id="i-zap" viewBox="0 0 24 24"><svg class="lucide lucide-zap" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol><symbol id="i-flame" viewBox="0 0 24 24"><svg class="lucide lucide-flame" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol><symbol id="i-wifi" viewBox="0 0 24 24"><svg class="lucide lucide-wifi" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 20h.01"/> <path d="M2 8.82a15 15 0 0 1 20 0"/> <path d="M5 12.859a10 10 0 0 1 14 0"/> <path d="M8.5 16.429a5 5 0 0 1 7 0"/></symbol><symbol id="i-smartphone" viewBox="0 0 24 24"><svg class="lucide lucide-smartphone" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/> <path d="M12 18h.01"/></symbol><symbol id="i-tv" viewBox="0 0 24 24"><svg class="lucide lucide-tv" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect width="20" height="15" x="2" y="7" rx="2" ry="2"/> <polyline points="17 2 12 7 7 2"/></symbol><symbol id="i-stethoscope" viewBox="0 0 24 24"><svg class="lucide lucide-stethoscope" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M11 2v2"/> <path d="M5 2v2"/> <path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/> <path d="M8 15a6 6 0 0 0 12 0v-3"/> <circle cx="20" cy="10" r="2"/></symbol><symbol id="i-graduation-cap" viewBox="0 0 24 24"><svg class="lucide lucide-graduation-cap" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/> <path d="M22 10v6"/> <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></symbol><symbol id="i-toy-brick" viewBox="0 0 24 24"><svg class="lucide lucide-toy-brick" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect width="18" height="12" x="3" y="8" rx="1"/> <path d="M10 8V5c0-.6-.4-1-1-1H6a1 1 0 0 0-1 1v3"/> <path d="M19 8V5c0-.6-.4-1-1-1h-3a1 1 0 0 0-1 1v3"/></symbol><symbol id="i-house" viewBox="0 0 24 24"><svg class="lucide lucide-house" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol><symbol id="i-shopping-bag" viewBox="0 0 24 24"><svg class="lucide lucide-shopping-bag" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/> <path d="M3 6h18"/> <path d="M16 10a4 4 0 0 1-8 0"/></symbol><symbol id="i-scissors" viewBox="0 0 24 24"><svg class="lucide lucide-scissors" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="6" cy="6" r="3"/> <path d="M8.12 8.12 12 12"/> <path d="M20 4 8.12 15.88"/> <circle cx="6" cy="18" r="3"/> <path d="M14.8 14.8 20 20"/></symbol><symbol id="i-users" viewBox="0 0 24 24"><svg class="lucide lucide-users" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/> <circle cx="9" cy="7" r="4"/> <path d="M22 21v-2a4 4 0 0 0-3-3.87"/> <path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol><symbol id="i-hand-heart" viewBox="0 0 24 24"><svg class="lucide lucide-hand-heart" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16"/> <path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/> <path d="m2 15 6 6"/> <path d="M19.5 8.5c.7-.7 1.5-1.6 1.5-2.7A2.73 2.73 0 0 0 16 4a2.78 2.78 0 0 0-5 1.8c0 1.2.8 2 1.5 2.8L16 12Z"/></symbol><symbol id="i-trophy" viewBox="0 0 24 24"><svg class="lucide lucide-trophy" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/> <path d="M4 22h16"/> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></symbol><symbol id="i-clapperboard" viewBox="0 0 24 24"><svg class="lucide lucide-clapperboard" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/> <path d="m6.2 5.3 3.1 3.9"/> <path d="m12.4 3.4 3.1 4"/> <path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol><symbol id="i-plane" viewBox="0 0 24 24"><svg class="lucide lucide-plane" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></symbol><symbol id="i-shield-check" viewBox="0 0 24 24"><svg class="lucide lucide-shield-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/> <path d="m9 12 2 2 4-4"/></symbol><symbol id="i-landmark" viewBox="0 0 24 24"><svg class="lucide lucide-landmark" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <line x1="3" x2="21" y1="22" y2="22"/> <line x1="6" x2="6" y1="18" y2="11"/> <line x1="10" x2="10" y1="18" y2="11"/> <line x1="14" x2="14" y1="18" y2="11"/> <line x1="18" x2="18" y1="18" y2="11"/> <polygon points="12 2 20 7 4 7"/></symbol><symbol id="i-handshake" viewBox="0 0 24 24"><svg class="lucide lucide-handshake" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m11 17 2 2a1 1 0 1 0 3-3"/> <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/> <path d="m21 3 1 11h-2"/> <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/> <path d="M3 4h8"/></symbol><symbol id="i-wallet" viewBox="0 0 24 24"><svg class="lucide lucide-wallet" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/> <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></symbol><symbol id="i-briefcase" viewBox="0 0 24 24"><svg class="lucide lucide-briefcase" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/> <rect width="20" height="14" x="2" y="6" rx="2"/></symbol><symbol id="i-gift" viewBox="0 0 24 24"><svg class="lucide lucide-gift" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect x="3" y="8" width="18" height="4" rx="1"/> <path d="M12 8v13"/> <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/> <path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></symbol><symbol id="i-trending-up" viewBox="0 0 24 24"><svg class="lucide lucide-trending-up" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/> <polyline points="16 7 22 7 22 13"/></symbol><symbol id="i-arrow-left-right" viewBox="0 0 24 24"><svg class="lucide lucide-arrow-left-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M8 3 4 7l4 4"/> <path d="M4 7h16"/> <path d="m16 21 4-4-4-4"/> <path d="M20 17H4"/></symbol><symbol id="i-credit-card" viewBox="0 0 24 24"><svg class="lucide lucide-credit-card" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect width="20" height="14" x="2" y="5" rx="2"/> <line x1="2" x2="22" y1="10" y2="10"/></symbol><symbol id="i-piggy-bank" viewBox="0 0 24 24"><svg class="lucide lucide-piggy-bank" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/> <path d="M2 9v1c0 1.1.9 2 2 2h1"/> <path d="M16 11h.01"/></symbol><symbol id="i-banknote" viewBox="0 0 24 24"><svg class="lucide lucide-banknote" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect width="20" height="12" x="2" y="6" rx="2"/> <circle cx="12" cy="12" r="2"/> <path d="M6 12h.01M18 12h.01"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><svg class="lucide lucide-lock" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/> <path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="i-lock-keyhole" viewBox="0 0 24 24"><svg class="lucide lucide-lock-keyhole" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="12" cy="16" r="1"/> <rect x="3" y="10" width="18" height="12" rx="2"/> <path d="M7 10V7a5 5 0 0 1 10 0v3"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><svg class="lucide lucide-plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M5 12h14"/> <path d="M12 5v14"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><svg class="lucide lucide-search" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="11" cy="11" r="8"/> <path d="m21 21-4.3-4.3"/></symbol><symbol id="i-layout-dashboard" viewBox="0 0 24 24"><svg class="lucide lucide-layout-dashboard" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect width="7" height="9" x="3" y="3" rx="1"/> <rect width="7" height="5" x="14" y="3" rx="1"/> <rect width="7" height="9" x="14" y="12" rx="1"/> <rect width="7" height="5" x="3" y="16" rx="1"/></symbol><symbol id="i-chart-pie" viewBox="0 0 24 24"><svg class="lucide lucide-chart-pie" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"/> <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/></symbol><symbol id="i-list" viewBox="0 0 24 24"><svg class="lucide lucide-list" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M3 12h.01"/> <path d="M3 18h.01"/> <path d="M3 6h.01"/> <path d="M8 12h13"/> <path d="M8 18h13"/> <path d="M8 6h13"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><svg class="lucide lucide-calendar" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M8 2v4"/> <path d="M16 2v4"/> <rect width="18" height="18" x="3" y="4" rx="2"/> <path d="M3 10h18"/></symbol><symbol id="i-palette" viewBox="0 0 24 24"><svg class="lucide lucide-palette" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/> <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/> <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/> <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/> <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></symbol><symbol id="i-arrow-down-left" viewBox="0 0 24 24"><svg class="lucide lucide-arrow-down-left" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M17 7 7 17"/> <path d="M17 17H7V7"/></symbol><symbol id="i-arrow-up-right" viewBox="0 0 24 24"><svg class="lucide lucide-arrow-up-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M7 7h10v10"/> <path d="M7 17 17 7"/></symbol><symbol id="i-receipt" viewBox="0 0 24 24"><svg class="lucide lucide-receipt" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/> <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/> <path d="M12 17.5v-11"/></symbol><symbol id="i-sparkles" viewBox="0 0 24 24"><svg class="lucide lucide-sparkles" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/> <path d="M20 3v4"/> <path d="M22 5h-4"/> <path d="M4 17v2"/> <path d="M5 18H3"/></symbol><symbol id="i-chart-column" viewBox="0 0 24 24"><svg class="lucide lucide-chart-column" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M3 3v16a2 2 0 0 0 2 2h16"/> <path d="M18 17V9"/> <path d="M13 17V5"/> <path d="M8 17v-3"/></symbol><symbol id="i-target" viewBox="0 0 24 24"><svg class="lucide lucide-target" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="12" cy="12" r="10"/> <circle cx="12" cy="12" r="6"/> <circle cx="12" cy="12" r="2"/></symbol><symbol id="i-coins" viewBox="0 0 24 24"><svg class="lucide lucide-coins" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="8" cy="8" r="6"/> <path d="M18.09 10.37A6 6 0 1 1 10.34 18"/> <path d="M7 6h1v4"/> <path d="m16.71 13.88.7.71-2.82 2.82"/></symbol><symbol id="i-undo-2" viewBox="0 0 24 24"><svg class="lucide lucide-undo-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M9 14 4 9l5-5"/> <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></symbol><symbol id="i-laptop" viewBox="0 0 24 24"><svg class="lucide lucide-laptop" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></symbol><symbol id="i-store" viewBox="0 0 24 24"><svg class="lucide lucide-store" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/> <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/> <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/> <path d="M2 7h20"/> <path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/></symbol><symbol id="i-building-2" viewBox="0 0 24 24"><svg class="lucide lucide-building-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/> <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/> <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/> <path d="M10 6h4"/> <path d="M10 10h4"/> <path d="M10 14h4"/> <path d="M10 18h4"/></symbol><symbol id="i-cookie" viewBox="0 0 24 24"><svg class="lucide lucide-cookie" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/> <path d="M8.5 8.5v.01"/> <path d="M16 15.5v.01"/> <path d="M12 12v.01"/> <path d="M11 17v.01"/> <path d="M7 14v.01"/></symbol><symbol id="i-coffee" viewBox="0 0 24 24"><svg class="lucide lucide-coffee" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M10 2v2"/> <path d="M14 2v2"/> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/> <path d="M6 2v2"/></symbol><symbol id="i-sandwich" viewBox="0 0 24 24"><svg class="lucide lucide-sandwich" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m2.37 11.223 8.372-6.777a2 2 0 0 1 2.516 0l8.371 6.777"/> <path d="M21 15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5.25"/> <path d="M3 15a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h9"/> <path d="m6.67 15 6.13 4.6a2 2 0 0 0 2.8-.4l3.15-4.2"/> <rect width="20" height="4" x="2" y="11" rx="1"/></symbol><symbol id="i-soup" viewBox="0 0 24 24"><svg class="lucide lucide-soup" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/> <path d="M7 21h10"/> <path d="M19.5 12 22 6"/> <path d="M16.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.73 1.62"/> <path d="M11.25 3c.27.1.8.53.74 1.36-.05.83-.93 1.2-.98 2.02-.06.78.33 1.24.72 1.62"/> <path d="M6.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.74 1.62"/></symbol><symbol id="i-fish" viewBox="0 0 24 24"><svg class="lucide lucide-fish" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z"/> <path d="M18 12v.5"/> <path d="M16 17.93a9.77 9.77 0 0 1 0-11.86"/> <path d="M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33"/> <path d="M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4"/> <path d="m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98"/></symbol><symbol id="i-beef" viewBox="0 0 24 24"><svg class="lucide lucide-beef" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="12.5" cy="8.5" r="2.5"/> <path d="M12.5 2a6.5 6.5 0 0 0-6.22 4.6c-1.1 3.13-.78 3.9-3.18 6.08A3 3 0 0 0 5 18c4 0 8.4-1.8 11.4-4.3A6.5 6.5 0 0 0 12.5 2Z"/> <path d="m18.5 6 2.19 4.5a6.48 6.48 0 0 1 .31 2 6.49 6.49 0 0 1-2.6 5.2C15.4 20.2 11 22 7 22a3 3 0 0 1-2.68-1.66L2.4 16.5"/></symbol><symbol id="i-egg" viewBox="0 0 24 24"><svg class="lucide lucide-egg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 22c6.23-.05 7.87-5.57 7.5-10-.36-4.34-3.95-9.96-7.5-10-3.55.04-7.14 5.66-7.5 10-.37 4.43 1.27 9.95 7.5 10z"/></symbol><symbol id="i-book-open" viewBox="0 0 24 24"><svg class="lucide lucide-book-open" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 7v14"/> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol><symbol id="i-shirt" viewBox="0 0 24 24"><svg class="lucide lucide-shirt" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></symbol><symbol id="i-log-out" viewBox="0 0 24 24"><svg class="lucide lucide-log-out" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/> <polyline points="16 17 21 12 16 7"/> <line x1="21" x2="9" y1="12" y2="12"/></symbol><symbol id="i-shield" viewBox="0 0 24 24"><svg class="lucide lucide-shield" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></symbol><symbol id="i-refresh-cw" viewBox="0 0 24 24"><svg class="lucide lucide-refresh-cw" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/> <path d="M21 3v5h-5"/> <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/> <path d="M8 16H3v5"/></symbol><symbol id="i-chevron-right" viewBox="0 0 24 24"><svg class="lucide lucide-chevron-right" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m9 18 6-6-6-6"/></symbol><symbol id="i-droplet" viewBox="0 0 24 24"><svg class="lucide lucide-droplet" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol><symbol id="i-baby" viewBox="0 0 24 24"><svg class="lucide lucide-baby" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M9 12h.01"/> <path d="M15 12h.01"/> <path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/> <path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/></symbol><symbol id="i-car" viewBox="0 0 24 24"><svg class="lucide lucide-car" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/> <circle cx="7" cy="17" r="2"/> <path d="M9 17h6"/> <circle cx="17" cy="17" r="2"/></symbol><symbol id="i-bike" viewBox="0 0 24 24"><svg class="lucide lucide-bike" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="18.5" cy="17.5" r="3.5"/> <circle cx="5.5" cy="17.5" r="3.5"/> <circle cx="15" cy="5" r="1"/> <path d="M12 17.5V14l-3-3 4-3 2 3h2"/></symbol><symbol id="i-heart-pulse" viewBox="0 0 24 24"><svg class="lucide lucide-heart-pulse" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/> <path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></symbol><symbol id="i-candy" viewBox="0 0 24 24"><svg class="lucide lucide-candy" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m9.5 7.5-2 2a4.95 4.95 0 1 0 7 7l2-2a4.95 4.95 0 1 0-7-7Z"/> <path d="M14 6.5v10"/> <path d="M10 7.5v10"/> <path d="m16 7 1-5 1.37.68A3 3 0 0 0 19.7 3H21v1.3c0 .46.1.92.32 1.33L22 7l-5 1"/> <path d="m8 17-1 5-1.37-.68A3 3 0 0 0 4.3 21H3v-1.3a3 3 0 0 0-.32-1.33L2 17l5-1"/></symbol><symbol id="i-ham" viewBox="0 0 24 24"><svg class="lucide lucide-ham" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M13.144 21.144A7.274 10.445 45 1 0 2.856 10.856"/> <path d="M13.144 21.144A7.274 4.365 45 0 0 2.856 10.856a7.274 4.365 45 0 0 10.288 10.288"/> <path d="M16.565 10.435 18.6 8.4a2.501 2.501 0 1 0 1.65-4.65 2.5 2.5 0 1 0-4.66 1.66l-2.024 2.025"/> <path d="m8.5 16.5-1-1"/></symbol><symbol id="i-wheat" viewBox="0 0 24 24"><svg class="lucide lucide-wheat" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M2 22 16 8"/> <path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/> <path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/> <path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/> <path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/> <path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/> <path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/> <path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/></symbol><symbol id="i-carrot" viewBox="0 0 24 24"><svg class="lucide lucide-carrot" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M2.27 21.7s9.87-3.5 12.73-6.36a4.5 4.5 0 0 0-6.36-6.37C5.77 11.84 2.27 21.7 2.27 21.7zM8.64 14l-2.05-2.04M15.34 15l-2.46-2.46"/> <path d="M22 9s-1.33-2-3.5-2C16.86 7 15 9 15 9s1.33 2 3.5 2S22 9 22 9z"/> <path d="M15 2s-2 1.33-2 3.5S15 9 15 9s2-1.84 2-3.5C17 3.33 15 2 15 2z"/></symbol><symbol id="i-apple" viewBox="0 0 24 24"><svg class="lucide lucide-apple" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/> <path d="M10 2c1 .5 2 2 2 5"/></symbol><symbol id="i-croissant" viewBox="0 0 24 24"><svg class="lucide lucide-croissant" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m4.6 13.11 5.79-3.21c1.89-1.05 4.79 1.78 3.71 3.71l-3.22 5.81C8.8 23.16.79 15.23 4.6 13.11Z"/> <path d="m10.5 9.5-1-2.29C9.2 6.48 8.8 6 8 6H4.5C2.79 6 2 6.5 2 8.5a7.71 7.71 0 0 0 2 4.83"/> <path d="M8 6c0-1.55.24-4-2-4-2 0-2.5 2.17-2.5 4"/> <path d="m14.5 13.5 2.29 1c.73.3 1.21.7 1.21 1.5v3.5c0 1.71-.5 2.5-2.5 2.5a7.71 7.71 0 0 1-4.83-2"/> <path d="M18 16c1.55 0 4-.24 4 2 0 2-2.17 2.5-4 2.5"/></symbol><symbol id="i-milk-off" viewBox="0 0 24 24"><svg class="lucide lucide-milk-off" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M8 2h8"/> <path d="M9 2v1.343M15 2v2.789a4 4 0 0 0 .672 2.219l.656.984a4 4 0 0 1 .672 2.22v1.131M7.8 7.8l-.128.192A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-3"/> <path d="M7 15a6.47 6.47 0 0 1 5 0 6.472 6.472 0 0 0 3.435.435"/> <line x1="2" x2="22" y1="2" y2="22"/></symbol><symbol id="i-school" viewBox="0 0 24 24"><svg class="lucide lucide-school" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M14 22v-4a2 2 0 1 0-4 0v4"/> <path d="m18 10 3.447 1.724a1 1 0 0 1 .553.894V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7.382a1 1 0 0 1 .553-.894L6 10"/> <path d="M18 5v17"/> <path d="m4 6 7.106-3.553a2 2 0 0 1 1.788 0L20 6"/> <path d="M6 5v17"/> <circle cx="12" cy="9" r="2"/></symbol><symbol id="i-notebook-pen" viewBox="0 0 24 24"><svg class="lucide lucide-notebook-pen" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/> <path d="M2 6h4"/> <path d="M2 10h4"/> <path d="M2 14h4"/> <path d="M2 18h4"/> <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></symbol><symbol id="i-pill" viewBox="0 0 24 24"><svg class="lucide lucide-pill" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/> <path d="m8.5 8.5 7 7"/></symbol><symbol id="i-tablets" viewBox="0 0 24 24"><svg class="lucide lucide-tablets" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="7" cy="7" r="5"/> <circle cx="17" cy="17" r="5"/> <path d="M12 17h10"/> <path d="m3.46 10.54 7.08-7.08"/></symbol><symbol id="i-dumbbell" viewBox="0 0 24 24"><svg class="lucide lucide-dumbbell" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M14.4 14.4 9.6 9.6"/> <path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/> <path d="m21.5 21.5-1.4-1.4"/> <path d="M3.9 3.9 2.5 2.5"/> <path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></symbol></defs></svg>
 
-<!-- ===== Lock screen ===== -->
+<!-- ================= Lock screen ================= -->
 <section id="lock" class="tex">
   <form class="lockcard" id="lockForm">
-    <div class="coin" aria-hidden="true">💰</div>
+    <svg class="lockart" viewBox="0 0 240 170" aria-hidden="true">
+      <defs>
+        <linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--acc)"/><stop offset="1" style="stop-color:var(--acc2)"/></linearGradient>
+        <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE29A"/><stop offset="1" stop-color="#F5B83D"/></linearGradient>
+      </defs>
+      <ellipse cx="120" cy="156" rx="88" ry="9" fill="#000" opacity=".25"/>
+      <circle cx="176" cy="40" r="20" fill="url(#cg)"/><circle cx="176" cy="40" r="13" fill="none" stroke="#C98A12" stroke-width="2.5"/>
+      <circle cx="62" cy="34" r="14" fill="url(#cg)" opacity=".9"/><circle cx="62" cy="34" r="8.5" fill="none" stroke="#C98A12" stroke-width="2"/>
+      <rect x="44" y="52" width="150" height="98" rx="20" fill="url(#wg)"/>
+      <rect x="44" y="52" width="150" height="30" rx="15" fill="#fff" opacity=".22"/>
+      <rect x="140" y="88" width="66" height="34" rx="12" style="fill:var(--h700)"/>
+      <circle cx="160" cy="105" r="7" style="fill:var(--acc)"/>
+      <path d="M64 120h46" style="stroke:var(--h900)" stroke-opacity=".35" stroke-width="6" stroke-linecap="round"/>
+    </svg>
     <h1>Personal Finance Tracker</h1>
     <p class="tagline">Every rupee, accounted for</p>
-    <p>Enter your PIN to continue</p>
-    <input type="password" id="pinInput" inputmode="numeric" autocomplete="current-password" aria-label="PIN" required>
-    <button class="btn mint" type="submit" id="unlockBtn">Unlock</button>
-    <div class="lockmsg" id="lockMsg" role="alert"></div>
+    <div class="lockbox">
+      <p>Enter your PIN to continue</p>
+      <input type="password" id="pinInput" inputmode="numeric" autocomplete="current-password" aria-label="PIN" required>
+      <button class="btn acc full" type="submit" id="unlockBtn"><svg class="ic"><use href="#i-lock-keyhole"/></svg><span>Unlock</span></button>
+      <div class="lockmsg" id="lockMsg" role="alert"></div>
+    </div>
+    <div class="secure"><svg class="ic"><use href="#i-shield-check"/></svg> Private sheet · PIN protected</div>
   </form>
 </section>
 
-<!-- ===== App (shown after unlocking) ===== -->
+<!-- ================= App ================= -->
 <div id="app" hidden>
   <header class="tex">
-    <div class="head">
-      <div class="coin" aria-hidden="true">💰</div>
-      <div><h1>Personal Finance Tracker</h1><div class="who" id="ownerLine"></div></div>
-      <button class="lockbtn" id="lockBtn">Lock</button>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="logo"><svg class="ic"><use href="#i-wallet"/></svg></div>
+        <div><h1>Personal Finance Tracker</h1><div class="greet" id="greet"></div></div>
+        <div class="tbtns">
+          <button class="iconbtn" id="themeBtn" aria-label="Change theme" title="Theme"><svg class="ic"><use href="#i-palette"/></svg></button>
+          <button class="iconbtn" id="lockBtn" aria-label="Lock" title="Lock"><svg class="ic"><use href="#i-lock"/></svg></button>
+        </div>
+      </div>
+      <div class="months" id="months" role="group" aria-label="Choose a month"></div>
+      <div class="hero">
+        <div class="nwcard">
+          <div class="nwtop"><span>Net worth</span><span class="chip" aria-hidden="true"></span></div>
+          <div class="nwval num" id="nw"><small>LKR</small>–</div>
+          <div class="nwnote" id="nwNote"></div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="b" style="background:color-mix(in srgb,#12A36A 25%,transparent);color:#5BE3A6"><svg class="ic"><use href="#i-arrow-down-left"/></svg></div><div><div class="k">Income</div><div class="v num" id="kIn">–</div><div class="s" id="kMonth1"></div></div></div>
+          <div class="kpi"><div class="b" style="background:color-mix(in srgb,#E5484D 25%,transparent);color:#FF8A8D"><svg class="ic"><use href="#i-arrow-up-right"/></svg></div><div><div class="k">Expenses</div><div class="v num" id="kOut">–</div><div class="s" id="kMonth2"></div></div></div>
+          <div class="kpi"><div class="b" style="background:color-mix(in srgb,#F5A524 25%,transparent);color:#FFC861"><svg class="ic"><use href="#i-piggy-bank"/></svg></div><div><div class="k">Saved</div><div class="v num" id="kNet">–</div><div class="s" id="kRate"></div></div></div>
+          <div class="kpi"><div class="b" style="background:color-mix(in srgb,#2E7CD6 25%,transparent);color:#7CB6F5"><svg class="ic"><use href="#i-target"/></svg></div><div><div class="k">Budget left</div><div class="v num" id="kBudget">–</div><div class="s" id="kBudgetS"></div></div></div>
+        </div>
+      </div>
     </div>
   </header>
 
-  <section class="score tex" aria-label="Summary">
-    <div class="score-in">
-      <div class="months" id="months" role="group" aria-label="Choose a month"></div>
-      <div class="nw">
-        <div><div class="lbl">Net worth</div><div class="val num" id="nw"><small>LKR</small>–</div></div>
-        <div class="note" id="nwNote">All accounts together</div>
-      </div>
-      <div class="kpis">
-        <div class="kpi" style="--c:var(--mint)"><div class="k">Income</div><div class="v num" id="kIn">–</div><div class="s" id="kMonth1"></div></div>
-        <div class="kpi" style="--c:var(--coral)"><div class="k">Expenses</div><div class="v num" id="kOut">–</div><div class="s" id="kMonth2"></div></div>
-        <div class="kpi" style="--c:var(--amber)"><div class="k">Saved</div><div class="v num" id="kNet">–</div><div class="s" id="kRate"></div></div>
-        <div class="kpi" style="--c:var(--sky)"><div class="k">Budget left</div><div class="v num" id="kBudget">–</div><div class="s" id="kBudgetS"></div></div>
-      </div>
-    </div>
-  </section>
-
-  <nav class="tabs-wrap">
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" aria-selected="true" data-tab="overview">Overview</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="budgets">Budgets</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="accounts">Accounts</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="loans">Loans</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="txns">Transactions</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="add">+ Add</button>
+  <nav class="nav" aria-label="Sections">
+    <div class="wrap" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-tab="overview"><svg class="ic"><use href="#i-layout-dashboard"/></svg><span>Home</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="budgets"><svg class="ic"><use href="#i-target"/></svg><span>Budgets</span></button>
+      <button class="tab add" role="tab" aria-selected="false" data-tab="add" aria-label="Add"><svg class="ic"><use href="#i-plus"/></svg><span>Add</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="accounts"><svg class="ic"><use href="#i-wallet"/></svg><span>Accounts</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="loans"><svg class="ic"><use href="#i-handshake"/></svg><span>Loans</span></button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="txns"><svg class="ic"><use href="#i-list"/></svg><span>Activity</span></button>
     </div>
   </nav>
 
   <main>
     <div class="notice" id="error" hidden></div>
 
-    <!-- OVERVIEW -->
+    <!-- HOME -->
     <div id="tab-overview">
+      <div class="grid2">
+        <section class="panel">
+          <div class="phead"><div class="pi"><svg class="ic"><use href="#i-calendar"/></svg></div><h2 id="ovTitle">This month</h2><span class="aside" id="ovAside"></span></div>
+          <div class="vs" id="ovVs"></div>
+          <div class="rate" id="ovRate"></div>
+        </section>
+        <section class="panel">
+          <div class="phead"><div class="pi"><svg class="ic"><use href="#i-chart-pie"/></svg></div><h2>Where it went</h2><span class="aside" id="topAside"></span></div>
+          <div id="donut"></div>
+        </section>
+      </div>
       <section class="panel">
-        <div class="phead"><h2 id="ovTitle">This month</h2><span class="aside" id="ovAside"></span></div>
-        <div class="vs" id="ovVs"></div>
-        <div class="rate" id="ovRate"></div>
-      </section>
-      <section class="panel">
-        <div class="phead"><h2>Month by month</h2><span class="aside">Tap a month to view it</span></div>
-        <div class="legend"><span><i style="background:#3DDC97"></i>Income</span><span><i style="background:#FF6B6B"></i>Expenses</span></div>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-chart-column"/></svg></div><h2>Month by month</h2><span class="aside">Tap a month to open it</span></div>
+        <div class="legend"><span><i style="background:var(--in)"></i>Income</span><span><i style="background:var(--out)"></i>Expenses</span></div>
         <div class="trend" id="trend"></div>
       </section>
       <section class="panel">
-        <div class="phead"><h2>Top spending</h2><span class="aside" id="topAside"></span></div>
-        <div class="blist" id="topSpend"></div>
-      </section>
-      <section class="panel">
-        <div class="phead"><h2>Latest</h2></div>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-receipt"/></svg></div><h2>Latest activity</h2></div>
         <div class="feed" id="latest"></div>
       </section>
     </div>
@@ -319,12 +411,12 @@
     <!-- BUDGETS -->
     <div id="tab-budgets" hidden>
       <section class="panel">
-        <div class="phead"><h2 id="bTitle">Budgets</h2><span class="aside" id="bAside"></span></div>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-target"/></svg></div><h2 id="bTitle">Budgets</h2><span class="aside" id="bAside"></span></div>
         <div class="ring" id="bRing"></div>
         <div class="blist" id="bList"></div>
       </section>
       <section class="panel" id="unbudgetedPanel">
-        <div class="phead"><h2>Spending without a budget</h2></div>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-sparkles"/></svg></div><h2>Spending without a budget</h2></div>
         <div class="blist" id="unbudgeted"></div>
       </section>
     </div>
@@ -332,7 +424,7 @@
     <!-- ACCOUNTS -->
     <div id="tab-accounts" hidden>
       <section class="panel">
-        <div class="phead"><h2>Accounts</h2><span class="aside" id="accAside"></span></div>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-wallet"/></svg></div><h2>Accounts</h2><span class="aside" id="accAside"></span></div>
         <div class="agrid" id="accGrid"></div>
       </section>
     </div>
@@ -340,21 +432,21 @@
     <!-- LOANS -->
     <div id="tab-loans" hidden>
       <section class="panel">
-        <div class="phead"><h2>Loans</h2><span class="aside">Money lent and borrowed</span></div>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-handshake"/></svg></div><h2>Loans</h2><span class="aside">Money lent and borrowed</span></div>
         <div class="ltiles" id="loanTiles"></div>
         <div class="lgrid" id="loanGrid"></div>
       </section>
     </div>
 
-    <!-- TRANSACTIONS -->
+    <!-- ACTIVITY -->
     <div id="tab-txns" hidden>
       <section class="panel">
-        <div class="phead"><h2 id="txTitle">Transactions</h2><span class="aside" id="txAside"></span></div>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-list"/></svg></div><h2 id="txTitle">Activity</h2><span class="aside" id="txAside"></span></div>
         <div class="chips" id="txTypes"></div>
         <div class="chips" id="txAccounts"></div>
-        <input class="search" id="txSearch" type="search" placeholder="Search description, category or notes" aria-label="Search transactions">
+        <label class="search"><svg class="ic"><use href="#i-search"/></svg><input id="txSearch" type="search" placeholder="Search description, category or notes" aria-label="Search activity"></label>
         <div class="feed" id="txFeed"></div>
-        <div class="feed-total" id="txTotal"></div>
+        <div class="totbar" id="txTotal"></div>
       </section>
     </div>
 
@@ -362,24 +454,25 @@
     <div id="tab-add" hidden>
       <div class="save-status" id="saveStatus" role="status" aria-live="polite" hidden></div>
       <section class="panel">
-        <div class="phead"><h2>Add a transaction</h2></div>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-plus"/></svg></div><h2>Add a transaction</h2></div>
         <form class="add" id="txForm">
           <div class="seg" role="group" aria-label="Type">
-            <button type="button" class="in" data-type="Income" aria-pressed="false">↓ Income</button>
-            <button type="button" class="out" data-type="Expense" aria-pressed="true">↑ Expense</button>
-            <button type="button" class="tr" data-type="Transfer" aria-pressed="false">⇄ Transfer</button>
-            <button type="button" class="ln" data-type="Loan" aria-pressed="false">🤝 Loan</button>
+            <button type="button" class="in" data-type="Income" aria-pressed="false"><svg class="ic"><use href="#i-arrow-down-left"/></svg>Income</button>
+            <button type="button" class="out" data-type="Expense" aria-pressed="true"><svg class="ic"><use href="#i-arrow-up-right"/></svg>Expense</button>
+            <button type="button" class="tr" data-type="Transfer" aria-pressed="false"><svg class="ic"><use href="#i-arrow-left-right"/></svg>Transfer</button>
+            <button type="button" class="ln" data-type="Loan" aria-pressed="false"><svg class="ic"><use href="#i-handshake"/></svg>Loan</button>
           </div>
           <div class="loanseg" id="loanSeg" hidden>
-            <button type="button" data-loan="Loan Given" aria-pressed="true">I lent money<small>Loan given to someone</small></button>
-            <button type="button" data-loan="Loan Received Back" aria-pressed="false">I got money back<small>They repaid me</small></button>
-            <button type="button" data-loan="Loan Taken" aria-pressed="false">I borrowed<small>A loan I need to pay</small></button>
-            <button type="button" data-loan="Loan Repaid" aria-pressed="false">I paid back<small>Repaying what I borrowed</small></button>
+            <button type="button" data-loan="Loan Given" aria-pressed="true"><span class="cat sm" style="--c:#E5484D"><svg class="ic"><use href="#i-arrow-up-right"/></svg></span><span>I lent money<small>Loan given to someone</small></span></button>
+            <button type="button" data-loan="Loan Received Back" aria-pressed="false"><span class="cat sm" style="--c:#12A36A"><svg class="ic"><use href="#i-arrow-down-left"/></svg></span><span>I got money back<small>They repaid me</small></span></button>
+            <button type="button" data-loan="Loan Taken" aria-pressed="false"><span class="cat sm" style="--c:#12A36A"><svg class="ic"><use href="#i-arrow-down-left"/></svg></span><span>I borrowed<small>A loan I need to pay</small></span></button>
+            <button type="button" data-loan="Loan Repaid" aria-pressed="false"><span class="cat sm" style="--c:#E5484D"><svg class="ic"><use href="#i-arrow-up-right"/></svg></span><span>I paid back<small>Repaying what I borrowed</small></span></button>
           </div>
+          <label class="bigamt">Amount (LKR)<input type="number" name="amount" min="1" step="any" inputmode="decimal" required placeholder="0"></label>
           <label id="personWrap" hidden>Person<input name="person" id="personIn" list="peopleList" autocomplete="off"></label>
           <datalist id="peopleList"></datalist>
-          <label>Amount (LKR)<input type="number" name="amount" min="1" step="any" inputmode="decimal" required></label>
-          <label id="catWrap">Category<select name="category" id="catSel"></select></label>
+          <div class="catpick" id="catPick" role="group" aria-label="Category"></div>
+          <input type="hidden" name="category" id="catSel">
           <label id="catNewWrap" hidden>New category<input name="catNew" id="catNew"></label>
           <label id="subWrap">Sub-category<select name="sub" id="subSel"></select></label>
           <label id="subNewWrap" hidden>New sub-category<input name="subNew" id="subNew"></label>
@@ -388,39 +481,53 @@
           <label>Date<input type="date" name="date" required></label>
           <label>Description<input name="description" placeholder="e.g. Keells groceries"></label>
           <label>Notes<input name="notes"></label>
-          <div class="actions"><button class="btn" type="submit">Save</button></div>
+          <div class="actions"><button class="btn acc" type="submit"><svg class="ic"><use href="#i-plus"/></svg>Save</button></div>
         </form>
       </section>
 
-      <section class="panel">
-        <div class="phead"><h2>Set a monthly budget</h2></div>
-        <form class="add" id="budgetForm">
-          <label>Category<select name="category" id="bCatSel"></select></label>
-          <label id="bCatNewWrap" hidden>New category<input name="catNew" id="bCatNew"></label>
-          <label>Monthly budget (LKR)<input type="number" name="amount" min="0" step="any" inputmode="decimal" placeholder="Leave blank to remove"></label>
-          <div class="actions"><button class="btn" type="submit">Save budget</button></div>
-        </form>
-      </section>
-
-      <section class="panel">
-        <div class="phead"><h2>Add or update an account</h2></div>
-        <form class="add" id="accForm">
-          <label>Account name<input name="name" required placeholder="e.g. Commercial Bank"></label>
-          <label>Type<select name="type" id="accTypeSel"></select></label>
-          <label>Opening balance (LKR)<input type="number" name="opening" step="any" inputmode="decimal" placeholder="Balance when you started"></label>
-          <label>Notes<input name="notes"></label>
-          <div class="actions"><button class="btn" type="submit">Save account</button></div>
-        </form>
-      </section>
+      <div class="grid2">
+        <section class="panel">
+          <div class="phead"><div class="pi"><svg class="ic"><use href="#i-target"/></svg></div><h2>Set a monthly budget</h2></div>
+          <form class="add" id="budgetForm">
+            <label>Category<select name="category" id="bCatSel"></select></label>
+            <label id="bCatNewWrap" hidden>New category<input name="catNew" id="bCatNew"></label>
+            <label>Monthly budget (LKR)<input type="number" name="amount" min="0" step="any" inputmode="decimal" placeholder="Blank removes it"></label>
+            <div class="actions"><button class="btn" type="submit">Save budget</button></div>
+          </form>
+        </section>
+        <section class="panel">
+          <div class="phead"><div class="pi"><svg class="ic"><use href="#i-landmark"/></svg></div><h2>Add or update an account</h2></div>
+          <form class="add" id="accForm">
+            <label>Account name<input name="name" required placeholder="e.g. Commercial Bank"></label>
+            <label>Type<select name="type" id="accTypeSel"></select></label>
+            <label>Opening balance (LKR)<input type="number" name="opening" step="any" inputmode="decimal" placeholder="Balance when you started"></label>
+            <label>Notes<input name="notes"></label>
+            <div class="actions"><button class="btn" type="submit">Save account</button></div>
+          </form>
+        </section>
+      </div>
     </div>
   </main>
 
   <footer class="tex">
-    <div class="coin" aria-hidden="true">💰</div>
-    <div class="l1">Personal Finance Tracker</div>
-    <div class="l2" style="color:var(--mint);font-style:italic">Every rupee, accounted for</div>
-    <div class="l2">Private: your sheet is only read through your own script, with your PIN.</div>
+    <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0h1200v14c-150 22-300 22-450 6S450-2 300 10 90 34 0 20z" fill="currentColor"/></svg>
+    <div class="fbrand"><div class="logo"><svg class="ic"><use href="#i-wallet"/></svg></div><div><b>Personal Finance Tracker</b><span>Every rupee, accounted for</span></div></div>
+    <div class="fbadges">
+      <span><svg class="ic"><use href="#i-shield-check"/></svg>PIN protected</span>
+      <span><svg class="ic"><use href="#i-lock"/></svg>Private Google Sheet</span>
+      <span><svg class="ic"><use href="#i-refresh-cw"/></svg>Syncs every minute</span>
+    </div>
+    <div class="fcopy">© <span id="year">2026</span> <span id="ownerFoot"></span> · Personal use only</div>
   </footer>
+</div>
+
+<!-- Theme picker -->
+<div class="sheet" id="themeSheet" hidden>
+  <div class="sheetbox" role="dialog" aria-modal="true" aria-label="Choose a theme">
+    <h3><svg class="ic"><use href="#i-palette"/></svg>Theme</h3>
+    <div class="themes" id="themeList"></div>
+    <button class="btn full" id="themeClose" type="button">Done</button>
+  </div>
 </div>
 
 <script>
@@ -444,19 +551,58 @@ const mShort = k => { const [y, m] = k.split("-"); return `${MON[+m - 1]} ${y}`;
 const mLong = k => { const [y, m] = k.split("-"); return `${FULL[+m - 1]} ${y}`; };
 const localISO = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString();
 const thisMonth = () => localISO().slice(0, 7);
+const icon = (name, cls = "") => `<svg class="ic ${cls}"><use href="#i-${name}"/></svg>`;
 
-/* Icons per category (anything else gets a generic one) */
-const ICONS = {
-  salary: "💼", bonus: "🎁", freelance: "🧑‍💻", business: "🏪", rental: "🏘️", interest: "📈", gifts: "🎁", refunds: "↩️",
-  food: "🍛", groceries: "🛒", milk: "🥛", meats: "🍗", dining: "🍽️", fuel: "⛽", transport: "🛺", vehicle: "🔧",
-  utilities: "💡", gas: "🔥", phone: "📶", medical: "🩺", health: "🩺", education: "🎓", children: "🧸", home: "🏠", rent: "🏠",
-  shopping: "🛍️", personal: "💈", family: "👨‍👩‍👧", charity: "🤲", sports: "🏏", entertainment: "🎬", travel: "✈️",
-  insurance: "🛡️", bank: "🏦", loans: "🤝", loan: "🤝"
-};
+/* ===== Themes (saved on this device; they hold no personal data) ===== */
+const THEMES = [
+  { id: "plum", name: "Plum", sw: "linear-gradient(135deg,#24173F,#3DDC97 70%,#FFB547)" },
+  { id: "ocean", name: "Ocean", sw: "linear-gradient(135deg,#0B2747,#38BDF8 70%,#A7F3D0)" },
+  { id: "forest", name: "Forest", sw: "linear-gradient(135deg,#103221,#A3E635 70%,#FCD34D)" },
+  { id: "sunset", name: "Sunset", sw: "linear-gradient(135deg,#3B1527,#FF8A65 70%,#FDE68A)" },
+  { id: "midnight", name: "Midnight (dark)", sw: "linear-gradient(135deg,#0B0D14,#7C9CFF 70%,#F0ABFC)" }
+];
+function applyTheme(id) {
+  document.documentElement.dataset.theme = id;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = getComputedStyle(document.documentElement).getPropertyValue("--h900").trim();
+  try { localStorage.setItem("pft-theme", id); } catch {}
+  $("themeList").innerHTML = THEMES.map(t => `<button type="button" data-theme="${t.id}" aria-pressed="${t.id === id}"><div class="sw" style="background:${t.sw}"></div>${t.name}</button>`).join("");
+}
+applyTheme((() => { try { return localStorage.getItem("pft-theme") || "plum"; } catch { return "plum"; } })());
+$("themeBtn").addEventListener("click", () => { $("themeSheet").hidden = false; });
+$("themeClose").addEventListener("click", () => { $("themeSheet").hidden = true; });
+$("themeSheet").addEventListener("click", e => { if (e.target.id === "themeSheet") $("themeSheet").hidden = true; });
+$("themeList").addEventListener("click", e => { const b = e.target.closest("button"); if (b) applyTheme(b.dataset.theme); });
+
+/* ===== Category look: an icon and a colour for each ===== */
+const CAT_STYLE = [
+  ["food", "utensils", "#F97316"], ["groceries", "shopping-cart", "#22C55E"], ["milk", "milk", "#3B9AE1"], ["meats", "drumstick", "#E5484D"],
+  ["dining", "utensils-crossed", "#F59E0B"], ["fuel", "fuel", "#CA8A04"], ["transport", "bus", "#0EA5E9"], ["vehicle", "wrench", "#64748B"],
+  ["utilities", "zap", "#EAB308"], ["gas", "flame", "#EA580C"], ["phone", "wifi", "#8B5CF6"], ["medical", "stethoscope", "#EC4899"],
+  ["health", "stethoscope", "#EC4899"], ["education", "graduation-cap", "#6366F1"], ["children", "toy-brick", "#F472B6"], ["home", "house", "#14B8A6"],
+  ["rent", "house", "#14B8A6"], ["shopping", "shopping-bag", "#A855F7"], ["personal", "scissors", "#D946EF"], ["family", "users", "#FB7185"],
+  ["charity", "hand-heart", "#10B981"], ["sports", "trophy", "#F59E0B"], ["entertainment", "clapperboard", "#8B5CF6"], ["travel", "plane", "#06B6D4"],
+  ["insurance", "shield-check", "#3B82F6"], ["bank", "landmark", "#475569"], ["loans", "handshake", "#E08A00"],
+  ["salary", "briefcase", "#12A36A"], ["bonus", "gift", "#16A34A"], ["freelance", "laptop", "#0D9488"], ["business", "store", "#059669"],
+  ["rental", "building-2", "#0891B2"], ["interest", "trending-up", "#16A34A"], ["gifts", "gift", "#DB2777"], ["refunds", "undo-2", "#0EA5E9"]
+];
+// A few sub-categories get their own icon
+const SUB_ICON = { breakfast: "coffee", lunch: "sandwich", dinner: "soup", snacks: "cookie", teadrinks: "coffee", beef: "beef", chicken: "drumstick",
+  fish: "fish", eggs: "egg", dryfish: "fish", dailymilk: "milk", electricity: "zap", water: "droplet", mobile: "smartphone", broadband: "wifi", dialogtv: "tv",
+  bike: "bike", schoolthreewheeler: "school", schoolfee: "school", classfee: "notebook-pen", booksstationery: "book-open", uniformsshoes: "shirt",
+  vegetables: "carrot", fruits: "apple", riceggrains: "wheat", ricegrains: "wheat", breadbakery: "croissant", mother: "heart-pulse", father: "heart-pulse", myfamily: "users" };
+function catStyle(t) {
+  if (t.type === "Transfer") return { ic: "arrow-left-right", c: "#2E7CD6" };
+  if (/^loan/i.test(t.type)) return { ic: "handshake", c: "#E08A00" };
+  const hit = CAT_STYLE.find(([k]) => norm(t.cat).startsWith(k));
+  const ic = (t.sub && SUB_ICON[norm(t.sub)]) || (hit ? hit[1] : t.type === "Income" ? "coins" : "receipt");
+  return { ic, c: hit ? hit[2] : t.type === "Income" ? "#12A36A" : "#7C7591" };
+}
+const catTile = (t, cls = "") => { const s = catStyle(t); return `<span class="cat ${cls}" style="--c:${s.c}">${icon(s.ic)}</span>`; };
+
 // Loan types: money in (+) or out (−) of the account, never income or spending.
 const LOAN_IN = ["Loan Received Back", "Loan Taken"], LOAN_OUT = ["Loan Given", "Loan Repaid"];
 const isLoan = t => /^loan/i.test(t.type);
-const iconFor = (t) => t.type === "Transfer" ? "⇄" : isLoan(t) ? "🤝" : (Object.entries(ICONS).find(([k]) => norm(t.cat).startsWith(k)) || [, t.type === "Income" ? "💰" : "🧾"])[1];
 const catLabel = t => t.sub ? `${t.cat} › ${t.sub}` : t.cat;
 
 /* ===== Talking to the script (every call carries the PIN) ===== */
@@ -481,7 +627,7 @@ function showLock(msg) {
 $("lockForm").addEventListener("submit", async e => {
   e.preventDefault();
   PIN = $("pinInput").value.trim();
-  $("unlockBtn").disabled = true; $("unlockBtn").textContent = "Unlocking…"; $("lockMsg").textContent = "";
+  const btn = $("unlockBtn"); btn.disabled = true; btn.lastElementChild.textContent = "Unlocking…"; $("lockMsg").textContent = "";
   try {
     const j = await api({ action: "data" });
     try { sessionStorage.setItem("pft-pin", PIN); } catch {}   // only for this browser tab; gone when it closes
@@ -490,7 +636,7 @@ $("lockForm").addEventListener("submit", async e => {
   } catch (err) {
     showLock(err.message);
   } finally {
-    $("unlockBtn").disabled = false; $("unlockBtn").textContent = "Unlock";
+    btn.disabled = false; btn.lastElementChild.textContent = "Unlock";
   }
 });
 $("lockBtn").addEventListener("click", () => showLock("Locked."));
@@ -531,7 +677,6 @@ function loanBook() {
   });
   return [...p.values()];
 }
-// Sub-category spending inside one category for a month: [[sub, amount], …] biggest first.
 function subSpend(cat, k) {
   const m = {};
   DATA.txns.filter(t => t.type === "Expense" && norm(t.cat) === norm(cat) && t.date.slice(0, 7) === k)
@@ -539,7 +684,7 @@ function subSpend(cat, k) {
   return Object.entries(m).sort((a, b) => b[1] - a[1]);
 }
 const subChips = (cat, k) => { const s = subSpend(cat, k); return s.length > 1 || (s.length === 1 && s[0][0] !== "Other")
-  ? `<div class="subs">${s.map(([n, a]) => `<span>${esc(n)} <b class="num">${fmt(a)}</b></span>`).join("")}</div>` : ""; };
+  ? `<div class="subs">${s.map(([n, a]) => `<span>${SUB_ICON[norm(n)] ? icon(SUB_ICON[norm(n)]) : ""}${esc(n)} <b class="num">${fmt(a)}</b></span>`).join("")}</div>` : ""; };
 function monthTotals(k) {
   const list = DATA.txns.filter(t => t.date.slice(0, 7) === k);
   const inc = list.filter(t => t.type === "Income").reduce((a, t) => a + t.amount, 0);
@@ -552,14 +697,21 @@ function spendByCat(k) {
   return m;
 }
 
+function greeting() {
+  const h = new Date().getHours(), d = new Date();
+  const part = h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+  return `${part}, ${OWNER} · ${WEEK[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`;
+}
+
 function render(d) {
   DATA = d;
   $("error").hidden = true;
-  $("ownerLine").textContent = `${OWNER}'s finances · LKR`;
+  $("greet").textContent = greeting();
+  $("ownerFoot").textContent = OWNER;
 
   const months = [...new Set([thisMonth(), ...d.txns.map(t => t.date.slice(0, 7)).filter(Boolean)])].sort();
   if (!months.includes(selMonth)) selMonth = thisMonth();
-  $("months").innerHTML = [...months].reverse().map(k => `<button class="mbtn" data-m="${k}" aria-pressed="${k === selMonth}">${mShort(k)}</button>`).join("");
+  $("months").innerHTML = [...months].reverse().map(k => `<button class="mbtn" data-m="${k}" aria-pressed="${k === selMonth}">${k === selMonth ? icon("calendar") : ""}${mShort(k)}</button>`).join("");
 
   const bal = balances(d);
   const book = loanBook();
@@ -568,7 +720,7 @@ function render(d) {
   const nw = d.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0) + owedToMe - iOwe;
   $("nw").innerHTML = `<small>LKR</small>${nw < 0 ? "−" : ""}${fmt(Math.abs(nw))}`;
   const owed = d.accounts.filter(a => /card/i.test(a.type) && (bal[norm(a.name)] || 0) < 0).reduce((s, a) => s - bal[norm(a.name)], 0);
-  $("nwNote").textContent = `${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}${owed ? ` · LKR ${fmt(owed)} owed on cards` : ""}${owedToMe || iOwe ? ` · loans: +${fmt(owedToMe)} / −${fmt(iOwe)}` : ""}`;
+  $("nwNote").textContent = `${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}${owed ? ` · ${fmt(owed)} owed on cards` : ""}${owedToMe || iOwe ? ` · loans +${fmt(owedToMe)} / −${fmt(iOwe)}` : ""}`;
 
   const mt = monthTotals(selMonth);
   $("kIn").textContent = fmt(mt.inc); $("kOut").textContent = fmt(mt.exp);
@@ -584,153 +736,168 @@ function render(d) {
   renderOverview(); renderBudgets(); renderAccounts(bal); renderLoans(book, owedToMe, iOwe); renderTxns(); fillForms();
 }
 
-/* ===== Overview ===== */
+/* ===== Home ===== */
 function renderOverview() {
   const mt = monthTotals(selMonth), max = Math.max(mt.inc, mt.exp, 1);
   $("ovTitle").textContent = mLong(selMonth);
-  $("ovAside").textContent = `${mt.list.length} transaction${mt.list.length === 1 ? "" : "s"}`;
+  $("ovAside").textContent = `${mt.list.length} entr${mt.list.length === 1 ? "y" : "ies"}`;
   $("ovVs").innerHTML = `
-    <div class="vsrow"><div class="t"><span>Income</span><b class="num">LKR ${fmt(mt.inc)}</b></div><div class="bar"><i class="in" style="width:${mt.inc / max * 100}%"></i></div></div>
-    <div class="vsrow"><div class="t"><span>Expenses</span><b class="num">LKR ${fmt(mt.exp)}</b></div><div class="bar"><i class="out" style="width:${mt.exp / max * 100}%"></i></div></div>`;
+    <div class="vsrow"><div class="t"><span class="cat sm" style="--c:#12A36A">${icon("arrow-down-left")}</span>Income<b class="num">LKR ${fmt(mt.inc)}</b></div><div class="bar"><i style="--c:var(--in);width:${mt.inc / max * 100}%"></i></div></div>
+    <div class="vsrow"><div class="t"><span class="cat sm" style="--c:#E5484D">${icon("arrow-up-right")}</span>Expenses<b class="num">LKR ${fmt(mt.exp)}</b></div><div class="bar"><i style="--c:var(--out);width:${mt.exp / max * 100}%"></i></div></div>`;
   $("ovRate").className = "rate" + (mt.net < 0 ? " neg" : "");
-  $("ovRate").innerHTML = `<span>${mt.net < 0 ? "Spent more than earned" : "Saved this month"}</span><b class="num">${mt.net < 0 ? "−" : "+"}${fmt(Math.abs(mt.net))}</b>`;
+  $("ovRate").innerHTML = `<span class="cat" style="--c:${mt.net < 0 ? "#E5484D" : "#12A36A"}">${icon(mt.net < 0 ? "trending-up" : "piggy-bank")}</span>
+    <div><div class="t">${mt.net < 0 ? "Spent more than earned" : "Saved this month"}</div><div class="s">${mt.inc ? Math.round(Math.abs(mt.net) / mt.inc * 100) + "% of income" : ""}</div></div>
+    <b class="num">${mt.net < 0 ? "−" : "+"}${fmt(Math.abs(mt.net))}</b>`;
 
-  // Last 12 months trend
+  // Donut: share of spending by category
+  const sp = Object.entries(spendByCat(selMonth)).sort((a, b) => b[1] - a[1]);
+  const top = sp.slice(0, 6), rest = sp.slice(6).reduce((a, x) => a + x[1], 0);
+  if (rest) top.push(["Other", rest]);
+  $("topAside").textContent = sp.length ? `${sp.length} categor${sp.length === 1 ? "y" : "ies"}` : "";
+  if (!top.length) $("donut").innerHTML = `<div class="empty">${icon("sparkles")} Nothing spent yet this month.</div>`;
+  else {
+    const R = 52, C = 2 * Math.PI * R; let off = 0;
+    const arcs = top.map(([c, a]) => {
+      const st = catStyle({ type: "Expense", cat: c }), len = a / mt.exp * C;
+      const s = `<circle cx="75" cy="75" r="${R}" fill="none" stroke="${st.c}" stroke-width="20" stroke-dasharray="${Math.max(len - 2, 0.1)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 75 75)"/>`;
+      off += len; return s;
+    }).join("");
+    $("donut").innerHTML = `<div class="donutwrap"><div class="donut"><svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="${R}" fill="none" stroke="var(--soft)" stroke-width="20"/>${arcs}</svg>
+      <div class="mid"><div><b class="num">${fmt(mt.exp)}</b><span>Spent</span></div></div></div>
+      <div class="legend2">${top.map(([c, a]) => `<div class="lg">${catTile({ type: "Expense", cat: c }, "sm")}<span class="n">${esc(c)}</span><span class="a num">${fmt(a)}</span><span class="p">${Math.round(a / mt.exp * 100)}%</span></div>`).join("")}</div></div>`;
+  }
+
+  // 12-month trend ending at the chosen month
   const keys = [];
-  for (let i = 11; i >= 0; i--) { const d = new Date(+selMonth.slice(0, 4), +selMonth.slice(5) - 1 - i, 1); keys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`); }
+  for (let i = 11; i >= 0; i--) { const dt = new Date(+selMonth.slice(0, 4), +selMonth.slice(5) - 1 - i, 1); keys.push(`${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`); }
   const rows = keys.map(k => ({ k, ...monthTotals(k) }));
-  const top = Math.max(1, ...rows.map(r => Math.max(r.inc, r.exp)));
-  $("trend").innerHTML = rows.map(r => `<div class="tcol${r.k === selMonth ? " sel" : ""}" data-m="${r.k}" title="${mLong(r.k)}: in ${fmt(r.inc)}, out ${fmt(r.exp)}">
-      <div class="pair"><div class="b in" style="height:${r.inc / top * 100}%"></div><div class="b out" style="height:${r.exp / top * 100}%"></div></div>
-      <div class="m">${MON[+r.k.slice(5) - 1]}</div><div class="net num ${r.net >= 0 ? "up" : "down"}">${r.inc || r.exp ? (r.net >= 0 ? "+" : "−") + fmt(Math.abs(r.net) / 1000) + "k" : ""}</div></div>`).join("");
+  const big = Math.max(1, ...rows.map(r => Math.max(r.inc, r.exp)));
+  $("trend").innerHTML = rows.map(r => `<button class="tcol${r.k === selMonth ? " sel" : ""}" data-m="${r.k}" title="${mLong(r.k)}: in ${fmt(r.inc)}, out ${fmt(r.exp)}">
+      <div class="pair"><div class="b in" style="height:${r.inc / big * 100}%"></div><div class="b out" style="height:${r.exp / big * 100}%"></div></div>
+      <div class="m">${MON[+r.k.slice(5) - 1]}</div><div class="net num ${r.net >= 0 ? "up" : "down"}">${r.inc || r.exp ? (r.net >= 0 ? "+" : "−") + fmt(Math.abs(r.net) / 1000) + "k" : "&nbsp;"}</div></button>`).join("");
   $("trend").scrollLeft = $("trend").scrollWidth;
 
-  // Top 5 categories this month
-  const sp = Object.entries(spendByCat(selMonth)).sort((a, b) => b[1] - a[1]).slice(0, 5);
-  const big = sp.length ? sp[0][1] : 1;
-  $("topAside").textContent = sp.length ? "" : "Nothing spent yet";
-  $("topSpend").innerHTML = sp.map(([c, a]) => `<div class="brow"><div class="t"><span class="n">${iconFor({ type: "Expense", cat: c })} ${esc(c)}</span><span class="a"><b class="num">${fmt(a)}</b> · ${mt.exp ? Math.round(a / mt.exp * 100) : 0}%</span></div><div class="bar"><i style="width:${a / big * 100}%"></i></div>${subChips(c, selMonth)}</div>`).join("");
-
-  // Latest 6 transactions overall
   const latest = [...DATA.txns].sort((a, b) => b.date.localeCompare(a.date) || b.row - a.row).slice(0, 6);
-  $("latest").innerHTML = latest.length ? latest.map(itemHTML).join("") : `<div class="empty">No transactions yet. Add one from the + Add tab.</div>`;
+  $("latest").innerHTML = latest.length ? latest.map(t => itemHTML(t, true)).join("") : `<div class="empty">${icon("sparkles")} No entries yet. Tap + to add your first one.</div>`;
 }
 
 /* ===== Budgets ===== */
 function renderBudgets() {
   const sp = spendByCat(selMonth);
-  const list = DATA.budgets.filter(b => b.budget > 0).map(b => ({ ...b, spent: sp[b.cat] || 0 }))
-    .sort((a, b) => b.spent / b.budget - a.spent / a.budget);
+  const list = DATA.budgets.filter(b => b.budget > 0).map(b => ({ ...b, spent: sp[b.cat] || 0 })).sort((a, b) => b.spent / b.budget - a.spent / a.budget);
   const tot = list.reduce((a, b) => a + b.budget, 0), used = list.reduce((a, b) => a + b.spent, 0);
-  $("bTitle").textContent = `Budgets, ${mShort(selMonth)}`;
-  $("bAside").textContent = list.length ? `${list.filter(b => b.spent > b.budget).length} over budget` : "";
-  const pct = tot ? Math.min(used / tot, 1) : 0, C = 2 * Math.PI * 40;
-  const col = used > tot ? "#FF6B6B" : used > tot * .8 ? "#FFB547" : "#3DDC97";
-  $("bRing").innerHTML = list.length ? `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="40" fill="none" stroke="#EEEAF6" stroke-width="12"/>
-      <circle cx="50" cy="50" r="40" fill="none" stroke="${col}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C * pct} ${C}" transform="rotate(-90 50 50)"/>
-      <text x="50" y="56" text-anchor="middle" font-family="Sora,Arial" font-weight="700" font-size="18" fill="#1C1630">${tot ? Math.round(used / tot * 100) : 0}%</text></svg>
-    <div class="txt"><b class="num">LKR ${fmt(Math.max(tot - used, 0))} left</b><span>LKR ${fmt(used)} spent of ${fmt(tot)} budgeted</span></div>` : "";
+  $("bTitle").textContent = `Budgets · ${mShort(selMonth)}`;
+  const overN = list.filter(b => b.spent > b.budget).length;
+  $("bAside").textContent = list.length ? (overN ? `${overN} over budget` : "All within budget") : "";
+  const pct = tot ? Math.min(used / tot, 1) : 0, C = 2 * Math.PI * 42;
+  const col = used > tot ? "var(--out)" : used > tot * .8 ? "#F5A524" : "var(--in)";
+  $("bRing").innerHTML = list.length ? `<svg viewBox="0 0 104 104" aria-hidden="true"><circle cx="52" cy="52" r="42" fill="none" stroke="var(--soft)" stroke-width="12"/>
+      <circle cx="52" cy="52" r="42" fill="none" stroke="${col}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C * pct} ${C}" transform="rotate(-90 52 52)"/>
+      <text x="52" y="58" text-anchor="middle" font-family="Sora,Arial" font-weight="700" font-size="19" fill="var(--ink)">${tot ? Math.round(used / tot * 100) : 0}%</text></svg>
+    <div><b class="num">LKR ${fmt(Math.max(tot - used, 0))} left</b><span>${fmt(used)} spent of ${fmt(tot)} budgeted</span></div>` : "";
   $("bList").innerHTML = list.length ? list.map(b => {
-    const p = b.spent / b.budget, cls = p > 1 ? "over" : p >= .8 ? "warn" : "";
-    const left = b.budget - b.spent;
-    return `<div class="brow ${cls}"><div class="t"><span class="n">${iconFor({ type: "Expense", cat: b.cat })} ${esc(b.cat)}</span><span class="a"><b class="num">${fmt(b.spent)}</b> / ${fmt(b.budget)}</span></div>
-      <div class="bar"><i style="width:${Math.min(p, 1) * 100}%"></i></div>
-      <div class="left">${left >= 0 ? `LKR ${fmt(left)} left` : `LKR ${fmt(-left)} over`}</div>${subChips(b.cat, selMonth)}</div>`;
-  }).join("") : `<div class="empty">No budgets yet. Set one from the + Add tab.</div>`;
+    const p = b.spent / b.budget, cls = p > 1 ? "over" : p >= .8 ? "warn" : "", left = b.budget - b.spent, st = catStyle({ type: "Expense", cat: b.cat });
+    return `<div class="brow ${cls}">${catTile({ type: "Expense", cat: b.cat })}<div><div class="t"><span class="n">${esc(b.cat)}</span><span class="a"><b class="num">${fmt(b.spent)}</b> / ${fmt(b.budget)}</span></div>
+      <div class="bar"><i style="--c:${st.c};width:${Math.min(p, 1) * 100}%"></i></div>
+      <div class="left">${left >= 0 ? `${fmt(left)} left` : `${fmt(-left)} over budget`}</div>${subChips(b.cat, selMonth)}</div></div>`;
+  }).join("") : `<div class="empty">${icon("target")} No budgets yet. Set one from + Add.</div>`;
   const budgeted = new Set(list.map(b => norm(b.cat)));
   const extra = Object.entries(sp).filter(([c]) => !budgeted.has(norm(c))).sort((a, b) => b[1] - a[1]);
   $("unbudgetedPanel").hidden = !extra.length;
-  $("unbudgeted").innerHTML = extra.map(([c, a]) => `<div class="brow"><div class="t"><span class="n">${iconFor({ type: "Expense", cat: c })} ${esc(c)}</span><span class="a"><b class="num">${fmt(a)}</b></span></div>${subChips(c, selMonth)}</div>`).join("");
+  $("unbudgeted").innerHTML = extra.map(([c, a]) => `<div class="brow">${catTile({ type: "Expense", cat: c })}<div><div class="t"><span class="n">${esc(c)}</span><span class="a"><b class="num">${fmt(a)}</b></span></div>${subChips(c, selMonth)}</div></div>`).join("");
 }
 
 /* ===== Accounts ===== */
 function renderAccounts(bal) {
-  const cls = t => /card/i.test(t) ? "a-card" : /cash/i.test(t) ? "a-cash" : /sav/i.test(t) ? "a-save" : /wallet|online/i.test(t) ? "a-wallet" : "a-bank";
-  const ico = t => /card/i.test(t) ? "💳" : /cash/i.test(t) ? "💵" : /sav/i.test(t) ? "🐷" : /wallet|online/i.test(t) ? "📱" : "🏦";
+  const look = t => /card/i.test(t) ? ["a-card", "credit-card"] : /cash/i.test(t) ? ["a-cash", "banknote"] : /sav/i.test(t) ? ["a-save", "piggy-bank"] : /wallet|online/i.test(t) ? ["a-wallet", "smartphone"] : ["a-bank", "landmark"];
   const inOut = name => {
     let i = 0, o = 0;
     DATA.txns.filter(t => t.date.slice(0, 7) === selMonth).forEach(t => {
-      if (norm(t.account) === norm(name)) { if (t.type === "Income") i += t.amount; else o += t.amount; }
+      const mine = norm(t.account) === norm(name);
+      if (mine && (t.type === "Income" || LOAN_IN.includes(t.type))) i += t.amount;
+      else if (mine) o += t.amount;
       if (t.type === "Transfer" && norm(t.to) === norm(name)) i += t.amount;
     });
     return { i, o };
   };
-  $("accAside").textContent = `Money in and out for ${mShort(selMonth)}`;
+  $("accAside").textContent = `In and out · ${mShort(selMonth)}`;
   $("accGrid").innerHTML = DATA.accounts.length ? DATA.accounts.map(a => {
-    const b = bal[norm(a.name)] || 0, f = inOut(a.name), card = /card/i.test(a.type);
-    return `<div class="acard ${cls(a.type)}">
-      <div class="top"><span class="ic">${ico(a.type)}</span><span class="ty">${esc(a.type)}</span></div>
+    const b = bal[norm(a.name)] || 0, f = inOut(a.name), [cls, ic] = look(a.type), card = /card/i.test(a.type);
+    return `<div class="acard ${cls}">
+      <div class="top"><span class="b">${icon(ic)}</span><span class="ty">${esc(a.type)}</span></div>
       <div class="nm">${esc(a.name)}</div>
       <div><div class="bal num">${b < 0 ? "−" : ""}${fmt(Math.abs(b))}</div>
-      <div class="flow">${card && b < 0 ? `<span>Amount owed</span>` : ""}<span>In +${fmt(f.i)}</span><span>Out −${fmt(f.o)}</span></div></div>
+      <div class="flow">${card && b < 0 ? `<span>Amount owed</span>` : ""}<span>${icon("arrow-down-left")} ${fmt(f.i)}</span><span>${icon("arrow-up-right")} ${fmt(f.o)}</span></div></div>
     </div>`;
   }).join("") : `<div class="empty">No accounts yet.</div>`;
 }
 
 /* ===== Loans ===== */
+const LOAN_TEXT = { "Loan Given": "Lent to", "Loan Received Back": "Paid back by", "Loan Taken": "Borrowed from", "Loan Repaid": "Repaid to" };
 function renderLoans(book, owedToMe, iOwe) {
-  $("loanTiles").innerHTML = `<div class="ltile me"><div class="k">Others owe me</div><div class="v num">${fmt(owedToMe)}</div></div>
-    <div class="ltile they"><div class="k">I owe</div><div class="v num">${fmt(iOwe)}</div></div>`;
-  const order = x => (x.owedToMe > 0 || x.iOwe > 0) ? 0 : 1;
-  $("loanGrid").innerHTML = book.length ? [...book].sort((a, b) => order(a) - order(b) || (b.owedToMe + b.iOwe) - (a.owedToMe + a.iOwe)).map(x => {
+  $("loanTiles").innerHTML = `<div class="ltile me">${icon("arrow-down-left")}<div><div class="k">Others owe me</div><div class="v num">${fmt(owedToMe)}</div></div></div>
+    <div class="ltile they">${icon("arrow-up-right")}<div><div class="k">I owe</div><div class="v num">${fmt(iOwe)}</div></div></div>`;
+  const open = x => (x.owedToMe > 0 || x.iOwe > 0) ? 0 : 1;
+  $("loanGrid").innerHTML = book.length ? [...book].sort((a, b) => open(a) - open(b) || (b.owedToMe + b.iOwe) - (a.owedToMe + a.iOwe)).map(x => {
     const st = x.owedToMe > 0 ? `<span class="st me">Owes me ${fmt(x.owedToMe)}</span>` : x.iOwe > 0 ? `<span class="st they">I owe ${fmt(x.iOwe)}</span>` : `<span class="st done">Settled</span>`;
-    const both = x.owedToMe > 0 && x.iOwe > 0 ? `<span class="st they">I owe ${fmt(x.iOwe)}</span>` : "";
     const hist = [...x.items].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6).map(t => {
-      const d = new Date(t.date + "T00:00"), inn = LOAN_IN.includes(t.type);
-      return `<div><span>${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${esc(LOAN_TEXT[t.type] || t.type)}</span><b class="num ${inn ? "up" : "down"}">${inn ? "+" : "−"}${fmt(t.amount)}</b></div>`;
+      const dt = new Date(t.date + "T00:00"), inn = LOAN_IN.includes(t.type);
+      return `<div><span>${dt.getDate()} ${MON[dt.getMonth()]} ${dt.getFullYear()} · ${esc(LOAN_TEXT[t.type] || t.type)}</span><b class="num ${inn ? "up" : "down"}">${inn ? "+" : "−"}${fmt(t.amount)}</b></div>`;
     }).join("");
-    return `<div class="lcard"><div class="top"><span class="nm">🤝 ${esc(x.name)}</span><span>${st} ${both}</span></div><div class="hist">${hist}</div></div>`;
-  }).join("") : `<div class="empty" style="padding:0">No loans recorded. Add one from + Add → Loan.</div>`;
+    return `<div class="lcard"><div class="top"><span class="avatar">${esc((x.name.trim()[0] || "?").toUpperCase())}</span><span class="nm">${esc(x.name)}</span>${st}</div>
+      ${x.owedToMe > 0 && x.iOwe > 0 ? `<div style="margin-top:6px"><span class="st they">I also owe ${fmt(x.iOwe)}</span></div>` : ""}<div class="hist">${hist}</div></div>`;
+  }).join("") : `<div class="empty">${icon("handshake")} No loans recorded. Add one from + Add → Loan.</div>`;
 }
 
-/* ===== Transactions ===== */
-const LOAN_TEXT = { "Loan Given": "Lent to", "Loan Received Back": "Paid back by", "Loan Taken": "Borrowed from", "Loan Repaid": "Repaid to" };
-function itemHTML(t) {
+/* ===== Activity ===== */
+function itemHTML(t, showDate) {
+  const dt = new Date(t.date + "T00:00"), when = showDate ? `<span>${dt.getDate()} ${MON[dt.getMonth()]}</span>` : "";
   if (isLoan(t)) {
     const inn = LOAN_IN.includes(t.type);
-    return `<div class="item"><div class="ico tr" aria-hidden="true">🤝</div>
-      <div><div class="who">${esc(LOAN_TEXT[t.type] || t.type)} ${esc(t.sub)}</div><div class="sub"><span class="tag">${esc(t.type)}</span><span>${esc(t.account)}</span>${t.desc ? `<span>${esc(t.desc)}</span>` : ""}</div></div>
-      <span class="pill ${inn ? "in" : "out"} num">${inn ? "+" : "−"}${fmt(t.amount)}</span></div>`;
+    return `<div class="item">${catTile(t)}
+      <div><div class="who">${esc(LOAN_TEXT[t.type] || t.type)} ${esc(t.sub)}</div><div class="sub">${when}<span class="tag">${esc(t.type)}</span><span>${esc(t.account)}</span></div></div>
+      <span class="amt ${inn ? "in" : "out"} num">${inn ? "+" : "−"}${fmt(t.amount)}</span></div>`;
   }
   const cls = t.type === "Income" ? "in" : t.type === "Expense" ? "out" : "tr";
   const title = t.desc || (t.type === "Transfer" ? "Transfer" : (t.sub || t.cat));
-  // The category tag is skipped when it's already the title (no description given).
   const sub = t.type === "Transfer" ? `<span class="tag">${esc(t.account)} → ${esc(t.to)}</span>` : `<span class="tag">${esc(t.desc ? catLabel(t) : t.cat)}</span><span>${esc(t.account)}</span>`;
   const sign = t.type === "Income" ? "+" : t.type === "Expense" ? "−" : "";
-  return `<div class="item"><div class="ico ${cls}" aria-hidden="true">${iconFor(t)}</div>
-    <div><div class="who">${esc(title)}</div><div class="sub">${sub}${t.notes ? `<span>${esc(t.notes)}</span>` : ""}</div></div>
-    <span class="pill ${cls} num">${sign}${fmt(t.amount)}</span></div>`;
+  return `<div class="item">${catTile(t)}
+    <div><div class="who">${esc(title)}</div><div class="sub">${when}${sub}${t.notes ? `<span>${esc(t.notes)}</span>` : ""}</div></div>
+    <span class="amt ${cls} num">${sign}${fmt(t.amount)}</span></div>`;
 }
 function renderTxns() {
   const all = DATA.txns.filter(t => t.date.slice(0, 7) === selMonth);
   $("txTitle").textContent = mLong(selMonth);
-  $("txTypes").innerHTML = ["", "Income", "Expense", "Transfer", "Loans"].map(x => `<button class="chip" data-type="${x}" aria-pressed="${x === txType}">${x || "All"}</button>`).join("");
-  $("txAccounts").innerHTML = [`<button class="chip" data-acc="" aria-pressed="${!txAcc}">All accounts</button>`, ...DATA.accounts.map(a => `<button class="chip" data-acc="${esc(a.name)}" aria-pressed="${a.name === txAcc}">${esc(a.name)}</button>`)].join("");
+  const TYPE_IC = { "": "list", Income: "arrow-down-left", Expense: "arrow-up-right", Transfer: "arrow-left-right", Loans: "handshake" };
+  $("txTypes").innerHTML = ["", "Income", "Expense", "Transfer", "Loans"].map(x => `<button class="chipb" data-type="${x}" aria-pressed="${x === txType}">${icon(TYPE_IC[x])}${x || "All"}</button>`).join("");
+  $("txAccounts").innerHTML = [`<button class="chipb" data-acc="" aria-pressed="${!txAcc}">All accounts</button>`, ...DATA.accounts.map(a => `<button class="chipb" data-acc="${esc(a.name)}" aria-pressed="${a.name === txAcc}">${esc(a.name)}</button>`)].join("");
   const q = txQuery.toLowerCase();
-  const list = all.filter(t => (!txType || t.type === txType || (txType === "Loans" && isLoan(t))) && (!txAcc || norm(t.account) === norm(txAcc) || norm(t.to) === norm(txAcc)) &&
+  const list = all.filter(t => (!txType || t.type === txType || (txType === "Loans" && isLoan(t))) &&
+    (!txAcc || norm(t.account) === norm(txAcc) || norm(t.to) === norm(txAcc)) &&
     (!q || [t.desc, t.cat, t.sub, t.notes, t.account].join(" ").toLowerCase().includes(q)));
   $("txAside").textContent = `${list.length} of ${all.length}`;
   const g = new Map();
   [...list].sort((a, b) => b.date.localeCompare(a.date) || b.row - a.row).forEach(t => { if (!g.has(t.date)) g.set(t.date, []); g.get(t.date).push(t); });
+  const today = localISO().slice(0, 10), yest = new Date(Date.now() - 864e5 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   $("txFeed").innerHTML = g.size ? [...g.entries()].map(([d, items]) => {
-    const dt = new Date(d + "T00:00");
+    const dt = new Date(d + "T00:00"), label = d === today ? "Today" : d === yest ? "Yesterday" : `${WEEK[dt.getDay()]}, ${dt.getDate()} ${MON[dt.getMonth()]}`;
     const net = items.reduce((a, t) => a + (t.type === "Income" ? t.amount : t.type === "Expense" ? -t.amount : 0), 0);
-    return `<div class="group"><div class="ghead"><b>${WEEK[dt.getDay()]}, ${dt.getDate()} ${MON[dt.getMonth()]}</b><span class="num ${net >= 0 ? "up" : "down"}">${net ? (net > 0 ? "+" : "−") + fmt(Math.abs(net)) : ""}</span></div>${items.map(itemHTML).join("")}</div>`;
-  }).join("") : `<div class="empty">Nothing here for ${mShort(selMonth)}.</div>`;
+    return `<div class="group"><div class="ghead">${icon("calendar")}<b>${label}</b><span class="num ${net >= 0 ? "up" : "down"}">${net ? (net > 0 ? "+" : "−") + fmt(Math.abs(net)) : ""}</span></div>${items.map(t => itemHTML(t)).join("")}</div>`;
+  }).join("") : `<div class="empty">${icon("search")} Nothing here for ${mShort(selMonth)}.</div>`;
   const inc = list.filter(t => t.type === "Income").reduce((a, t) => a + t.amount, 0), exp = list.filter(t => t.type === "Expense").reduce((a, t) => a + t.amount, 0);
-  $("txTotal").innerHTML = `<span>In <b class="i num">+${fmt(inc)}</b></span><span>Out <b class="o num">−${fmt(exp)}</b></span><span>Net <b class="num">${inc - exp < 0 ? "−" : "+"}${fmt(Math.abs(inc - exp))}</b></span>`;
+  $("txTotal").innerHTML = `<div><span>In</span><b class="num up">+${fmt(inc)}</b></div><div><span>Out</span><b class="num down">−${fmt(exp)}</b></div><div><span>Net</span><b class="num">${inc - exp < 0 ? "−" : "+"}${fmt(Math.abs(inc - exp))}</b></div>`;
 }
-$("txTypes").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; txType = b.dataset.type; renderTxns(); });
-$("txAccounts").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; txAcc = b.dataset.acc; renderTxns(); });
+$("txTypes").addEventListener("click", e => { const b = e.target.closest(".chipb"); if (!b) return; txType = b.dataset.type; renderTxns(); });
+$("txAccounts").addEventListener("click", e => { const b = e.target.closest(".chipb"); if (!b) return; txAcc = b.dataset.acc; renderTxns(); });
 $("txSearch").addEventListener("input", e => { txQuery = e.target.value; renderTxns(); });
 
-/* Month buttons and trend columns */
 function pickMonth(k) { selMonth = k; render(DATA); }
 $("months").addEventListener("click", e => { const b = e.target.closest(".mbtn"); if (b) pickMonth(b.dataset.m); });
 $("trend").addEventListener("click", e => { const c = e.target.closest(".tcol"); if (c) pickMonth(c.dataset.m); });
 
 /* ===== Add forms ===== */
-let txKind = "Expense";
+let txKind = "Expense", loanKind = "Loan Given";
 const opts = (list, keep) => list.map(v => `<option value="${esc(v)}"${v === keep ? " selected" : ""}>${esc(v)}</option>`).join("");
 function catsFor(kind) {
   const L = DATA.lists || {};
@@ -738,20 +905,33 @@ function catsFor(kind) {
   return key ? L[key] : [];
 }
 const subsFor = cat => (DATA.subs || []).filter(s => norm(s.cat) === norm(cat)).map(s => s.sub);
+
+// Category picker: a grid of icon buttons instead of a long dropdown
+function fillCatPick() {
+  const kind = txKind === "Income" ? "Income" : "Expense", cur = $("catSel").value;
+  $("catPick").innerHTML = catsFor(kind).map(c => { const st = catStyle({ type: kind, cat: c });
+    return `<button type="button" data-cat="${esc(c)}" style="--c:${st.c}" aria-pressed="${c === cur}"><span class="cat sm" style="--c:${st.c}">${icon(st.ic)}</span>${esc(c)}</button>`; }).join("") +
+    `<button type="button" data-cat="__new" style="--c:#7C7591" aria-pressed="${cur === "__new"}"><span class="cat sm" style="--c:#7C7591">${icon("plus")}</span>New category</button>`;
+}
+$("catPick").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  $("catSel").value = b.dataset.cat;
+  document.querySelectorAll("#catPick button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  $("catNewWrap").hidden = b.dataset.cat !== "__new"; $("catNew").required = b.dataset.cat === "__new";
+  $("subSel").value = ""; fillSubs();
+  if (b.dataset.cat === "__new") $("catNew").focus();
+});
 function fillSubs() {
   const cat = $("catSel").value, keep = $("subSel").value;
   const list = cat && cat !== "__new" ? subsFor(cat) : [];
   $("subSel").innerHTML = `<option value="">${list.length ? "Choose…" : "None"}</option>` + opts(list, keep) + `<option value="__new">Add new sub-category…</option>`;
-  // Pick one when the category has sub-categories, but only while the box is shown
-  // (Transfer and Loan hide it, and a hidden required field would block the Save button).
+  // Only required while the box is shown (Transfer and Loan hide it).
   $("subSel").required = list.length > 0 && !$("subWrap").hidden;
   $("subNewWrap").hidden = $("subSel").value !== "__new";
 }
 function fillForms() {
   if (!DATA) return;
-  const kc = $("catSel").value;
-  $("catSel").innerHTML = opts(catsFor(txKind === "Income" ? "Income" : "Expense"), kc) + `<option value="__new">Add new category…</option>`;
-  fillSubs();
+  fillCatPick(); fillSubs();
   const names = DATA.accounts.map(a => a.name);
   const ka = $("accSel").value, kt = $("toSel").value;
   $("accSel").innerHTML = opts(names, ka);
@@ -762,38 +942,37 @@ function fillForms() {
   $("accTypeSel").innerHTML = opts(types, $("accTypeSel").value);
   $("peopleList").innerHTML = [...new Set(DATA.txns.filter(isLoan).map(t => t.sub).filter(Boolean))].map(n => `<option value="${esc(n)}">`).join("");
 }
-let loanKind = "Loan Given";
 function setKind(kind) {
+  if (kind !== txKind) $("catSel").value = "";
   txKind = kind;
   const loan = kind === "Loan";
   document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.type === kind));
-  $("catWrap").hidden = kind === "Transfer" || loan;
+  $("catPick").hidden = kind === "Transfer" || loan;
   $("subWrap").hidden = kind === "Transfer" || loan;
   $("catNewWrap").hidden = true; $("subNewWrap").hidden = true;
   $("toWrap").hidden = kind !== "Transfer";
   $("loanSeg").hidden = !loan; $("personWrap").hidden = !loan; $("personIn").required = loan;
-  $("subSel").required = false;
   $("accLbl").textContent = kind === "Income" ? "Received into" : kind === "Transfer" ? "From account"
     : loan ? (LOAN_IN.includes(loanKind) ? "Money went into" : "Money came from") : "Paid from";
-  $("catSel").innerHTML = "";
   fillForms();
 }
+document.querySelector(".seg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setKind(b.dataset.type); });
 $("loanSeg").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   loanKind = b.dataset.loan;
   document.querySelectorAll("#loanSeg button").forEach(x => x.setAttribute("aria-pressed", x === b));
   setKind("Loan");
 });
-document.querySelector(".seg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setKind(b.dataset.type); });
 const toggleNew = (sel, wrap, input) => $(sel).addEventListener("change", e => { const on = e.target.value === "__new"; $(wrap).hidden = !on; $(input).required = on; if (on) $(input).focus(); });
-toggleNew("catSel", "catNewWrap", "catNew");
-$("catSel").addEventListener("change", () => { $("subSel").value = ""; fillSubs(); });
 toggleNew("subSel", "subNewWrap", "subNew");
 toggleNew("bCatSel", "bCatNewWrap", "bCatNew");
 
 // Saves run one after another in the background, so the form is free for the next entry straight away.
 let saveQueue = Promise.resolve(), pending = 0;
-function showSave(text, kind) { const b = $("saveStatus"); b.hidden = false; b.className = "save-status " + (kind || ""); b.textContent = text; }
+function showSave(text, kind) {
+  const b = $("saveStatus"); b.hidden = false; b.className = "save-status " + (kind || "");
+  b.innerHTML = `${icon(kind === "ok" ? "shield-check" : kind === "bad" ? "receipt" : "refresh-cw")}<span>${esc(text)}</span>`;
+}
 function queueSave(payload, summary) {
   const requestId = (crypto.randomUUID && crypto.randomUUID()) || (Date.now() + "-" + Math.random().toString(36).slice(2));
   pending++; showSave(`Saving ${pending === 1 ? summary : pending + " entries"}…`, "busy");
@@ -809,11 +988,14 @@ function queueSave(payload, summary) {
     if (!pending) refresh();
   });
 }
-function wire(id, build, describe, after) {
+function wire(id, build, describe, check, after) {
   const form = $(id);
   form.addEventListener("submit", e => {
     e.preventDefault();
-    const p = build(Object.fromEntries(new FormData(form)));
+    const f = Object.fromEntries(new FormData(form));
+    const problem = check && check(f);
+    if (problem) { showSave(problem, "bad"); return; }
+    const p = build(f);
     queueSave(p, describe(p));
     const keep = form.elements.date ? form.elements.date.value : null;
     form.reset(); if (keep) form.elements.date.value = keep;
@@ -822,21 +1004,22 @@ function wire(id, build, describe, after) {
 }
 wire("txForm", f => txKind === "Loan"
   ? { action: "txn", type: loanKind, amount: f.amount, date: f.date, description: f.description, notes: f.notes, account: f.account, sub: (f.person || "").trim() }
-  : {
-    action: "txn", type: txKind, amount: f.amount, date: f.date, description: f.description, notes: f.notes, account: f.account,
-    to: txKind === "Transfer" ? f.to : "", category: txKind === "Transfer" ? "" : (f.category === "__new" ? f.catNew.trim() : f.category),
-    sub: txKind === "Transfer" ? "" : (f.sub === "__new" ? (f.subNew || "").trim() : f.sub)
-  }, p => `${/^loan/i.test(p.type) ? p.type.toLowerCase() + " (" + p.sub + ")" : p.type.toLowerCase()} of LKR ${fmt(+p.amount)}`,
-  () => { $("catNewWrap").hidden = true; $("subNewWrap").hidden = true; fillForms(); });
+  : { action: "txn", type: txKind, amount: f.amount, date: f.date, description: f.description, notes: f.notes, account: f.account,
+      to: txKind === "Transfer" ? f.to : "", category: txKind === "Transfer" ? "" : (f.category === "__new" ? (f.catNew || "").trim() : f.category),
+      sub: txKind === "Transfer" ? "" : (f.sub === "__new" ? (f.subNew || "").trim() : f.sub) },
+  p => `${/^loan/i.test(p.type) ? p.type.toLowerCase() + " (" + p.sub + ")" : p.type.toLowerCase()} of LKR ${fmt(+p.amount)}`,
+  f => (txKind === "Income" || txKind === "Expense") && !f.category ? "Choose a category first." : "",
+  () => { $("catSel").value = ""; $("catNewWrap").hidden = true; $("subNewWrap").hidden = true; fillForms(); });
 wire("budgetForm", f => ({ action: "budget", category: f.category === "__new" ? f.catNew.trim() : f.category, amount: f.amount }),
-  p => `budget for ${p.category}`, () => { $("bCatNewWrap").hidden = true; });
+  p => `budget for ${p.category}`, null, () => { $("bCatNewWrap").hidden = true; });
 wire("accForm", f => ({ action: "account", ...f }), p => `account ${p.name}`);
 
-/* ===== Tabs ===== */
+/* ===== Navigation ===== */
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
   document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === t));
   ["overview", "budgets", "accounts", "loans", "txns", "add"].forEach(n => $("tab-" + n).hidden = t.dataset.tab !== n);
   if (t.dataset.tab === "overview") $("trend").scrollLeft = $("trend").scrollWidth;
+  window.scrollTo({ top: t.dataset.tab === "add" ? document.querySelector("main").offsetTop - 70 : 0, behavior: "smooth" });
 }));
 
 /* ===== Refresh ===== */
@@ -852,7 +1035,8 @@ async function refresh() {
 setInterval(() => { if (!document.hidden) refresh(); }, AUTO_REFRESH_SECONDS * 1000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
 
-// Start: today's date in the form, and unlock straight away if this tab was already unlocked.
+// Start: today's date in the forms, and unlock straight away if this tab was already unlocked.
+$("year").textContent = new Date().getFullYear();
 document.querySelectorAll('form.add input[type="date"]').forEach(i => i.value = localISO().slice(0, 10));
 (() => {
   let saved = ""; try { saved = sessionStorage.getItem("pft-pin") || ""; } catch {}
