@@ -274,6 +274,9 @@
   .lcard .nm { font-weight: 700; }
   .st { margin-left: auto; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
   .st.me { background: var(--inBg); color: var(--in); } .st.they { background: var(--outBg); color: var(--out); } .st.done { background: var(--soft); color: var(--muted); }
+  .lcard.team { background: linear-gradient(135deg, color-mix(in srgb, var(--c) 9%, var(--card)), var(--card)); }
+  .lcard .hint { font-size: 12px; color: var(--muted); }
+  .avatar .ic { width: 20px; height: 20px; }
   .lcard .hist { margin-top: 10px; display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
   .lcard .hist div { display: flex; justify-content: space-between; gap: 8px; }
 
@@ -888,10 +891,18 @@ function renderFunds(funds, bal) {
 /* ===== Loans ===== */
 const LOAN_TEXT = { "Loan Given": "Lent to", "Loan Received Back": "Paid back by", "Loan Taken": "Borrowed from", "Loan Repaid": "Repaid to" };
 function renderLoans(book, owedToMe, iOwe) {
+  // Team money I hold is owed back to the teams. It's money I'm holding, not money I've spent,
+  // so it's shown here as a debt but leaves net worth unchanged (the cash and the debt cancel out).
+  const teams = (DATA.funds || []).filter(f => f.ok && f.balance > 0), teamOwe = teams.reduce((a, f) => a + f.balance, 0);
   $("loanTiles").innerHTML = `<div class="ltile me">${icon("arrow-down-left")}<div><div class="k">Others owe me</div><div class="v num">${fmt(owedToMe)}</div></div></div>
-    <div class="ltile they">${icon("arrow-up-right")}<div><div class="k">I owe</div><div class="v num">${fmt(iOwe)}</div></div></div>`;
+    <div class="ltile they">${icon("arrow-up-right")}<div><div class="k">I owe</div><div class="v num">${fmt(iOwe + teamOwe)}</div>${teamOwe ? `<div class="k" style="text-transform:none;letter-spacing:0;font-weight:600">${fmt(iOwe)} loans + ${fmt(teamOwe)} team money</div>` : ""}</div></div>`;
+  const day = iso => { if (!iso) return ""; const d = new Date(iso + "T00:00"); return `${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}`; };
+  const teamCards = teams.map((f, i) => `<div class="lcard team" style="--c:${f.color}">
+      <div class="top"><span class="avatar" style="background:${f.color}">${icon(i === 0 ? "trophy" : "users")}</span><div><div class="nm">${esc(f.short)} team</div><div class="hint">Team money I hold</div></div><span class="st they">I owe ${fmt(f.balance)}</span></div>
+      <div class="hist"><div><span>Collected for the team</span><b class="num">${fmt(f.received)}</b></div><div><span>Spent for the team</span><b class="num">${fmt(f.spent)}</b></div>
+      <div><span>This month</span><b class="num"><span class="up">+${fmt(f.monthIn)}</span> <span class="down">−${fmt(f.monthOut)}</span></b></div>${f.last ? `<div><span>Last entry</span><b>${day(f.last)}</b></div>` : ""}</div></div>`).join("");
   const open = x => (x.owedToMe > 0 || x.iOwe > 0) ? 0 : 1;
-  $("loanGrid").innerHTML = book.length ? [...book].sort((a, b) => open(a) - open(b) || (b.owedToMe + b.iOwe) - (a.owedToMe + a.iOwe)).map(x => {
+  $("loanGrid").innerHTML = teamCards + (book.length ? [...book].sort((a, b) => open(a) - open(b) || (b.owedToMe + b.iOwe) - (a.owedToMe + a.iOwe)).map(x => {
     const st = x.owedToMe > 0 ? `<span class="st me">Owes me ${fmt(x.owedToMe)}</span>` : x.iOwe > 0 ? `<span class="st they">I owe ${fmt(x.iOwe)}</span>` : `<span class="st done">Settled</span>`;
     const hist = [...x.items].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6).map(t => {
       const dt = new Date(t.date + "T00:00"), inn = LOAN_IN.includes(t.type);
@@ -899,7 +910,7 @@ function renderLoans(book, owedToMe, iOwe) {
     }).join("");
     return `<div class="lcard"><div class="top"><span class="avatar">${esc((x.name.trim()[0] || "?").toUpperCase())}</span><span class="nm">${esc(x.name)}</span>${st}</div>
       ${x.owedToMe > 0 && x.iOwe > 0 ? `<div style="margin-top:6px"><span class="st they">I also owe ${fmt(x.iOwe)}</span></div>` : ""}<div class="hist">${hist}</div></div>`;
-  }).join("") : `<div class="empty">${icon("handshake")} No loans recorded. Add one from + Add → Loan.</div>`;
+  }).join("") : (teams.length ? "" : `<div class="empty">${icon("handshake")} No loans recorded. Add one from + Add → Loan.</div>`));
 }
 
 /* ===== Activity ===== */
