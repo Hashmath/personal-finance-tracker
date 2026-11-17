@@ -221,6 +221,7 @@
   .acard .nm { font-weight: 700; font-size: 15px; margin-top: 12px; }
   .acard .bal { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: 27px; }
   .acard .flow { display: flex; gap: 12px; font-size: 12px; opacity: .9; }
+  .acard .teamnote { display: block; font-size: 11.5px; font-weight: 600; opacity: .9; margin-top: 2px; }
   .a-bank { background: linear-gradient(135deg, #5B47B0, #2C1F63); } .a-cash { background: linear-gradient(135deg, #1DB074, #0B6B45); }
   .a-card { background: linear-gradient(135deg, #FF6B6B, #B3324E); } .a-save { background: linear-gradient(135deg, #F7A53B, #BF5F12); }
   .a-wallet { background: linear-gradient(135deg, #3E95E6, #1C5895); }
@@ -453,7 +454,7 @@
         <div class="agrid" id="accGrid"></div>
       </section>
       <section class="panel" id="fundsPanel2" hidden>
-        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-users"/></svg></div><h2>Held for the teams</h2><span class="aside">Not counted in your net worth</span></div>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-users"/></svg></div><h2>Held for the teams</h2><span class="aside">Taken out of your net worth</span></div>
         <div class="funds" id="fundsAcc"></div>
         <div class="inhand" id="inHand"></div>
       </section>
@@ -690,7 +691,17 @@ function balances(d) {
     else if (LOAN_IN.includes(t.type)) bal[a] = (bal[a] || 0) + t.amount;
     else if (LOAN_OUT.includes(t.type)) bal[a] = (bal[a] || 0) - t.amount;
   });
+  // Team money is kept mixed in one of my accounts: team income and spending since my opening
+  // balances move that account, so its balance matches the real cash or bank figure.
+  (d.funds || []).filter(f => f.ok && f.heldIn).forEach(f => {
+    const k = norm(f.heldIn);
+    if (k in bal) bal[k] += f.sinceOpening || 0;
+  });
   return bal;
+}
+// Team money sitting in each account (current team balances), for the "includes" note on account cards.
+function teamIn(name) {
+  return (DATA.funds || []).filter(f => f.ok && norm(f.heldIn) === norm(name)).reduce((a, f) => a + f.balance, 0);
 }
 // Per person: what they owe me (given − received back) and what I owe them (taken − repaid).
 function loanBook() {
@@ -746,12 +757,14 @@ function render(d) {
   const bal = balances(d);
   const book = loanBook();
   const owedToMe = book.reduce((a, x) => a + Math.max(x.owedToMe, 0), 0), iOwe = book.reduce((a, x) => a + Math.max(x.iOwe, 0), 0);
-  // Net worth = everything in the accounts + money others owe me − money I owe.
-  const nw = d.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0) + owedToMe - iOwe;
+  // Net worth = everything in my accounts − the team money mixed into them (it belongs to the teams)
+  //             + money others owe me − money I owe.
+  const teamHeld = (d.funds || []).filter(f => f.ok).reduce((a, f) => a + f.balance, 0);
+  const nw = d.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0) - teamHeld + owedToMe - iOwe;
   $("nw").innerHTML = `<small>LKR</small>${nw < 0 ? "−" : ""}${fmt(Math.abs(nw))}`;
   const owed = d.accounts.filter(a => /card/i.test(a.type) && (bal[norm(a.name)] || 0) < 0).reduce((s, a) => s - bal[norm(a.name)], 0);
   const funds = d.funds || [], held = funds.filter(f => f.ok).reduce((a, f) => a + f.balance, 0);
-  $("nwNote").textContent = `${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}${owed ? ` · ${fmt(owed)} owed on cards` : ""}${owedToMe || iOwe ? ` · loans +${fmt(owedToMe)} / −${fmt(iOwe)}` : ""}${held ? ` · also holding ${fmt(held)} for teams` : ""}`;
+  $("nwNote").textContent = `${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}${owed ? ` · ${fmt(owed)} owed on cards` : ""}${owedToMe || iOwe ? ` · loans +${fmt(owedToMe)} / −${fmt(iOwe)}` : ""}${held ? ` · after setting aside ${fmt(held)} team money` : ""}`;
 
   const mt = monthTotals(selMonth);
   $("kIn").textContent = fmt(mt.inc); $("kOut").textContent = fmt(mt.exp);
@@ -853,10 +866,10 @@ function renderAccounts(bal) {
   };
   $("accAside").textContent = `In and out · ${mShort(selMonth)}`;
   $("accGrid").innerHTML = DATA.accounts.length ? DATA.accounts.map(a => {
-    const b = bal[norm(a.name)] || 0, f = inOut(a.name), [cls, ic] = look(a.type), card = /card/i.test(a.type);
+    const b = bal[norm(a.name)] || 0, f = inOut(a.name), [cls, ic] = look(a.type), card = /card/i.test(a.type), team = teamIn(a.name);
     return `<div class="acard ${cls}">
       <div class="top"><span class="b">${icon(ic)}</span><span class="ty">${esc(a.type)}</span></div>
-      <div class="nm">${esc(a.name)}</div>
+      <div class="nm">${esc(a.name)}${team ? `<span class="teamnote">incl. ${fmt(team)} team money</span>` : ""}</div>
       <div><div class="bal num">${b < 0 ? "−" : ""}${fmt(Math.abs(b))}</div>
       <div class="flow">${card && b < 0 ? `<span>Amount owed</span>` : ""}<span>${icon("arrow-down-left")} ${fmt(f.i)}</span><span>${icon("arrow-up-right")} ${fmt(f.o)}</span></div></div>
     </div>`;
@@ -880,12 +893,14 @@ function renderFunds(funds, bal) {
       <div class="bal">${esc(f.error || "Not available")}</div></div>`).join("");
   $("fundsHome").innerHTML = html; $("fundsAcc").innerHTML = html;
 
-  // The full picture: my money plus team money = what I actually hold.
-  const mine = DATA.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0);
+  // The full picture: the money in my accounts includes the teams' money, so take it out to see what's mine.
+  const inAccounts = DATA.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0);
   const held = funds.filter(f => f.ok).reduce((a, f) => a + f.balance, 0);
-  $("inHand").innerHTML = `<div><span>My accounts</span><b class="num">${fmt(mine)}</b></div>
-    ${funds.filter(f => f.ok).map(f => `<div><span>${esc(f.short)} (team money)</span><b class="num">${fmt(f.balance)}</b></div>`).join("")}
-    <div class="tot"><span>Total money in my hands</span><b class="num">${fmt(mine + held)}</b></div>`;
+  const missing = funds.filter(f => f.ok && f.heldIn && !DATA.accounts.some(a => norm(a.name) === norm(f.heldIn)));
+  $("inHand").innerHTML = `<div><span>Money in my accounts (actual)</span><b class="num">${fmt(inAccounts)}</b></div>
+    ${funds.filter(f => f.ok).map(f => `<div><span>− ${esc(f.short)} team money</span><b class="num down">−${fmt(f.balance)}</b></div>`).join("")}
+    <div class="tot"><span>My own money</span><b class="num">${fmt(inAccounts - held)}</b></div>
+    ${missing.length ? `<div style="color:var(--out);font-size:12.5px">Account "${esc(missing[0].heldIn)}" (where ${esc(missing[0].short)} money is kept) wasn't found; check heldIn in Code.gs.</div>` : ""}`;
 }
 
 /* ===== Loans ===== */
