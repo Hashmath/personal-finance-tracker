@@ -742,7 +742,9 @@ function fillSubs() {
   const cat = $("catSel").value, keep = $("subSel").value;
   const list = cat && cat !== "__new" ? subsFor(cat) : [];
   $("subSel").innerHTML = `<option value="">${list.length ? "Choose…" : "None"}</option>` + opts(list, keep) + `<option value="__new">Add new sub-category…</option>`;
-  $("subSel").required = list.length > 0;           // pick one when the category has sub-categories
+  // Pick one when the category has sub-categories, but only while the box is shown
+  // (Transfer and Loan hide it, and a hidden required field would block the Save button).
+  $("subSel").required = list.length > 0 && !$("subWrap").hidden;
   $("subNewWrap").hidden = $("subSel").value !== "__new";
 }
 function fillForms() {
