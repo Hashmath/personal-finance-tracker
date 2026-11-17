@@ -150,6 +150,32 @@
   .ring .txt b { font-family: "Sora", Arial, sans-serif; font-size: 24px; display: block; }
   .ring .txt span { font-size: 13px; color: var(--muted); }
 
+  /* Sub-category chips under a category */
+  .subs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .subs span { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #F1EDFA; color: var(--plum-700); }
+  .subs b { font-weight: 700; }
+
+  /* Loans */
+  .ltiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px 14px; }
+  .ltile { border-radius: 14px; padding: 12px 14px; }
+  .ltile.me { background: #E3F8EE; color: #0E6E47; } .ltile.they { background: #FFECEC; color: #A3262A; }
+  .ltile .k { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
+  .ltile .v { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: 24px; }
+  .lgrid { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .lcard { border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: #FCFBFE; }
+  .lcard .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .lcard .nm { font-weight: 700; font-size: 16px; }
+  .lcard .st { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+  .st.me { background: #E3F8EE; color: #0E6E47; } .st.they { background: #FFECEC; color: #A3262A; } .st.done { background: #EEF0F4; color: #5B6170; }
+  .lcard .hist { margin-top: 10px; display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  .lcard .hist div { display: flex; justify-content: space-between; gap: 8px; }
+  .loanseg { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .loanseg button { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 9px; font: 600 13px "Inter", Arial, sans-serif; cursor: pointer; color: var(--ink); text-align: left; }
+  .loanseg button small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+  .loanseg button[aria-pressed="true"] { border-color: var(--sky); background: #E8F2FF; }
+  .seg { grid-template-columns: repeat(4, 1fr) !important; }
+  .seg button[aria-pressed="true"].ln { background: var(--amber); color: var(--plum-900); }
+
   /* Accounts */
   .agrid { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
   .acard { border-radius: 18px; padding: 16px; color: #fff; position: relative; overflow: hidden; min-height: 140px; display: flex; flex-direction: column; justify-content: space-between; }
@@ -259,6 +285,7 @@
       <button class="tab" role="tab" aria-selected="true" data-tab="overview">Overview</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="budgets">Budgets</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="accounts">Accounts</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="loans">Loans</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="txns">Transactions</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="add">+ Add</button>
     </div>
@@ -310,6 +337,15 @@
       </section>
     </div>
 
+    <!-- LOANS -->
+    <div id="tab-loans" hidden>
+      <section class="panel">
+        <div class="phead"><h2>Loans</h2><span class="aside">Money lent and borrowed</span></div>
+        <div class="ltiles" id="loanTiles"></div>
+        <div class="lgrid" id="loanGrid"></div>
+      </section>
+    </div>
+
     <!-- TRANSACTIONS -->
     <div id="tab-txns" hidden>
       <section class="panel">
@@ -332,10 +368,21 @@
             <button type="button" class="in" data-type="Income" aria-pressed="false">↓ Income</button>
             <button type="button" class="out" data-type="Expense" aria-pressed="true">↑ Expense</button>
             <button type="button" class="tr" data-type="Transfer" aria-pressed="false">⇄ Transfer</button>
+            <button type="button" class="ln" data-type="Loan" aria-pressed="false">🤝 Loan</button>
           </div>
+          <div class="loanseg" id="loanSeg" hidden>
+            <button type="button" data-loan="Loan Given" aria-pressed="true">I lent money<small>Loan given to someone</small></button>
+            <button type="button" data-loan="Loan Received Back" aria-pressed="false">I got money back<small>They repaid me</small></button>
+            <button type="button" data-loan="Loan Taken" aria-pressed="false">I borrowed<small>A loan I need to pay</small></button>
+            <button type="button" data-loan="Loan Repaid" aria-pressed="false">I paid back<small>Repaying what I borrowed</small></button>
+          </div>
+          <label id="personWrap" hidden>Person<input name="person" id="personIn" list="peopleList" autocomplete="off"></label>
+          <datalist id="peopleList"></datalist>
           <label>Amount (LKR)<input type="number" name="amount" min="1" step="any" inputmode="decimal" required></label>
           <label id="catWrap">Category<select name="category" id="catSel"></select></label>
           <label id="catNewWrap" hidden>New category<input name="catNew" id="catNew"></label>
+          <label id="subWrap">Sub-category<select name="sub" id="subSel"></select></label>
+          <label id="subNewWrap" hidden>New sub-category<input name="subNew" id="subNew"></label>
           <label><span id="accLbl">Paid from</span><select name="account" id="accSel" required></select></label>
           <label id="toWrap" hidden>To account<select name="to" id="toSel"></select></label>
           <label>Date<input type="date" name="date" required></label>
@@ -379,7 +426,7 @@
 <script>
 /* ===== Settings you may edit ===== */
 // Web app URL from Apps Script (Deploy → Manage deployments).
-const API_URL = "https://script.google.com/macros/s/AKfycbyuqeEGmYhJwTBS4Kxyc8ggQ9vONh60dh2sAIBOnSC330RCS3z_wN4N1ZTtjq6kic9aAA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyVSGp7Vr2k2_IOqjNsVoo1ui7yIJrEHkh2QLRT193nFsZlgBOoK3yEY-gaqvh0YwJYOQ/exec";
 const OWNER = "Hashmath";
 const AUTO_REFRESH_SECONDS = 60;
 // Lock again after this many minutes without using the page.
@@ -400,12 +447,17 @@ const thisMonth = () => localISO().slice(0, 7);
 
 /* Icons per category (anything else gets a generic one) */
 const ICONS = {
-  salary: "💼", bonus: "🎁", freelance: "🧑‍💻", business: "🏪", rental: "🏠", interest: "📈", gifts: "🎁", refunds: "↩️",
-  food: "🛒", dining: "🍽️", transport: "⛽", utilities: "💡", phone: "📶", rent: "🏠", health: "🩺", education: "📚",
-  shopping: "🛍️", family: "👨‍👩‍👧", charity: "🤲", entertainment: "🎬", sports: "🏏", travel: "✈️", insurance: "🛡️",
-  loan: "🏦", personal: "💈", home: "🛠️"
+  salary: "💼", bonus: "🎁", freelance: "🧑‍💻", business: "🏪", rental: "🏘️", interest: "📈", gifts: "🎁", refunds: "↩️",
+  food: "🍛", groceries: "🛒", milk: "🥛", meats: "🍗", dining: "🍽️", fuel: "⛽", transport: "🛺", vehicle: "🔧",
+  utilities: "💡", gas: "🔥", phone: "📶", medical: "🩺", health: "🩺", education: "🎓", children: "🧸", home: "🏠", rent: "🏠",
+  shopping: "🛍️", personal: "💈", family: "👨‍👩‍👧", charity: "🤲", sports: "🏏", entertainment: "🎬", travel: "✈️",
+  insurance: "🛡️", bank: "🏦", loans: "🤝", loan: "🤝"
 };
-const iconFor = (t) => t.type === "Transfer" ? "⇄" : (Object.entries(ICONS).find(([k]) => norm(t.cat).startsWith(k)) || [, t.type === "Income" ? "💰" : "🧾"])[1];
+// Loan types: money in (+) or out (−) of the account, never income or spending.
+const LOAN_IN = ["Loan Received Back", "Loan Taken"], LOAN_OUT = ["Loan Given", "Loan Repaid"];
+const isLoan = t => /^loan/i.test(t.type);
+const iconFor = (t) => t.type === "Transfer" ? "⇄" : isLoan(t) ? "🤝" : (Object.entries(ICONS).find(([k]) => norm(t.cat).startsWith(k)) || [, t.type === "Income" ? "💰" : "🧾"])[1];
+const catLabel = t => t.sub ? `${t.cat} › ${t.sub}` : t.cat;
 
 /* ===== Talking to the script (every call carries the PIN) ===== */
 let PIN = "";
@@ -459,9 +511,35 @@ function balances(d) {
     if (t.type === "Income") bal[a] = (bal[a] || 0) + t.amount;
     else if (t.type === "Expense") bal[a] = (bal[a] || 0) - t.amount;
     else if (t.type === "Transfer") { bal[a] = (bal[a] || 0) - t.amount; bal[b] = (bal[b] || 0) + t.amount; }
+    else if (LOAN_IN.includes(t.type)) bal[a] = (bal[a] || 0) + t.amount;
+    else if (LOAN_OUT.includes(t.type)) bal[a] = (bal[a] || 0) - t.amount;
   });
   return bal;
 }
+// Per person: what they owe me (given − received back) and what I owe them (taken − repaid).
+function loanBook() {
+  const p = new Map();
+  DATA.txns.filter(isLoan).forEach(t => {
+    const k = norm(t.sub) || "unknown";
+    if (!p.has(k)) p.set(k, { name: t.sub || "Unknown", owedToMe: 0, iOwe: 0, items: [] });
+    const x = p.get(k);
+    if (t.type === "Loan Given") x.owedToMe += t.amount;
+    if (t.type === "Loan Received Back") x.owedToMe -= t.amount;
+    if (t.type === "Loan Taken") x.iOwe += t.amount;
+    if (t.type === "Loan Repaid") x.iOwe -= t.amount;
+    x.items.push(t);
+  });
+  return [...p.values()];
+}
+// Sub-category spending inside one category for a month: [[sub, amount], …] biggest first.
+function subSpend(cat, k) {
+  const m = {};
+  DATA.txns.filter(t => t.type === "Expense" && norm(t.cat) === norm(cat) && t.date.slice(0, 7) === k)
+    .forEach(t => { const s = t.sub || "Other"; m[s] = (m[s] || 0) + t.amount; });
+  return Object.entries(m).sort((a, b) => b[1] - a[1]);
+}
+const subChips = (cat, k) => { const s = subSpend(cat, k); return s.length > 1 || (s.length === 1 && s[0][0] !== "Other")
+  ? `<div class="subs">${s.map(([n, a]) => `<span>${esc(n)} <b class="num">${fmt(a)}</b></span>`).join("")}</div>` : ""; };
 function monthTotals(k) {
   const list = DATA.txns.filter(t => t.date.slice(0, 7) === k);
   const inc = list.filter(t => t.type === "Income").reduce((a, t) => a + t.amount, 0);
@@ -484,10 +562,13 @@ function render(d) {
   $("months").innerHTML = [...months].reverse().map(k => `<button class="mbtn" data-m="${k}" aria-pressed="${k === selMonth}">${mShort(k)}</button>`).join("");
 
   const bal = balances(d);
-  const nw = d.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0);
+  const book = loanBook();
+  const owedToMe = book.reduce((a, x) => a + Math.max(x.owedToMe, 0), 0), iOwe = book.reduce((a, x) => a + Math.max(x.iOwe, 0), 0);
+  // Net worth = everything in the accounts + money others owe me − money I owe.
+  const nw = d.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0) + owedToMe - iOwe;
   $("nw").innerHTML = `<small>LKR</small>${nw < 0 ? "−" : ""}${fmt(Math.abs(nw))}`;
   const owed = d.accounts.filter(a => /card/i.test(a.type) && (bal[norm(a.name)] || 0) < 0).reduce((s, a) => s - bal[norm(a.name)], 0);
-  $("nwNote").textContent = `${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}${owed ? ` · LKR ${fmt(owed)} owed on cards` : ""}`;
+  $("nwNote").textContent = `${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}${owed ? ` · LKR ${fmt(owed)} owed on cards` : ""}${owedToMe || iOwe ? ` · loans: +${fmt(owedToMe)} / −${fmt(iOwe)}` : ""}`;
 
   const mt = monthTotals(selMonth);
   $("kIn").textContent = fmt(mt.inc); $("kOut").textContent = fmt(mt.exp);
@@ -500,7 +581,7 @@ function render(d) {
   $("kBudget").textContent = budTotal ? (budTotal - budSpent < 0 ? "−" : "") + fmt(Math.abs(budTotal - budSpent)) : "–";
   $("kBudgetS").textContent = budTotal ? `of ${fmt(budTotal)}` : "No budgets set";
 
-  renderOverview(); renderBudgets(); renderAccounts(bal); renderTxns(); fillForms();
+  renderOverview(); renderBudgets(); renderAccounts(bal); renderLoans(book, owedToMe, iOwe); renderTxns(); fillForms();
 }
 
 /* ===== Overview ===== */
@@ -528,7 +609,7 @@ function renderOverview() {
   const sp = Object.entries(spendByCat(selMonth)).sort((a, b) => b[1] - a[1]).slice(0, 5);
   const big = sp.length ? sp[0][1] : 1;
   $("topAside").textContent = sp.length ? "" : "Nothing spent yet";
-  $("topSpend").innerHTML = sp.map(([c, a]) => `<div class="brow"><div class="t"><span class="n">${iconFor({ type: "Expense", cat: c })} ${esc(c)}</span><span class="a"><b class="num">${fmt(a)}</b> · ${mt.exp ? Math.round(a / mt.exp * 100) : 0}%</span></div><div class="bar"><i style="width:${a / big * 100}%"></i></div></div>`).join("");
+  $("topSpend").innerHTML = sp.map(([c, a]) => `<div class="brow"><div class="t"><span class="n">${iconFor({ type: "Expense", cat: c })} ${esc(c)}</span><span class="a"><b class="num">${fmt(a)}</b> · ${mt.exp ? Math.round(a / mt.exp * 100) : 0}%</span></div><div class="bar"><i style="width:${a / big * 100}%"></i></div>${subChips(c, selMonth)}</div>`).join("");
 
   // Latest 6 transactions overall
   const latest = [...DATA.txns].sort((a, b) => b.date.localeCompare(a.date) || b.row - a.row).slice(0, 6);
@@ -554,12 +635,12 @@ function renderBudgets() {
     const left = b.budget - b.spent;
     return `<div class="brow ${cls}"><div class="t"><span class="n">${iconFor({ type: "Expense", cat: b.cat })} ${esc(b.cat)}</span><span class="a"><b class="num">${fmt(b.spent)}</b> / ${fmt(b.budget)}</span></div>
       <div class="bar"><i style="width:${Math.min(p, 1) * 100}%"></i></div>
-      <div class="left">${left >= 0 ? `LKR ${fmt(left)} left` : `LKR ${fmt(-left)} over`}</div></div>`;
+      <div class="left">${left >= 0 ? `LKR ${fmt(left)} left` : `LKR ${fmt(-left)} over`}</div>${subChips(b.cat, selMonth)}</div>`;
   }).join("") : `<div class="empty">No budgets yet. Set one from the + Add tab.</div>`;
   const budgeted = new Set(list.map(b => norm(b.cat)));
   const extra = Object.entries(sp).filter(([c]) => !budgeted.has(norm(c))).sort((a, b) => b[1] - a[1]);
   $("unbudgetedPanel").hidden = !extra.length;
-  $("unbudgeted").innerHTML = extra.map(([c, a]) => `<div class="brow"><div class="t"><span class="n">${iconFor({ type: "Expense", cat: c })} ${esc(c)}</span><span class="a"><b class="num">${fmt(a)}</b></span></div></div>`).join("");
+  $("unbudgeted").innerHTML = extra.map(([c, a]) => `<div class="brow"><div class="t"><span class="n">${iconFor({ type: "Expense", cat: c })} ${esc(c)}</span><span class="a"><b class="num">${fmt(a)}</b></span></div>${subChips(c, selMonth)}</div>`).join("");
 }
 
 /* ===== Accounts ===== */
@@ -586,12 +667,35 @@ function renderAccounts(bal) {
   }).join("") : `<div class="empty">No accounts yet.</div>`;
 }
 
+/* ===== Loans ===== */
+function renderLoans(book, owedToMe, iOwe) {
+  $("loanTiles").innerHTML = `<div class="ltile me"><div class="k">Others owe me</div><div class="v num">${fmt(owedToMe)}</div></div>
+    <div class="ltile they"><div class="k">I owe</div><div class="v num">${fmt(iOwe)}</div></div>`;
+  const order = x => (x.owedToMe > 0 || x.iOwe > 0) ? 0 : 1;
+  $("loanGrid").innerHTML = book.length ? [...book].sort((a, b) => order(a) - order(b) || (b.owedToMe + b.iOwe) - (a.owedToMe + a.iOwe)).map(x => {
+    const st = x.owedToMe > 0 ? `<span class="st me">Owes me ${fmt(x.owedToMe)}</span>` : x.iOwe > 0 ? `<span class="st they">I owe ${fmt(x.iOwe)}</span>` : `<span class="st done">Settled</span>`;
+    const both = x.owedToMe > 0 && x.iOwe > 0 ? `<span class="st they">I owe ${fmt(x.iOwe)}</span>` : "";
+    const hist = [...x.items].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6).map(t => {
+      const d = new Date(t.date + "T00:00"), inn = LOAN_IN.includes(t.type);
+      return `<div><span>${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()} · ${esc(LOAN_TEXT[t.type] || t.type)}</span><b class="num ${inn ? "up" : "down"}">${inn ? "+" : "−"}${fmt(t.amount)}</b></div>`;
+    }).join("");
+    return `<div class="lcard"><div class="top"><span class="nm">🤝 ${esc(x.name)}</span><span>${st} ${both}</span></div><div class="hist">${hist}</div></div>`;
+  }).join("") : `<div class="empty" style="padding:0">No loans recorded. Add one from + Add → Loan.</div>`;
+}
+
 /* ===== Transactions ===== */
+const LOAN_TEXT = { "Loan Given": "Lent to", "Loan Received Back": "Paid back by", "Loan Taken": "Borrowed from", "Loan Repaid": "Repaid to" };
 function itemHTML(t) {
+  if (isLoan(t)) {
+    const inn = LOAN_IN.includes(t.type);
+    return `<div class="item"><div class="ico tr" aria-hidden="true">🤝</div>
+      <div><div class="who">${esc(LOAN_TEXT[t.type] || t.type)} ${esc(t.sub)}</div><div class="sub"><span class="tag">${esc(t.type)}</span><span>${esc(t.account)}</span>${t.desc ? `<span>${esc(t.desc)}</span>` : ""}</div></div>
+      <span class="pill ${inn ? "in" : "out"} num">${inn ? "+" : "−"}${fmt(t.amount)}</span></div>`;
+  }
   const cls = t.type === "Income" ? "in" : t.type === "Expense" ? "out" : "tr";
-  const title = t.desc || (t.type === "Transfer" ? "Transfer" : t.cat);
+  const title = t.desc || (t.type === "Transfer" ? "Transfer" : (t.sub || t.cat));
   // The category tag is skipped when it's already the title (no description given).
-  const sub = t.type === "Transfer" ? `<span class="tag">${esc(t.account)} → ${esc(t.to)}</span>` : `${t.desc ? `<span class="tag">${esc(t.cat)}</span>` : ""}<span>${esc(t.account)}</span>`;
+  const sub = t.type === "Transfer" ? `<span class="tag">${esc(t.account)} → ${esc(t.to)}</span>` : `<span class="tag">${esc(t.desc ? catLabel(t) : t.cat)}</span><span>${esc(t.account)}</span>`;
   const sign = t.type === "Income" ? "+" : t.type === "Expense" ? "−" : "";
   return `<div class="item"><div class="ico ${cls}" aria-hidden="true">${iconFor(t)}</div>
     <div><div class="who">${esc(title)}</div><div class="sub">${sub}${t.notes ? `<span>${esc(t.notes)}</span>` : ""}</div></div>
@@ -600,11 +704,11 @@ function itemHTML(t) {
 function renderTxns() {
   const all = DATA.txns.filter(t => t.date.slice(0, 7) === selMonth);
   $("txTitle").textContent = mLong(selMonth);
-  $("txTypes").innerHTML = ["", "Income", "Expense", "Transfer"].map(x => `<button class="chip" data-type="${x}" aria-pressed="${x === txType}">${x || "All"}</button>`).join("");
+  $("txTypes").innerHTML = ["", "Income", "Expense", "Transfer", "Loans"].map(x => `<button class="chip" data-type="${x}" aria-pressed="${x === txType}">${x || "All"}</button>`).join("");
   $("txAccounts").innerHTML = [`<button class="chip" data-acc="" aria-pressed="${!txAcc}">All accounts</button>`, ...DATA.accounts.map(a => `<button class="chip" data-acc="${esc(a.name)}" aria-pressed="${a.name === txAcc}">${esc(a.name)}</button>`)].join("");
   const q = txQuery.toLowerCase();
-  const list = all.filter(t => (!txType || t.type === txType) && (!txAcc || norm(t.account) === norm(txAcc) || norm(t.to) === norm(txAcc)) &&
-    (!q || [t.desc, t.cat, t.notes, t.account].join(" ").toLowerCase().includes(q)));
+  const list = all.filter(t => (!txType || t.type === txType || (txType === "Loans" && isLoan(t))) && (!txAcc || norm(t.account) === norm(txAcc) || norm(t.to) === norm(txAcc)) &&
+    (!q || [t.desc, t.cat, t.sub, t.notes, t.account].join(" ").toLowerCase().includes(q)));
   $("txAside").textContent = `${list.length} of ${all.length}`;
   const g = new Map();
   [...list].sort((a, b) => b.date.localeCompare(a.date) || b.row - a.row).forEach(t => { if (!g.has(t.date)) g.set(t.date, []); g.get(t.date).push(t); });
@@ -633,10 +737,19 @@ function catsFor(kind) {
   const key = Object.keys(L).find(h => norm(h).startsWith(kind === "Income" ? "income" : "expense"));
   return key ? L[key] : [];
 }
+const subsFor = cat => (DATA.subs || []).filter(s => norm(s.cat) === norm(cat)).map(s => s.sub);
+function fillSubs() {
+  const cat = $("catSel").value, keep = $("subSel").value;
+  const list = cat && cat !== "__new" ? subsFor(cat) : [];
+  $("subSel").innerHTML = `<option value="">${list.length ? "Choose…" : "None"}</option>` + opts(list, keep) + `<option value="__new">Add new sub-category…</option>`;
+  $("subSel").required = list.length > 0;           // pick one when the category has sub-categories
+  $("subNewWrap").hidden = $("subSel").value !== "__new";
+}
 function fillForms() {
   if (!DATA) return;
   const kc = $("catSel").value;
-  $("catSel").innerHTML = opts(catsFor(txKind), kc) + `<option value="__new">Add new category…</option>`;
+  $("catSel").innerHTML = opts(catsFor(txKind === "Income" ? "Income" : "Expense"), kc) + `<option value="__new">Add new category…</option>`;
+  fillSubs();
   const names = DATA.accounts.map(a => a.name);
   const ka = $("accSel").value, kt = $("toSel").value;
   $("accSel").innerHTML = opts(names, ka);
@@ -645,20 +758,35 @@ function fillForms() {
   $("bCatSel").innerHTML = opts(catsFor("Expense"), kb) + `<option value="__new">Add new category…</option>`;
   const types = (DATA.lists && DATA.lists[Object.keys(DATA.lists).find(h => /account\s*type/i.test(h))]) || ["Bank", "Cash", "Credit Card"];
   $("accTypeSel").innerHTML = opts(types, $("accTypeSel").value);
+  $("peopleList").innerHTML = [...new Set(DATA.txns.filter(isLoan).map(t => t.sub).filter(Boolean))].map(n => `<option value="${esc(n)}">`).join("");
 }
+let loanKind = "Loan Given";
 function setKind(kind) {
   txKind = kind;
+  const loan = kind === "Loan";
   document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.type === kind));
-  $("catWrap").hidden = kind === "Transfer";
-  $("catNewWrap").hidden = true;
+  $("catWrap").hidden = kind === "Transfer" || loan;
+  $("subWrap").hidden = kind === "Transfer" || loan;
+  $("catNewWrap").hidden = true; $("subNewWrap").hidden = true;
   $("toWrap").hidden = kind !== "Transfer";
-  $("accLbl").textContent = kind === "Income" ? "Received into" : kind === "Transfer" ? "From account" : "Paid from";
+  $("loanSeg").hidden = !loan; $("personWrap").hidden = !loan; $("personIn").required = loan;
+  $("subSel").required = false;
+  $("accLbl").textContent = kind === "Income" ? "Received into" : kind === "Transfer" ? "From account"
+    : loan ? (LOAN_IN.includes(loanKind) ? "Money went into" : "Money came from") : "Paid from";
   $("catSel").innerHTML = "";
   fillForms();
 }
+$("loanSeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  loanKind = b.dataset.loan;
+  document.querySelectorAll("#loanSeg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  setKind("Loan");
+});
 document.querySelector(".seg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) setKind(b.dataset.type); });
 const toggleNew = (sel, wrap, input) => $(sel).addEventListener("change", e => { const on = e.target.value === "__new"; $(wrap).hidden = !on; $(input).required = on; if (on) $(input).focus(); });
 toggleNew("catSel", "catNewWrap", "catNew");
+$("catSel").addEventListener("change", () => { $("subSel").value = ""; fillSubs(); });
+toggleNew("subSel", "subNewWrap", "subNew");
 toggleNew("bCatSel", "bCatNewWrap", "bCatNew");
 
 // Saves run one after another in the background, so the form is free for the next entry straight away.
@@ -690,10 +818,14 @@ function wire(id, build, describe, after) {
     if (after) after();
   });
 }
-wire("txForm", f => ({
-  action: "txn", type: txKind, amount: f.amount, date: f.date, description: f.description, notes: f.notes, account: f.account,
-  to: txKind === "Transfer" ? f.to : "", category: txKind === "Transfer" ? "" : (f.category === "__new" ? f.catNew.trim() : f.category)
-}), p => `${p.type.toLowerCase()} of LKR ${fmt(+p.amount)}`, () => { $("catNewWrap").hidden = true; fillForms(); });
+wire("txForm", f => txKind === "Loan"
+  ? { action: "txn", type: loanKind, amount: f.amount, date: f.date, description: f.description, notes: f.notes, account: f.account, sub: (f.person || "").trim() }
+  : {
+    action: "txn", type: txKind, amount: f.amount, date: f.date, description: f.description, notes: f.notes, account: f.account,
+    to: txKind === "Transfer" ? f.to : "", category: txKind === "Transfer" ? "" : (f.category === "__new" ? f.catNew.trim() : f.category),
+    sub: txKind === "Transfer" ? "" : (f.sub === "__new" ? (f.subNew || "").trim() : f.sub)
+  }, p => `${/^loan/i.test(p.type) ? p.type.toLowerCase() + " (" + p.sub + ")" : p.type.toLowerCase()} of LKR ${fmt(+p.amount)}`,
+  () => { $("catNewWrap").hidden = true; $("subNewWrap").hidden = true; fillForms(); });
 wire("budgetForm", f => ({ action: "budget", category: f.category === "__new" ? f.catNew.trim() : f.category, amount: f.amount }),
   p => `budget for ${p.category}`, () => { $("bCatNewWrap").hidden = true; });
 wire("accForm", f => ({ action: "account", ...f }), p => `account ${p.name}`);
@@ -701,7 +833,7 @@ wire("accForm", f => ({ action: "account", ...f }), p => `account ${p.name}`);
 /* ===== Tabs ===== */
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
   document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === t));
-  ["overview", "budgets", "accounts", "txns", "add"].forEach(n => $("tab-" + n).hidden = t.dataset.tab !== n);
+  ["overview", "budgets", "accounts", "loans", "txns", "add"].forEach(n => $("tab-" + n).hidden = t.dataset.tab !== n);
   if (t.dataset.tab === "overview") $("trend").scrollLeft = $("trend").scrollWidth;
 }));
 
