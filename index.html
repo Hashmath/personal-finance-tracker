@@ -764,7 +764,15 @@ function render(d) {
   $("nw").innerHTML = `<small>LKR</small>${nw < 0 ? "−" : ""}${fmt(Math.abs(nw))}`;
   const owed = d.accounts.filter(a => /card/i.test(a.type) && (bal[norm(a.name)] || 0) < 0).reduce((s, a) => s - bal[norm(a.name)], 0);
   const funds = d.funds || [], held = funds.filter(f => f.ok).reduce((a, f) => a + f.balance, 0);
-  $("nwNote").textContent = `${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}${owed ? ` · ${fmt(owed)} owed on cards` : ""}${owedToMe || iOwe ? ` · loans +${fmt(owedToMe)} / −${fmt(iOwe)}` : ""}${held ? ` · after setting aside ${fmt(held)} team money` : ""}`;
+  // Teams with money left: that's team money I hold (set aside). Teams below zero owe me what I paid for them.
+  const teamHeldPos = funds.filter(f => f.ok && f.balance > 0).reduce((a, f) => a + f.balance, 0);
+  const teamOwesMe = funds.filter(f => f.ok && f.balance < 0).reduce((a, f) => a - f.balance, 0);
+  const parts = [`${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}`];
+  if (owed) parts.push(`${fmt(owed)} owed on cards`);
+  if (owedToMe + teamOwesMe) parts.push(`others owe me ${fmt(owedToMe + teamOwesMe)}`);
+  if (iOwe) parts.push(`I owe ${fmt(iOwe)}`);
+  if (teamHeldPos) parts.push(`${fmt(teamHeldPos)} team money set aside`);
+  $("nwNote").textContent = parts.join(" · ");
 
   const mt = monthTotals(selMonth);
   $("kIn").textContent = fmt(mt.inc); $("kOut").textContent = fmt(mt.exp);
