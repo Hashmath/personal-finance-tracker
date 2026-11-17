@@ -243,6 +243,24 @@
   .totbar span { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); display: block; }
   .totbar b { font-family: "Sora", Arial, sans-serif; font-size: 17px; }
 
+  /* Team funds held for others */
+  .funds { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .fund { border-radius: 18px; padding: 14px 16px; border: 1px solid var(--line); background: linear-gradient(135deg, color-mix(in srgb, var(--c) 10%, var(--card)), var(--card)); position: relative; overflow: hidden; }
+  .fund::after { content: ""; position: absolute; right: -30px; top: -30px; width: 110px; height: 110px; border-radius: 50%; background: color-mix(in srgb, var(--c) 10%, transparent); }
+  .fund > * { position: relative; z-index: 1; }
+  .fund .top { display: flex; align-items: center; gap: 10px; }
+  .fund .nm { font-weight: 700; } .fund .hint { font-size: 12px; color: var(--muted); }
+  .fund .bal { font-family: "Sora", Arial, sans-serif; font-weight: 800; font-size: 26px; margin-top: 10px; color: var(--c); }
+  .fund .bal small { font-size: .5em; color: var(--muted); font-weight: 700; margin-right: 4px; }
+  .fund .row { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .fund .row b { color: var(--ink); }
+  .fund .row b.up { color: var(--in); } .fund .row b.down { color: var(--out); }
+  .fund.err .bal { font-size: 14px; font-family: "Inter", Arial, sans-serif; font-weight: 600; color: var(--out); }
+  .inhand { margin: 0 16px 16px; padding: 14px 16px; border-radius: 16px; background: var(--soft); display: grid; gap: 6px; font-size: 14px; }
+  .inhand div { display: flex; justify-content: space-between; gap: 10px; }
+  .inhand .tot { border-top: 1px solid var(--line); padding-top: 8px; font-weight: 700; }
+  .inhand b { font-family: "Sora", Arial, sans-serif; }
+
   /* Loans */
   .ltiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px 14px; }
   .ltile { border-radius: 16px; padding: 14px; display: flex; gap: 10px; align-items: center; }
@@ -397,6 +415,10 @@
           <div id="donut"></div>
         </section>
       </div>
+      <section class="panel" id="fundsPanel" hidden>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-users"/></svg></div><h2>Team money I hold</h2><span class="aside">Belongs to the teams</span></div>
+        <div class="funds" id="fundsHome"></div>
+      </section>
       <section class="panel">
         <div class="phead"><div class="pi"><svg class="ic"><use href="#i-chart-column"/></svg></div><h2>Month by month</h2><span class="aside">Tap a month to open it</span></div>
         <div class="legend"><span><i style="background:var(--in)"></i>Income</span><span><i style="background:var(--out)"></i>Expenses</span></div>
@@ -426,6 +448,11 @@
       <section class="panel">
         <div class="phead"><div class="pi"><svg class="ic"><use href="#i-wallet"/></svg></div><h2>Accounts</h2><span class="aside" id="accAside"></span></div>
         <div class="agrid" id="accGrid"></div>
+      </section>
+      <section class="panel" id="fundsPanel2" hidden>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-users"/></svg></div><h2>Held for the teams</h2><span class="aside">Not counted in your net worth</span></div>
+        <div class="funds" id="fundsAcc"></div>
+        <div class="inhand" id="inHand"></div>
       </section>
     </div>
 
@@ -720,7 +747,8 @@ function render(d) {
   const nw = d.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0) + owedToMe - iOwe;
   $("nw").innerHTML = `<small>LKR</small>${nw < 0 ? "−" : ""}${fmt(Math.abs(nw))}`;
   const owed = d.accounts.filter(a => /card/i.test(a.type) && (bal[norm(a.name)] || 0) < 0).reduce((s, a) => s - bal[norm(a.name)], 0);
-  $("nwNote").textContent = `${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}${owed ? ` · ${fmt(owed)} owed on cards` : ""}${owedToMe || iOwe ? ` · loans +${fmt(owedToMe)} / −${fmt(iOwe)}` : ""}`;
+  const funds = d.funds || [], held = funds.filter(f => f.ok).reduce((a, f) => a + f.balance, 0);
+  $("nwNote").textContent = `${d.accounts.length} account${d.accounts.length === 1 ? "" : "s"}${owed ? ` · ${fmt(owed)} owed on cards` : ""}${owedToMe || iOwe ? ` · loans +${fmt(owedToMe)} / −${fmt(iOwe)}` : ""}${held ? ` · also holding ${fmt(held)} for teams` : ""}`;
 
   const mt = monthTotals(selMonth);
   $("kIn").textContent = fmt(mt.inc); $("kOut").textContent = fmt(mt.exp);
@@ -733,7 +761,7 @@ function render(d) {
   $("kBudget").textContent = budTotal ? (budTotal - budSpent < 0 ? "−" : "") + fmt(Math.abs(budTotal - budSpent)) : "–";
   $("kBudgetS").textContent = budTotal ? `of ${fmt(budTotal)}` : "No budgets set";
 
-  renderOverview(); renderBudgets(); renderAccounts(bal); renderLoans(book, owedToMe, iOwe); renderTxns(); fillForms();
+  renderOverview(); renderBudgets(); renderAccounts(bal); renderFunds(funds, bal); renderLoans(book, owedToMe, iOwe); renderTxns(); fillForms();
 }
 
 /* ===== Home ===== */
@@ -830,6 +858,31 @@ function renderAccounts(bal) {
       <div class="flow">${card && b < 0 ? `<span>Amount owed</span>` : ""}<span>${icon("arrow-down-left")} ${fmt(f.i)}</span><span>${icon("arrow-up-right")} ${fmt(f.o)}</span></div></div>
     </div>`;
   }).join("") : `<div class="empty">No accounts yet.</div>`;
+}
+
+/* ===== Team funds ===== */
+// Money held for the Red Dragon and Futsal & Cricket teams, read live from their sheets.
+function renderFunds(funds, bal) {
+  const has = funds.length > 0;
+  $("fundsPanel").hidden = $("fundsPanel2").hidden = !has;
+  if (!has) return;
+  const icons = ["trophy", "users"];
+  const day = iso => { if (!iso) return ""; const d = new Date(iso + "T00:00"); return `${d.getDate()} ${MON[d.getMonth()]}`; };
+  const html = funds.map((f, i) => f.ok ? `<div class="fund" style="--c:${f.color}">
+      <div class="top"><span class="cat sm" style="--c:${f.color}">${icon(icons[i % icons.length])}</span><div><div class="nm">${esc(f.name)}</div><div class="hint">${f.last ? "Last entry " + day(f.last) : "No entries yet"}</div></div></div>
+      <div class="bal num"><small>LKR</small>${f.balance < 0 ? "−" : ""}${fmt(Math.abs(f.balance))}</div>
+      <div class="row"><span>Received <b class="num">${fmt(f.received)}</b></span><span>Spent <b class="num">${fmt(f.spent)}</b></span></div>
+      <div class="row"><span>This month <b class="num up">+${fmt(f.monthIn)}</b> <b class="num down">−${fmt(f.monthOut)}</b></span></div>
+    </div>` : `<div class="fund err" style="--c:${f.color}"><div class="top"><span class="cat sm" style="--c:${f.color}">${icon(icons[i % icons.length])}</span><div class="nm">${esc(f.name)}</div></div>
+      <div class="bal">${esc(f.error || "Not available")}</div></div>`).join("");
+  $("fundsHome").innerHTML = html; $("fundsAcc").innerHTML = html;
+
+  // The full picture: my money plus team money = what I actually hold.
+  const mine = DATA.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0);
+  const held = funds.filter(f => f.ok).reduce((a, f) => a + f.balance, 0);
+  $("inHand").innerHTML = `<div><span>My accounts</span><b class="num">${fmt(mine)}</b></div>
+    ${funds.filter(f => f.ok).map(f => `<div><span>${esc(f.short)} (team money)</span><b class="num">${fmt(f.balance)}</b></div>`).join("")}
+    <div class="tot"><span>Total money in my hands</span><b class="num">${fmt(mine + held)}</b></div>`;
 }
 
 /* ===== Loans ===== */
@@ -997,8 +1050,9 @@ function wire(id, build, describe, check, after) {
     if (problem) { showSave(problem, "bad"); return; }
     const p = build(f);
     queueSave(p, describe(p));
-    const keep = form.elements.date ? form.elements.date.value : null;
-    form.reset(); if (keep) form.elements.date.value = keep;
+    form.reset();
+    // Back to today's date for the next entry (a past date is only for the entry it was chosen for).
+    if (form.elements.date) form.elements.date.value = localISO().slice(0, 10);
     if (after) after();
   });
 }
