@@ -908,12 +908,15 @@ const LOAN_TEXT = { "Loan Given": "Lent to", "Loan Received Back": "Paid back by
 function renderLoans(book, owedToMe, iOwe) {
   // Team money I hold is owed back to the teams. It's money I'm holding, not money I've spent,
   // so it's shown here as a debt but leaves net worth unchanged (the cash and the debt cancel out).
-  const teams = (DATA.funds || []).filter(f => f.ok && f.balance > 0), teamOwe = teams.reduce((a, f) => a + f.balance, 0);
-  $("loanTiles").innerHTML = `<div class="ltile me">${icon("arrow-down-left")}<div><div class="k">Others owe me</div><div class="v num">${fmt(owedToMe)}</div></div></div>
+  // A team fund below zero means I paid team costs from my own money: then the team owes me.
+  const teams = (DATA.funds || []).filter(f => f.ok && f.balance !== 0);
+  const teamOwe = teams.filter(f => f.balance > 0).reduce((a, f) => a + f.balance, 0);
+  const teamOwesMe = teams.filter(f => f.balance < 0).reduce((a, f) => a - f.balance, 0);
+  $("loanTiles").innerHTML = `<div class="ltile me">${icon("arrow-down-left")}<div><div class="k">Others owe me</div><div class="v num">${fmt(owedToMe + teamOwesMe)}</div>${teamOwesMe ? `<div class="k" style="text-transform:none;letter-spacing:0;font-weight:600">${fmt(owedToMe)} loans + ${fmt(teamOwesMe)} from teams</div>` : ""}</div></div>
     <div class="ltile they">${icon("arrow-up-right")}<div><div class="k">I owe</div><div class="v num">${fmt(iOwe + teamOwe)}</div>${teamOwe ? `<div class="k" style="text-transform:none;letter-spacing:0;font-weight:600">${fmt(iOwe)} loans + ${fmt(teamOwe)} team money</div>` : ""}</div></div>`;
   const day = iso => { if (!iso) return ""; const d = new Date(iso + "T00:00"); return `${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}`; };
   const teamCards = teams.map((f, i) => `<div class="lcard team" style="--c:${f.color}">
-      <div class="top"><span class="avatar" style="background:${f.color}">${icon(i === 0 ? "trophy" : "users")}</span><div><div class="nm">${esc(f.short)} team</div><div class="hint">Team money I hold</div></div><span class="st they">I owe ${fmt(f.balance)}</span></div>
+      <div class="top"><span class="avatar" style="background:${f.color}">${icon(i === 0 ? "trophy" : "users")}</span><div><div class="nm">${esc(f.short)} team</div><div class="hint">${f.balance > 0 ? "Team money I hold" : "I paid team costs from my own money"}</div></div>${f.balance > 0 ? `<span class="st they">I owe ${fmt(f.balance)}</span>` : `<span class="st me">Owes me ${fmt(-f.balance)}</span>`}</div>
       <div class="hist"><div><span>Collected for the team</span><b class="num">${fmt(f.received)}</b></div><div><span>Spent for the team</span><b class="num">${fmt(f.spent)}</b></div>
       <div><span>This month</span><b class="num"><span class="up">+${fmt(f.monthIn)}</span> <span class="down">−${fmt(f.monthOut)}</span></b></div>${f.last ? `<div><span>Last entry</span><b>${day(f.last)}</b></div>` : ""}</div></div>`).join("");
   const open = x => (x.owedToMe > 0 || x.iOwe > 0) ? 0 : 1;
