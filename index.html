@@ -137,7 +137,9 @@
     .tab.add { flex: none; width: 54px; height: 54px; margin: -16px 2px 6px; padding: 0; border-radius: 18px; justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,.35); }
     .tab.add span { display: none; }
     .tab.add .ic { width: 26px; height: 26px; }
-    body { padding-bottom: 76px; }
+    body { padding-bottom: 0; }
+    footer.tex { padding-bottom: calc(22px + 76px + env(safe-area-inset-bottom, 0px)) !important; }   /* room for the bottom bar */
+    #lock ~ #app main { padding-bottom: 24px; }
   }
 
   /* ================= Content ================= */
@@ -334,15 +336,33 @@
   .sw { height: 44px; border-radius: 10px; margin-bottom: 8px; }
 
   /* ================= Footer ================= */
-  footer.tex { position: relative; margin-top: 10px; padding: 46px 16px 30px; text-align: center; }
+  footer.tex { position: relative; margin-top: 10px; padding: 50px 16px 22px; }
   footer .wave { position: absolute; top: -1px; left: 0; width: 100%; height: 40px; color: var(--bg); }
-  .fbrand { display: inline-flex; align-items: center; gap: 12px; text-align: left; }
+  .fwrap { max-width: 1060px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 1fr 1.2fr; gap: 28px; }
+  @media (max-width: 760px) { .fwrap { grid-template-columns: 1fr 1fr; } .fmain { grid-column: 1 / -1; } }
+  @media (max-width: 420px) { .fwrap { grid-template-columns: 1fr; } }
+  .fbrand { display: flex; align-items: center; gap: 12px; }
   .fbrand b { font-family: "Sora", Arial, sans-serif; font-size: 18px; display: block; }
   .fbrand span { color: var(--acc); font-style: italic; font-size: 13px; font-weight: 600; }
-  .fbadges { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 18px 0 14px; }
-  .fbadges span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 12px; color: var(--hText); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); }
-  .fbadges .ic { color: var(--acc); }
-  .fcopy { font-size: 12px; color: color-mix(in srgb, var(--hText) 70%, transparent); }
+  .fabout { margin-top: 12px; color: var(--hText); font-size: 13.5px; max-width: 360px; }
+  .fsync { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 6px 12px; border-radius: 999px; font-size: 12px; color: var(--hText);
+           background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); }
+  .fsync .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 0 0 color-mix(in srgb, var(--acc) 60%, transparent); animation: pulse 2s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .fcol h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--acc); margin-bottom: 10px; }
+  .fcol nav, nav.fcol { display: grid; align-content: start; gap: 2px; }
+  nav.fcol button { display: flex; align-items: center; gap: 10px; background: none; border: 0; color: #fff; opacity: .85; padding: 6px 0; cursor: pointer; font: 500 14px "Inter", Arial, sans-serif; text-align: left; }
+  nav.fcol button:hover { opacity: 1; color: var(--acc); }
+  nav.fcol .ic { color: var(--hText); }
+  .fitem { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; font-size: 14px; }
+  .fitem .ic { color: var(--acc); margin-top: 2px; }
+  .fitem small { display: block; color: var(--hText); font-size: 12px; }
+  .flock { display: inline-flex; align-items: center; gap: 8px; margin-top: 4px; padding: 8px 14px; border-radius: 999px; cursor: pointer;
+           background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); color: #fff; font: 600 13px "Inter", Arial, sans-serif; }
+  .flock:hover { background: rgba(255,255,255,.16); }
+  .fbottom { max-width: 1060px; margin: 26px auto 0; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.1); display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between;
+             font-size: 12px; color: color-mix(in srgb, var(--hText) 80%, transparent); }
+  .flink { background: none; border: 0; padding: 0; color: var(--acc); cursor: pointer; font: inherit; text-decoration: underline; text-underline-offset: 2px; }
 
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 </style>
@@ -567,13 +587,33 @@
 
   <footer class="tex">
     <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0h1200v14c-150 22-300 22-450 6S450-2 300 10 90 34 0 20z" fill="currentColor"/></svg>
-    <div class="fbrand"><div class="logo"><svg class="ic"><use href="#i-wallet"/></svg></div><div><b>Personal Finance Tracker</b><span>Every rupee, accounted for</span></div></div>
-    <div class="fbadges">
-      <span><svg class="ic"><use href="#i-shield-check"/></svg>PIN protected</span>
-      <span><svg class="ic"><use href="#i-lock"/></svg>Private Google Sheet</span>
-      <span><svg class="ic"><use href="#i-refresh-cw"/></svg>Syncs every minute</span>
+    <div class="fwrap">
+      <div class="fcol fmain">
+        <div class="fbrand"><div class="logo"><svg class="ic"><use href="#i-wallet"/></svg></div><div><b>Personal Finance Tracker</b><span>Every rupee, accounted for</span></div></div>
+        <p class="fabout">Income, spending, budgets, accounts, loans and the team money you hold, in one private place.</p>
+        <div class="fsync"><span class="dot" aria-hidden="true"></span><span id="fSync">Connecting…</span></div>
+      </div>
+      <nav class="fcol" aria-label="Footer">
+        <h4>Go to</h4>
+        <button type="button" data-go="overview"><svg class="ic"><use href="#i-layout-dashboard"/></svg>Home</button>
+        <button type="button" data-go="budgets"><svg class="ic"><use href="#i-target"/></svg>Budgets</button>
+        <button type="button" data-go="accounts"><svg class="ic"><use href="#i-wallet"/></svg>Accounts</button>
+        <button type="button" data-go="loans"><svg class="ic"><use href="#i-handshake"/></svg>Loans</button>
+        <button type="button" data-go="txns"><svg class="ic"><use href="#i-list"/></svg>Activity</button>
+        <button type="button" data-go="add"><svg class="ic"><use href="#i-plus"/></svg>Add an entry</button>
+      </nav>
+      <div class="fcol">
+        <h4>Privacy &amp; security</h4>
+        <div class="fitem"><svg class="ic"><use href="#i-shield-check"/></svg><span>PIN on every request<small>Locks after 15 min idle</small></span></div>
+        <div class="fitem"><svg class="ic"><use href="#i-lock"/></svg><span>Private Google Sheet<small>Never shared by link</small></span></div>
+        <div class="fitem"><svg class="ic"><use href="#i-refresh-cw"/></svg><span>Live updates<small>Refreshes every 10 seconds</small></span></div>
+        <button type="button" class="flock" id="footLock"><svg class="ic"><use href="#i-lock-keyhole"/></svg>Lock now</button>
+      </div>
     </div>
-    <div class="fcopy">© <span id="year">2026</span> <span id="ownerFoot"></span> · Personal use only</div>
+    <div class="fbottom">
+      <span>© <span id="year">2026</span> <span id="ownerFoot"></span>. Personal use only.</span>
+      <span>All amounts in LKR · <button type="button" class="flink" id="footTheme">Change theme</button></span>
+    </div>
   </footer>
 </div>
 
@@ -591,7 +631,7 @@
 // Web app URL from Apps Script (Deploy → Manage deployments).
 const API_URL = "https://script.google.com/macros/s/AKfycbyVSGp7Vr2k2_IOqjNsVoo1ui7yIJrEHkh2QLRT193nFsZlgBOoK3yEY-gaqvh0YwJYOQ/exec";
 const OWNER = "Hashmath";
-const AUTO_REFRESH_SECONDS = 60;
+const AUTO_REFRESH_SECONDS = 10;
 // Lock again after this many minutes without using the page.
 const IDLE_LOCK_MINUTES = 15;
 // Expenses shared with someone. When this sub-category is chosen, "Shared expense" is ticked and
@@ -693,7 +733,7 @@ $("lockForm").addEventListener("submit", async e => {
     const j = await api({ action: "data" });
     try { sessionStorage.setItem("pft-pin", PIN); } catch {}   // only for this browser tab; gone when it closes
     $("lock").hidden = true; $("app").hidden = false;
-    render(j.data);
+    render(j.data); lastSync = Date.now(); syncText();
   } catch (err) {
     showLock(err.message);
   } finally {
@@ -939,11 +979,17 @@ function renderFunds(funds, bal) {
   const inAccounts = DATA.accounts.reduce((a, x) => a + (bal[norm(x.name)] || 0), 0);
   const held = funds.filter(f => f.ok).reduce((a, f) => a + f.balance, 0);
   const missing = funds.filter(f => f.ok && f.heldIn && !DATA.accounts.some(a => norm(a.name) === norm(f.heldIn)));
+  // People's balances too: e.g. Miswara's overpaid three-wheeler money I'm holding, or what someone owes me.
+  const people = loanBook().filter(x => x.owedToMe > 0 || x.iOwe > 0);
+  const peopleNet = people.reduce((a, x) => a + x.owedToMe - x.iOwe, 0);
   $("inHand").innerHTML = `<div><span>Money in my accounts (actual)</span><b class="num">${fmt(inAccounts)}</b></div>
-    ${funds.filter(f => f.ok).map(f => f.balance >= 0
+    ${funds.filter(f => f.ok && f.balance !== 0).map(f => f.balance > 0
       ? `<div><span>− ${esc(f.short)} team money</span><b class="num down">−${fmt(f.balance)}</b></div>`
       : `<div><span>+ ${esc(f.short)} owes me (paid from my money)</span><b class="num up">+${fmt(-f.balance)}</b></div>`).join("")}
-    <div class="tot"><span>My own money</span><b class="num">${fmt(inAccounts - held)}</b></div>
+    ${people.map(x => x.iOwe > 0
+      ? `<div><span>− I owe ${esc(x.name)}</span><b class="num down">−${fmt(x.iOwe)}</b></div>`
+      : `<div><span>+ ${esc(x.name)} owes me</span><b class="num up">+${fmt(x.owedToMe)}</b></div>`).join("")}
+    <div class="tot"><span>My own money (net worth)</span><b class="num">${fmt(inAccounts - held + peopleNet)}</b></div>
     ${missing.length ? `<div style="color:var(--out);font-size:12.5px">Account "${esc(missing[0].heldIn)}" (where ${esc(missing[0].short)} money is kept) wasn't found; check heldIn in Code.gs.</div>` : ""}`;
 }
 
@@ -1180,20 +1226,32 @@ document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () =>
 }));
 
 /* ===== Refresh ===== */
+let refreshing = false;   // a refresh still in progress is never started twice
 async function refresh() {
-  if (!PIN) return;
-  try { const j = await api({ action: "data" }); render(j.data); }
+  if (!PIN || refreshing) return;
+  refreshing = true;
+  try { const j = await api({ action: "data" }); render(j.data); lastSync = Date.now(); syncText(); }
   catch (err) {
     if (/PIN/i.test(err.message)) return showLock(err.message);
     $("error").textContent = err.message + " Showing the last figures; trying again shortly.";
     $("error").hidden = false;
-  }
+  } finally { refreshing = false; }
 }
+let lastSync = 0;
+function syncText() {
+  const el = $("fSync"); if (!el || !lastSync) return;
+  const sec = Math.round((Date.now() - lastSync) / 1000);
+  el.textContent = sec < 5 ? "Synced just now" : sec < 60 ? `Synced ${sec}s ago` : `Synced ${Math.round(sec / 60)} min ago`;
+}
+setInterval(syncText, 5000);
 setInterval(() => { if (!document.hidden) refresh(); }, AUTO_REFRESH_SECONDS * 1000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
 
 // Start: today's date in the forms, and unlock straight away if this tab was already unlocked.
 $("year").textContent = new Date().getFullYear();
+document.querySelectorAll("footer [data-go]").forEach(b => b.addEventListener("click", () => document.querySelector(`.tab[data-tab="${b.dataset.go}"]`).click()));
+$("footLock").addEventListener("click", () => showLock("Locked."));
+$("footTheme").addEventListener("click", () => { $("themeSheet").hidden = false; });
 document.querySelectorAll('form.add input[type="date"]').forEach(i => i.value = localISO().slice(0, 10));
 (() => {
   let saved = ""; try { saved = sessionStorage.getItem("pft-pin") || ""; } catch {}
