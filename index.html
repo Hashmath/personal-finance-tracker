@@ -898,7 +898,9 @@ function renderFunds(funds, bal) {
   const held = funds.filter(f => f.ok).reduce((a, f) => a + f.balance, 0);
   const missing = funds.filter(f => f.ok && f.heldIn && !DATA.accounts.some(a => norm(a.name) === norm(f.heldIn)));
   $("inHand").innerHTML = `<div><span>Money in my accounts (actual)</span><b class="num">${fmt(inAccounts)}</b></div>
-    ${funds.filter(f => f.ok).map(f => `<div><span>− ${esc(f.short)} team money</span><b class="num down">−${fmt(f.balance)}</b></div>`).join("")}
+    ${funds.filter(f => f.ok).map(f => f.balance >= 0
+      ? `<div><span>− ${esc(f.short)} team money</span><b class="num down">−${fmt(f.balance)}</b></div>`
+      : `<div><span>+ ${esc(f.short)} owes me (paid from my money)</span><b class="num up">+${fmt(-f.balance)}</b></div>`).join("")}
     <div class="tot"><span>My own money</span><b class="num">${fmt(inAccounts - held)}</b></div>
     ${missing.length ? `<div style="color:var(--out);font-size:12.5px">Account "${esc(missing[0].heldIn)}" (where ${esc(missing[0].short)} money is kept) wasn't found; check heldIn in Code.gs.</div>` : ""}`;
 }
