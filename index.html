@@ -212,6 +212,7 @@
   .brow.warn .bar i { background: #F5A524; } .brow.over .bar i { background: var(--out); }
   .brow .left { font-size: 12px; font-weight: 700; margin-top: 5px; color: var(--in); }
   .brow.warn .left { color: #B7791F; } .brow.over .left { color: var(--out); }
+  .brow .lastm { font-weight: 600; color: var(--muted); }
   .subs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
   .subs span { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--soft); color: var(--ink); }
   .subs span .ic { width: 13px; height: 13px; color: var(--muted); }
@@ -460,7 +461,7 @@
         <div class="funds" id="fundsHome"></div>
       </section>
       <section class="panel">
-        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-chart-column"/></svg></div><h2>Month by month</h2><span class="aside">Tap a month to open it</span></div>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-chart-column"/></svg></div><h2>Month by month</h2><span class="aside">Each month runs 16th → 15th</span></div>
         <div class="legend"><span><i style="background:var(--in)"></i>Income</span><span><i style="background:var(--out)"></i>Expenses</span></div>
         <div class="trend" id="trend"></div>
       </section>
@@ -568,6 +569,7 @@
             <label>Category<select name="category" id="bCatSel"></select></label>
             <label id="bCatNewWrap" hidden>New category<input name="catNew" id="bCatNew"></label>
             <label>Monthly budget (LKR)<input type="number" name="amount" min="0" step="any" inputmode="decimal" placeholder="Blank removes it"></label>
+            <label>Applies to<select name="cycle" id="bCycleSel"></select></label>
             <div class="actions"><button class="btn" type="submit">Save budget</button></div>
           </form>
         </section>
@@ -632,6 +634,9 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbyVSGp7Vr2k2_IOqjNsVoo1ui7yIJrEHkh2QLRT193nFsZlgBOoK3yEY-gaqvh0YwJYOQ/exec";
 const OWNER = "Hashmath";
 const AUTO_REFRESH_SECONDS = 10;
+// My "month" runs from salary day to the day before the next salary: 16th → 15th.
+// Must match CYCLE_START_DAY in Code.gs. Set to 1 for normal calendar months.
+const CYCLE_START_DAY = 16;
 // Lock again after this many minutes without using the page.
 const IDLE_LOCK_MINUTES = 15;
 // Expenses shared with someone. When this sub-category is chosen, "Shared expense" is ticked and
@@ -648,10 +653,18 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const FULL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const mShort = k => { const [y, m] = k.split("-"); return `${MON[+m - 1]} ${y}`; };
-const mLong = k => { const [y, m] = k.split("-"); return `${FULL[+m - 1]} ${y}`; };
+// A pay cycle is named by the month it starts in: "2026-11" = 16 Nov → 15 Dec 2026.
+const cycEnd = k => { const [y, m] = k.split("-").map(Number); return new Date(y, m, CYCLE_START_DAY - 1); };
+const mShort = k => { const [y, m] = k.split("-").map(Number); if (CYCLE_START_DAY === 1) return `${MON[m - 1]} ${y}`;
+  const e = cycEnd(k); return `${CYCLE_START_DAY} ${MON[m - 1]} – ${e.getDate()} ${MON[e.getMonth()]}`; };
+const mLong = k => { const [y, m] = k.split("-").map(Number); if (CYCLE_START_DAY === 1) return `${FULL[m - 1]} ${y}`;
+  const e = cycEnd(k); return `${CYCLE_START_DAY} ${MON[m - 1]} – ${e.getDate()} ${MON[e.getMonth()]} ${e.getFullYear()}`; };
+// Which pay cycle a date (yyyy-mm-dd) belongs to.
+const cyc = iso => { if (!iso) return ""; const [y, m, d] = iso.split("-").map(Number); const dt = new Date(y, m - 1 - (d < CYCLE_START_DAY ? 1 : 0), 1);
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`; };
+const shiftCyc = (k, n) => { const [y, m] = k.split("-").map(Number); const dt = new Date(y, m - 1 + n, 1); return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`; };
 const localISO = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString();
-const thisMonth = () => localISO().slice(0, 7);
+const thisMonth = () => cyc(localISO().slice(0, 10));   // the current pay cycle
 const icon = (name, cls = "") => `<svg class="ic ${cls}"><use href="#i-${name}"/></svg>`;
 
 /* ===== Themes (saved on this device; they hold no personal data) ===== */
@@ -791,21 +804,32 @@ function loanBook() {
 }
 function subSpend(cat, k) {
   const m = {};
-  DATA.txns.filter(t => t.type === "Expense" && norm(t.cat) === norm(cat) && t.date.slice(0, 7) === k)
+  DATA.txns.filter(t => t.type === "Expense" && norm(t.cat) === norm(cat) && cyc(t.date) === k)
     .forEach(t => { const s = t.sub || "Other"; m[s] = (m[s] || 0) + t.amount; });
   return Object.entries(m).sort((a, b) => b[1] - a[1]);
 }
 const subChips = (cat, k) => { const s = subSpend(cat, k); return s.length > 1 || (s.length === 1 && s[0][0] !== "Other")
   ? `<div class="subs">${s.map(([n, a]) => `<span>${SUB_ICON[norm(n)] ? icon(SUB_ICON[norm(n)]) : ""}${esc(n)} <b class="num">${fmt(a)}</b></span>`).join("")}</div>` : ""; };
+// Budget for a category in a pay cycle: a plan for that cycle if there is one, otherwise the usual monthly budget.
+function budgetFor(cat, k) {
+  const p = (DATA.plans || []).find(x => x.cycle === k && norm(x.cat) === norm(cat));
+  if (p) return p.budget || 0;
+  const b = DATA.budgets.find(x => norm(x.cat) === norm(cat));
+  return b ? b.budget : 0;
+}
+function budgetCats(k) {
+  return [...new Set([...DATA.budgets.map(b => b.cat), ...(DATA.plans || []).filter(p => p.cycle === k).map(p => p.cat)])].filter(c => budgetFor(c, k) > 0);
+}
+const isPlanned = (cat, k) => (DATA.plans || []).some(x => x.cycle === k && norm(x.cat) === norm(cat));
 function monthTotals(k) {
-  const list = DATA.txns.filter(t => t.date.slice(0, 7) === k);
+  const list = DATA.txns.filter(t => cyc(t.date) === k);
   const inc = list.filter(t => t.type === "Income").reduce((a, t) => a + t.amount, 0);
   const exp = list.filter(t => t.type === "Expense").reduce((a, t) => a + t.amount, 0);
   return { list, inc, exp, net: inc - exp };
 }
 function spendByCat(k) {
   const m = {};
-  DATA.txns.filter(t => t.type === "Expense" && t.date.slice(0, 7) === k).forEach(t => { m[t.cat] = (m[t.cat] || 0) + t.amount; });
+  DATA.txns.filter(t => t.type === "Expense" && cyc(t.date) === k).forEach(t => { m[t.cat] = (m[t.cat] || 0) + t.amount; });
   return m;
 }
 
@@ -821,9 +845,11 @@ function render(d) {
   $("greet").textContent = greeting();
   $("ownerFoot").textContent = OWNER;
 
-  const months = [...new Set([thisMonth(), ...d.txns.map(t => t.date.slice(0, 7)).filter(Boolean)])].sort();
+  // Pay cycles with entries, plus this one and the next (so next month's budget can be planned).
+  const nextCyc = shiftCyc(thisMonth(), 1);
+  const months = [...new Set([thisMonth(), nextCyc, ...d.txns.map(t => cyc(t.date)).filter(Boolean)])].sort();
   if (!months.includes(selMonth)) selMonth = thisMonth();
-  $("months").innerHTML = [...months].reverse().map(k => `<button class="mbtn" data-m="${k}" aria-pressed="${k === selMonth}">${k === selMonth ? icon("calendar") : ""}${mShort(k)}</button>`).join("");
+  $("months").innerHTML = [...months].reverse().map(k => `<button class="mbtn" data-m="${k}" aria-pressed="${k === selMonth}">${k === selMonth ? icon("calendar") : ""}${mShort(k)}${k === nextCyc ? " · next" : k === thisMonth() ? " · now" : ""}</button>`).join("");
 
   const bal = balances(d);
   const book = loanBook();
@@ -853,9 +879,10 @@ function render(d) {
   $("kMonth1").textContent = $("kMonth2").textContent = mShort(selMonth);
   $("kNet").textContent = (mt.net < 0 ? "−" : "") + fmt(Math.abs(mt.net));
   $("kRate").textContent = mt.inc ? `${Math.round(mt.net / mt.inc * 100)}% of income` : "No income yet";
-  const budTotal = d.budgets.reduce((a, b) => a + b.budget, 0);
+  const bcats = budgetCats(selMonth);
+  const budTotal = bcats.reduce((a, c) => a + budgetFor(c, selMonth), 0);
   const sp = spendByCat(selMonth);
-  const budSpent = d.budgets.filter(b => b.budget > 0).reduce((a, b) => a + (sp[b.cat] || 0), 0);
+  const budSpent = bcats.reduce((a, c) => a + (sp[c] || 0), 0);
   $("kBudget").textContent = budTotal ? (budTotal - budSpent < 0 ? "−" : "") + fmt(Math.abs(budTotal - budSpent)) : "–";
   $("kBudgetS").textContent = budTotal ? `of ${fmt(budTotal)}` : "No budgets set";
 
@@ -895,7 +922,7 @@ function renderOverview() {
 
   // 12-month trend ending at the chosen month
   const keys = [];
-  for (let i = 11; i >= 0; i--) { const dt = new Date(+selMonth.slice(0, 4), +selMonth.slice(5) - 1 - i, 1); keys.push(`${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`); }
+  for (let i = 11; i >= 0; i--) keys.push(shiftCyc(selMonth, -i));
   const rows = keys.map(k => ({ k, ...monthTotals(k) }));
   const big = Math.max(1, ...rows.map(r => Math.max(r.inc, r.exp)));
   $("trend").innerHTML = rows.map(r => `<button class="tcol${r.k === selMonth ? " sel" : ""}" data-m="${r.k}" title="${mLong(r.k)}: in ${fmt(r.inc)}, out ${fmt(r.exp)}">
@@ -910,7 +937,9 @@ function renderOverview() {
 /* ===== Budgets ===== */
 function renderBudgets() {
   const sp = spendByCat(selMonth);
-  const list = DATA.budgets.filter(b => b.budget > 0).map(b => ({ ...b, spent: sp[b.cat] || 0 })).sort((a, b) => b.spent / b.budget - a.spent / a.budget);
+  const prev = spendByCat(shiftCyc(selMonth, -1));
+  const list = budgetCats(selMonth).map(c => ({ cat: c, budget: budgetFor(c, selMonth), spent: sp[c] || 0, planned: isPlanned(c, selMonth), last: prev[c] || 0 }))
+    .sort((a, b) => b.spent / b.budget - a.spent / a.budget);
   const tot = list.reduce((a, b) => a + b.budget, 0), used = list.reduce((a, b) => a + b.spent, 0);
   $("bTitle").textContent = `Budgets · ${mShort(selMonth)}`;
   const overN = list.filter(b => b.spent > b.budget).length;
@@ -918,14 +947,14 @@ function renderBudgets() {
   const pct = tot ? Math.min(used / tot, 1) : 0, C = 2 * Math.PI * 42;
   const col = used > tot ? "var(--out)" : used > tot * .8 ? "#F5A524" : "var(--in)";
   $("bRing").innerHTML = list.length ? `<svg viewBox="0 0 104 104" aria-hidden="true"><circle cx="52" cy="52" r="42" fill="none" stroke="var(--soft)" stroke-width="12"/>
-      <circle cx="52" cy="52" r="42" fill="none" stroke="${col}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${C * pct} ${C}" transform="rotate(-90 52 52)"/>
+      <circle cx="52" cy="52" r="42" fill="none" stroke="${col}" stroke-width="12" stroke-linecap="${pct > 0 ? "round" : "butt"}" stroke-dasharray="${C * pct} ${C}" transform="rotate(-90 52 52)"/>
       <text x="52" y="58" text-anchor="middle" font-family="Sora,Arial" font-weight="700" font-size="19" fill="var(--ink)">${tot ? Math.round(used / tot * 100) : 0}%</text></svg>
     <div><b class="num">LKR ${fmt(Math.max(tot - used, 0))} left</b><span>${fmt(used)} spent of ${fmt(tot)} budgeted</span></div>` : "";
   $("bList").innerHTML = list.length ? list.map(b => {
     const p = b.spent / b.budget, cls = p > 1 ? "over" : p >= .8 ? "warn" : "", left = b.budget - b.spent, st = catStyle({ type: "Expense", cat: b.cat });
-    return `<div class="brow ${cls}">${catTile({ type: "Expense", cat: b.cat })}<div><div class="t"><span class="n">${esc(b.cat)}</span><span class="a"><b class="num">${fmt(b.spent)}</b> / ${fmt(b.budget)}</span></div>
+    return `<div class="brow ${cls}">${catTile({ type: "Expense", cat: b.cat })}<div><div class="t"><span class="n">${esc(b.cat)}${b.planned ? ` <span class="tag" title="Budget set for this cycle only">this month only</span>` : ""}</span><span class="a"><b class="num">${fmt(b.spent)}</b> / ${fmt(b.budget)}</span></div>
       <div class="bar"><i style="--c:${st.c};width:${Math.min(p, 1) * 100}%"></i></div>
-      <div class="left">${left >= 0 ? `${fmt(left)} left` : `${fmt(-left)} over budget`}</div>${subChips(b.cat, selMonth)}</div></div>`;
+      <div class="left">${left >= 0 ? `${fmt(left)} left` : `${fmt(-left)} over budget`}${b.last ? `<span class="lastm"> · last month ${fmt(b.last)}</span>` : ""}</div>${subChips(b.cat, selMonth)}</div></div>`;
   }).join("") : `<div class="empty">${icon("target")} No budgets yet. Set one from + Add.</div>`;
   const budgeted = new Set(list.map(b => norm(b.cat)));
   const extra = Object.entries(sp).filter(([c]) => !budgeted.has(norm(c))).sort((a, b) => b[1] - a[1]);
@@ -938,7 +967,7 @@ function renderAccounts(bal) {
   const look = t => /card/i.test(t) ? ["a-card", "credit-card"] : /cash/i.test(t) ? ["a-cash", "banknote"] : /sav/i.test(t) ? ["a-save", "piggy-bank"] : /wallet|online/i.test(t) ? ["a-wallet", "smartphone"] : ["a-bank", "landmark"];
   const inOut = name => {
     let i = 0, o = 0;
-    DATA.txns.filter(t => t.date.slice(0, 7) === selMonth).forEach(t => {
+    DATA.txns.filter(t => cyc(t.date) === selMonth).forEach(t => {
       const mine = norm(t.account) === norm(name);
       if (mine && (t.type === "Income" || LOAN_IN.includes(t.type))) i += t.amount;
       else if (mine) o += t.amount;
@@ -1039,7 +1068,7 @@ function itemHTML(t, showDate) {
     <span class="amt ${cls} num">${sign}${fmt(t.amount)}</span></div>`;
 }
 function renderTxns() {
-  const all = DATA.txns.filter(t => t.date.slice(0, 7) === selMonth);
+  const all = DATA.txns.filter(t => cyc(t.date) === selMonth);
   $("txTitle").textContent = mLong(selMonth);
   const TYPE_IC = { "": "list", Income: "arrow-down-left", Expense: "arrow-up-right", Transfer: "arrow-left-right", Loans: "handshake" };
   $("txTypes").innerHTML = ["", "Income", "Expense", "Transfer", "Loans"].map(x => `<button class="chipb" data-type="${x}" aria-pressed="${x === txType}">${icon(TYPE_IC[x])}${x || "All"}</button>`).join("");
@@ -1131,6 +1160,10 @@ function fillForms() {
   const ka = $("accSel").value, kt = $("toSel").value;
   $("accSel").innerHTML = opts(names, ka);
   $("toSel").innerHTML = opts(names, kt || names[1]);
+  // Budget "Applies to": every month, or just one pay cycle (this one, the next, or the one being viewed)
+  const kc = $("bCycleSel").value, cyOpts = [...new Set([thisMonth(), shiftCyc(thisMonth(), 1), selMonth])];
+  $("bCycleSel").innerHTML = `<option value="">Every month (usual budget)</option>` +
+    cyOpts.map(k => `<option value="${k}"${k === kc ? " selected" : ""}>Only ${mShort(k)}${k === thisMonth() ? " (this month)" : k === shiftCyc(thisMonth(), 1) ? " (next month)" : ""}</option>`).join("");
   const kb = $("bCatSel").value;
   $("bCatSel").innerHTML = opts(catsFor("Expense"), kb) + `<option value="__new">Add new category…</option>`;
   const types = (DATA.lists && DATA.lists[Object.keys(DATA.lists).find(h => /account\s*type/i.test(h))]) || ["Bank", "Cash", "Credit Card"];
@@ -1213,8 +1246,8 @@ wire("txForm", f => txKind === "Loan"
   f => (txKind === "Income" || txKind === "Expense") && !f.category ? "Choose a category first."
     : txKind === "Expense" && f.shared && !(+f.shareAmt > 0 && +f.shareAmt < +f.amount) ? "Enter their share (less than the full amount)." : "",
   () => { $("catSel").value = ""; $("catNewWrap").hidden = true; $("subNewWrap").hidden = true; $("accSel").disabled = false; shareAuto = true; fillForms(); updateShare(); });
-wire("budgetForm", f => ({ action: "budget", category: f.category === "__new" ? f.catNew.trim() : f.category, amount: f.amount }),
-  p => `budget for ${p.category}`, null, () => { $("bCatNewWrap").hidden = true; });
+wire("budgetForm", f => ({ action: "budget", category: f.category === "__new" ? f.catNew.trim() : f.category, amount: f.amount, cycle: f.cycle || "" }),
+  p => `budget for ${p.category}${p.cycle ? " (" + mShort(p.cycle) + " only)" : ""}`, null, () => { $("bCatNewWrap").hidden = true; fillForms(); });
 wire("accForm", f => ({ action: "account", ...f }), p => `account ${p.name}`);
 
 /* ===== Navigation ===== */
