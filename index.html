@@ -284,6 +284,7 @@
   .hstats div { padding: 10px 12px; border-radius: 14px; background: var(--soft); min-width: 0; }
   .hstats span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
   .hstats b { font-family: "Sora", Arial, sans-serif; font-size: 17px; white-space: nowrap; }
+  .hstats .hsub { display: block; font-size: 11px; font-weight: 600; color: var(--muted); margin-top: 2px; }
   .hstats .main { background: var(--inBg); } .hstats .main b { color: var(--in); font-size: 20px; }
   .hchart { padding: 0 16px 6px; }
   .hchart svg { width: 100%; height: 130px; display: block; }
@@ -1010,6 +1011,11 @@ function renderOverview() {
 }
 
 /* ===== Savings goal ===== */
+// Net money lent to people in a cycle (lent − paid back to me), personal loans only.
+function loanFlow(k) {
+  return DATA.txns.filter(t => cyc(t.date) === k && (t.type === "Loan Given" || t.type === "Loan Received Back") && t.account)
+    .reduce((a, t) => a + (t.type === "Loan Given" ? t.amount : -t.amount), 0);
+}
 function renderGoal(mt) {
   const { min, max } = SAVINGS_TARGET, saved = mt.net, top = Math.max(max * 1.15, saved, 1);
   const pct = v => Math.max(0, Math.min(v / top, 1)) * 100;
@@ -1020,6 +1026,9 @@ function renderGoal(mt) {
   const stillBudgeted = budgetCats(selMonth).reduce((a, c) => a + Math.max(budgetFor(c, selMonth) - (sp[c] || 0), 0), 0);
   const projected = saved - (isNow ? stillBudgeted : 0);
   const room = saved - min;   // how much more I can spend this cycle and still save the minimum
+  // Loans don't change what I saved (the money is still mine, just with someone else),
+  // but it's not in my hand: show how much of this month's saving went out as loans.
+  const lentNet = loanFlow(selMonth);
   let cls, ic, msg, sub;
   if (saved >= max) { cls = "ok"; ic = "trophy"; msg = `Above your ${fmt(max)} goal`; sub = `Saved ${fmt(saved - max)} more than the top of your range.`; }
   else if (saved >= min) { cls = "ok"; ic = "shield-check"; msg = `Goal reached: ${fmt(saved)} saved`; sub = `${fmt(max - saved)} more to reach ${fmt(max)}. You can spend up to ${fmt(room)} more and still save ${fmt(min)}.`; }
@@ -1034,6 +1043,7 @@ function renderGoal(mt) {
     <div class="gmsg ${cls}">${icon(ic)}<span>${msg}<small>${sub}</small></span></div>
     <div class="gstats">
       ${isNow ? `<div><span>Budget still to spend</span><b class="num">${fmt(stillBudgeted)}</b></div><div><span>Likely saving</span><b class="num ${projected >= min ? "up" : "down"}">${projected < 0 ? "−" : ""}${fmt(Math.abs(projected))}</b></div>` : ""}
+      ${lentNet ? `<div><span>${lentNet > 0 ? "Lent out this month" : "Loans repaid to me"}</span><b class="num">${fmt(Math.abs(lentNet))}</b></div><div><span>Saved in hand</span><b class="num ${saved - lentNet >= 0 ? "" : "down"}">${saved - lentNet < 0 ? "−" : ""}${fmt(Math.abs(saved - lentNet))}</b></div>` : ""}
       ${setAsideTotal() ? `<div><span>Set aside for bills</span><b class="num">${fmt(setAsideTotal())}</b></div><div><span>Free saving</span><b class="num">${saved - setAsideTotal() < 0 ? "−" : ""}${fmt(Math.abs(saved - setAsideTotal()))}</b></div>` : ""}
     </div>`;
 }
@@ -1052,7 +1062,8 @@ function renderHistory() {
   const avg = done.length ? done.reduce((a, r) => a + r.net, 0) / done.length : rows[rows.length - 1].net;
   $("histAside").textContent = `Since ${mShort(keys[0]).split(" – ")[0]}`;
   const sgn = v => (v < 0 ? "−" : "") + fmt(Math.abs(v));
-  $("histStats").innerHTML = `<div class="main"><span>Total saved</span><b class="num">${sgn(total)}</b></div>
+  const lentNow = loanBook().reduce((a, x) => a + x.owedToMe, 0);
+  $("histStats").innerHTML = `<div class="main"><span>Total saved</span><b class="num">${sgn(total)}</b>${lentNow ? `<small class="hsub">${fmt(lentNow)} of it lent out</small>` : ""}</div>
     <div><span>Average / month</span><b class="num">${sgn(avg)}</b></div>
     <div><span>Goal reached</span><b class="num">${hit} / ${done.length || 0}</b></div>`;
 
