@@ -279,6 +279,26 @@
   .gstats span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
   .gstats b { font-family: "Sora", Arial, sans-serif; font-size: 16px; }
 
+  /* Savings so far */
+  .hstats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0 16px 12px; }
+  .hstats div { padding: 10px 12px; border-radius: 14px; background: var(--soft); min-width: 0; }
+  .hstats span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+  .hstats b { font-family: "Sora", Arial, sans-serif; font-size: 17px; white-space: nowrap; }
+  .hstats .main { background: var(--inBg); } .hstats .main b { color: var(--in); font-size: 20px; }
+  .hchart { padding: 0 16px 6px; }
+  .hchart svg { width: 100%; height: 130px; display: block; }
+  .hlist { padding: 0 16px 14px; }
+  .hrow { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 10px 2px; border-top: 1px solid var(--line); font-size: 14px; }
+  .hrow:first-child { border-top: 0; }
+  .hrow .c { font-weight: 600; }
+  .hrow .c small { display: block; font-weight: 500; font-size: 12px; color: var(--muted); }
+  .hrow .v { font-family: "Sora", Arial, sans-serif; font-weight: 700; text-align: right; }
+  .hrow .run { font-size: 12px; color: var(--muted); text-align: right; min-width: 86px; }
+  .hrow .run b { display: block; color: var(--ink); font-size: 13px; }
+  .hrow.sel { background: var(--soft); border-radius: 12px; }
+  .hbadge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; margin-left: 6px; vertical-align: 1px; }
+  .hbadge.ok { background: var(--inBg); color: var(--in); } .hbadge.no { background: var(--outBg); color: var(--out); } .hbadge.now { background: var(--soft); color: var(--muted); border: 1px solid var(--line); }
+
   /* Team funds held for others */
   .funds { padding: 0 16px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
   .fund { border-radius: 18px; padding: 14px 16px; border: 1px solid var(--line); background: linear-gradient(135deg, color-mix(in srgb, var(--c) 10%, var(--card)), var(--card)); position: relative; overflow: hidden; }
@@ -482,6 +502,12 @@
       <section class="panel" id="goalPanel">
         <div class="phead"><div class="pi"><svg class="ic"><use href="#i-piggy-bank"/></svg></div><h2>Savings goal</h2><span class="aside" id="goalAside"></span></div>
         <div class="goal" id="goal"></div>
+      </section>
+      <section class="panel" id="histPanel" hidden>
+        <div class="phead"><div class="pi"><svg class="ic"><use href="#i-trending-up"/></svg></div><h2>My savings so far</h2><span class="aside" id="histAside"></span></div>
+        <div class="hstats" id="histStats"></div>
+        <div class="hchart" id="histChart"></div>
+        <div class="hlist" id="histList"></div>
       </section>
       <section class="panel" id="fundsPanel" hidden>
         <div class="phead"><div class="pi"><svg class="ic"><use href="#i-users"/></svg></div><h2>Team money I hold</h2><span class="aside">Belongs to the teams</span></div>
@@ -967,6 +993,7 @@ function renderOverview() {
   }
 
   renderGoal(mt);
+  renderHistory();
 
   // 12-month trend ending at the chosen month
   const keys = [];
@@ -1009,6 +1036,51 @@ function renderGoal(mt) {
       ${isNow ? `<div><span>Budget still to spend</span><b class="num">${fmt(stillBudgeted)}</b></div><div><span>Likely saving</span><b class="num ${projected >= min ? "up" : "down"}">${projected < 0 ? "−" : ""}${fmt(Math.abs(projected))}</b></div>` : ""}
       ${setAsideTotal() ? `<div><span>Set aside for bills</span><b class="num">${fmt(setAsideTotal())}</b></div><div><span>Free saving</span><b class="num">${saved - setAsideTotal() < 0 ? "−" : ""}${fmt(Math.abs(saved - setAsideTotal()))}</b></div>` : ""}
     </div>`;
+}
+
+/* ===== Savings so far: every pay cycle from the first one with entries up to now ===== */
+function renderHistory() {
+  const now = thisMonth();
+  const used = DATA.txns.filter(t => t.type === "Income" || t.type === "Expense").map(t => cyc(t.date)).filter(Boolean).sort();
+  if (!used.length) { $("histPanel").hidden = true; return; }
+  $("histPanel").hidden = false;
+  const keys = []; for (let k = used[0]; k <= now; k = shiftCyc(k, 1)) keys.push(k);
+  let run = 0;
+  const rows = keys.map(k => { const t = monthTotals(k); run += t.net; return { k, ...t, run }; });
+  const done = rows.filter(r => r.k !== now);                         // finished months
+  const total = run, hit = done.filter(r => r.net >= SAVINGS_TARGET.min).length;
+  const avg = done.length ? done.reduce((a, r) => a + r.net, 0) / done.length : rows[rows.length - 1].net;
+  $("histAside").textContent = `Since ${mShort(keys[0]).split(" – ")[0]}`;
+  const sgn = v => (v < 0 ? "−" : "") + fmt(Math.abs(v));
+  $("histStats").innerHTML = `<div class="main"><span>Total saved</span><b class="num">${sgn(total)}</b></div>
+    <div><span>Average / month</span><b class="num">${sgn(avg)}</b></div>
+    <div><span>Goal reached</span><b class="num">${hit} / ${done.length || 0}</b></div>`;
+
+  // Running total line, with each month's saving as a bar
+  const W = 600, H = 130, pad = 18, n = rows.length;
+  const maxV = Math.max(1, ...rows.map(r => Math.max(r.run, r.net, SAVINGS_TARGET.min))), minV = Math.min(0, ...rows.map(r => Math.min(r.run, r.net)));
+  const x = i => pad + (n === 1 ? (W - 2 * pad) / 2 : i * (W - 2 * pad) / (n - 1));
+  const y = v => H - pad - (v - minV) / (maxV - minV) * (H - 2 * pad);
+  const bw = Math.min(34, (W - 2 * pad) / n * .5);
+  const bars = rows.map((r, i) => `<rect x="${x(i) - bw / 2}" y="${Math.min(y(r.net), y(0))}" width="${bw}" height="${Math.abs(y(r.net) - y(0)) || 1}" rx="5"
+      fill="${r.net >= SAVINGS_TARGET.min ? "var(--in)" : r.net >= 0 ? "#F5A524" : "var(--out)"}" opacity="${r.k === now ? .55 : .9}"><title>${mShort(r.k)}: saved ${sgn(r.net)}</title></rect>`).join("");
+  const line = rows.map((r, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(r.run).toFixed(1)}`).join(" ");
+  const dots = rows.map((r, i) => `<circle cx="${x(i)}" cy="${y(r.run)}" r="4.5" fill="var(--card)" stroke="var(--accDark)" stroke-width="2.5"><title>Total by ${mShort(r.k)}: ${sgn(r.run)}</title></circle>`).join("");
+  const labels = rows.map((r, i) => `<text x="${x(i)}" y="${H - 2}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="Inter,Arial">${MON[+r.k.slice(5) - 1]}</text>`).join("");
+  $("histChart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Savings each month and running total">
+    <line x1="${pad}" x2="${W - pad}" y1="${y(SAVINGS_TARGET.min)}" y2="${y(SAVINGS_TARGET.min)}" stroke="var(--in)" stroke-dasharray="5 5" opacity=".5"/>
+    <line x1="${pad}" x2="${W - pad}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/>
+    ${bars}<path d="${line}" fill="none" stroke="var(--accDark)" stroke-width="3" stroke-linejoin="round"/>${dots}${labels}</svg>
+    <div class="legend" style="padding:4px 0 0"><span><i style="background:var(--in)"></i>Saved that month</span><span><i style="background:var(--accDark);height:3px;vertical-align:3px"></i>Total so far</span><span><i style="border-top:2px dashed var(--in);background:none;height:0;vertical-align:3px"></i>${fmt(SAVINGS_TARGET.min / 1000)}k goal</span></div>`;
+
+  // Newest first: each month on its own (fresh goal) and the running total
+  $("histList").innerHTML = [...rows].reverse().map(r => {
+    const badge = r.k === now ? `<span class="hbadge now">In progress</span>`
+      : r.net >= SAVINGS_TARGET.min ? `<span class="hbadge ok">${icon("shield-check")}Goal</span>` : `<span class="hbadge no">${fmt(SAVINGS_TARGET.min - r.net)} short</span>`;
+    return `<div class="hrow${r.k === selMonth ? " sel" : ""}"><span class="c">${mShort(r.k)}${badge}<small>In ${fmt(r.inc)} · out ${fmt(r.exp)}</small></span>
+      <span class="v num ${r.net >= 0 ? "up" : "down"}">${r.net > 0 ? "+" : ""}${sgn(r.net)}</span>
+      <span class="run">Total<b class="num">${sgn(r.run)}</b></span></div>`;
+  }).join("");
 }
 
 /* ===== Budgets ===== */
