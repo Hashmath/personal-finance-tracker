@@ -274,13 +274,22 @@
   .gmsg.ok { background: var(--inBg); color: var(--in); } .gmsg.warn { background: color-mix(in srgb, #F5A524 14%, var(--card)); color: #9A6700; } .gmsg.bad { background: var(--outBg); color: var(--out); }
   .gmsg .ic { margin-top: 2px; }
   .gmsg small { display: block; font-weight: 500; color: var(--muted); margin-top: 2px; }
-  .steps { margin-top: 12px; border-radius: 14px; background: var(--soft); padding: 6px 12px; }
-  .step { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: baseline; padding: 7px 0; font-size: 14px; }
-  .step + .step { border-top: 1px dashed var(--line); }
-  .step .op { font-weight: 800; color: var(--muted); text-align: center; }
-  .step .lb small { display: block; font-size: 11.5px; color: var(--muted); }
-  .step b { font-family: "Sora", Arial, sans-serif; white-space: nowrap; }
-  .step.sum { border-top: 1px solid var(--line) !important; } .step.sum .lb { font-weight: 700; } .step.sum b { color: var(--accDark); }
+  /* Savings flow: three cards joined by arrows */
+  .flow3 { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 0; align-items: stretch; margin-top: 12px; position: relative; }
+  .flow3 .arrow { display: none; }
+  .fc { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px; border-radius: 16px; margin: 0 4px; min-width: 0; }
+  .fc:first-child { margin-left: 0; } .fc:last-of-type { margin-right: 0; }
+  .fc + .arrow + .fc::before { content: ""; position: absolute; left: -10px; top: 50%; width: 12px; height: 12px; margin-top: -6px; transform: rotate(45deg);
+    border-top: 2.5px solid var(--muted); border-right: 2.5px solid var(--muted); opacity: .5; }
+  .fc .fi { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; background: var(--card); margin-bottom: 4px; }
+  .fc .fi .ic { width: 16px; height: 16px; }
+  .fc .fl { font-size: 12px; font-weight: 700; color: var(--muted); }
+  .fc b { font-family: "Sora", Arial, sans-serif; font-size: clamp(18px, 5vw, 22px); white-space: nowrap; }
+  .fc .fn { font-size: 11px; color: var(--muted); line-height: 1.3; }
+  .fc.a { background: var(--soft); } .fc.a .fi { color: var(--accDark); }
+  .fc.g { background: var(--inBg); } .fc.g .fi, .fc.g b { color: var(--in); }
+  .fc.w { background: color-mix(in srgb, #F5A524 14%, var(--card)); } .fc.w .fi, .fc.w b { color: #9A6700; }
+  .fc.b { background: color-mix(in srgb, #2E7CD6 11%, var(--card)); } .fc.b .fi, .fc.b b { color: var(--tr); }
   .gstats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 10px; }
   .gstats div { padding: 10px 12px; border-radius: 12px; background: var(--soft); }
   .gstats span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
@@ -1051,20 +1060,19 @@ function renderGoal(mt) {
     ${goalSteps(saved, isNow ? stillBudgeted : 0, setAsideTotal(), lentNet, isNow)}`;
 }
 
-// One clear calculation, step by step, instead of separate figures:
-//   saved so far − budgets still to spend = expected saving at month end
-//   − set aside for bills = free saving;  − lent out = what's actually in my accounts
+// Three key figures as a flow: what I've saved → what I'll likely keep by month end → what's actually in my accounts.
 function goalSteps(saved, still, aside, lent, isNow) {
   const sg = v => (v < 0 ? "−" : "") + fmt(Math.abs(v));
-  const end = mShort(selMonth).split(" – ")[1] || "";
-  const expected = saved - still, free = expected - aside, inHand = free - Math.max(lent, 0);
-  const row = (op, label, v, note, cls = "") => `<div class="step ${cls}"><span class="op">${op}</span><span class="lb">${label}${note ? `<small>${note}</small>` : ""}</span><b class="num">${sg(v)}</b></div>`;
-  let h = row("", "Saved so far", saved, "Income − spending this month");
-  if (isNow && still) h += row("−", "Budgets still to spend", still, "What's left in this month's budgets") + row("=", `Expected saving by ${end}`, expected, `If you spend all your budgets. Goal: ${fmt(SAVINGS_TARGET.min / 1000)}k–${fmt(SAVINGS_TARGET.max / 1000)}k`, "sum");
-  if (aside) h += row("−", "Set aside for bills", aside, "Monthly share of gas, school fees and other not-monthly bills") + row("=", "Free saving", free, "", "sum");
-  if (lent > 0) h += row("−", "Lent out this month", lent, "Still yours, but with other people until they repay") + row("=", "Left in my accounts", inHand, "", "sum");
-  else if (lent < 0) h += row("+", "Loans repaid to me", -lent, "Your own money coming back, not new saving");
-  return `<div class="steps">${h}</div>`;
+  const k = v => fmt(Math.round(Math.abs(v) / 1000)) + "k";
+  const end = (mShort(selMonth).split(" – ")[1] || "").trim();
+  const expected = saved - still - aside;
+  const cards = [];   // "saved so far" is already the big number above
+  if (isNow && (still || aside)) cards.push({ ic: "target", label: `Likely saving by ${end}`, v: expected,
+    note: `After ${[still ? k(still) + " budgets" : "", aside ? k(aside) + " bills" : ""].filter(Boolean).join(" & ")}`, tone: expected >= SAVINGS_TARGET.min ? "g" : "w" });
+  if (lent > 0) cards.push({ ic: "wallet", label: "Left in my accounts", v: (cards.length ? expected : saved) - lent, note: `After ${k(lent)} lent out`, tone: "b" });
+  if (!cards.length) return "";
+  return `<div class="flow3" style="--n:${cards.length}">${cards.map(c => `<div class="fc ${c.tone}">
+      <span class="fi">${icon(c.ic)}</span><span class="fl">${c.label}</span><b class="num">${sg(c.v)}</b><span class="fn">${c.note}</span></div>`).join(`<span class="arrow">${icon("chevron-right")}</span>`)}</div>`;
 }
 
 /* ===== Savings so far: every pay cycle from the first one with entries up to now ===== */
