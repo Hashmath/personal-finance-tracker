@@ -385,6 +385,19 @@
   .save-status.ok { color: var(--in); background: var(--inBg); }
   .save-status.bad { color: var(--out); background: var(--outBg); }
 
+  /* Tap an entry to edit it */
+  .item.tap { cursor: pointer; }
+  .ed { padding: 0 !important; margin-top: 12px; }
+  .edtype { margin-top: 8px; display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 13px; }
+  .edhint { grid-column: 1 / -1; font-size: 12.5px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, #F5A524 14%, var(--card)); color: #8A5E00; }
+  .edmsg { grid-column: 1 / -1; font-size: 13px; font-weight: 600; color: var(--out); }
+  .edmsg:empty { display: none; }
+  .edbtns { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn.danger { background: var(--outBg); color: var(--out); }
+  .btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+  #editSheet .sheetbox { max-height: 92vh; overflow-y: auto; }
+  .tapnote { font-size: 12px; color: var(--muted); padding: 0 16px 10px; display: flex; gap: 6px; align-items: center; }
+
   /* Theme picker */
   .sheet { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.45); display: grid; place-items: end center; }
   @media (min-width: 721px) { .sheet { place-items: center; } }
@@ -587,6 +600,7 @@
         <div class="chips" id="txTypes"></div>
         <div class="chips" id="txAccounts"></div>
         <label class="search"><svg class="ic"><use href="#i-search"/></svg><input id="txSearch" type="search" placeholder="Search description, category or notes" aria-label="Search activity"></label>
+        <div class="tapnote"><svg class="ic"><use href="#i-receipt"/></svg>Tap any entry to edit or delete it</div>
         <div class="feed" id="txFeed"></div>
         <div class="totbar" id="txTotal"></div>
       </section>
@@ -695,6 +709,32 @@
       <span>All amounts in LKR · <button type="button" class="flink" id="footTheme">Change theme</button></span>
     </div>
   </footer>
+</div>
+
+<!-- Edit / delete a transaction -->
+<div class="sheet" id="editSheet" hidden>
+  <div class="sheetbox" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+    <h3 id="editTitle"><svg class="ic"><use href="#i-receipt"/></svg>Edit entry</h3>
+    <div class="edtype" id="editType"></div>
+    <form class="add ed" id="editForm">
+      <label class="bigamt">Amount (LKR)<input type="number" name="amount" min="1" step="any" inputmode="decimal" required></label>
+      <label>Date<input type="date" name="date" required></label>
+      <label id="eCatWrap">Category<select name="category" id="eCat"></select></label>
+      <label id="eSubWrap">Sub-category<select name="sub" id="eSub"></select></label>
+      <label id="ePersonWrap">Person<input name="person" id="ePerson" list="peopleList" autocomplete="off"></label>
+      <label id="eAccWrap"><span id="eAccLbl">Account</span><select name="account" id="eAcc"></select></label>
+      <label id="eToWrap">To account<select name="to" id="eTo"></select></label>
+      <label>Description<input name="description"></label>
+      <label>Notes<input name="notes"></label>
+      <div class="edhint" id="editHint" hidden></div>
+      <div class="edmsg" id="editMsg" role="alert"></div>
+      <div class="edbtns">
+        <button class="btn acc" type="submit"><svg class="ic"><use href="#i-shield-check"/></svg>Save changes</button>
+        <button class="btn danger" type="button" id="editDelete">Delete</button>
+        <button class="btn ghost" type="button" id="editCancel">Cancel</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- Theme picker -->
@@ -1253,7 +1293,7 @@ function itemHTML(t, showDate) {
   const dt = new Date(t.date + "T00:00"), when = showDate ? `<span>${dt.getDate()} ${MON[dt.getMonth()]}</span>` : "";
   if (isLoan(t)) {
     const inn = LOAN_IN.includes(t.type);
-    return `<div class="item">${catTile(t)}
+    return `<div class="item tap" data-row="${t.row}" tabindex="0" role="button" aria-label="Edit or delete">${catTile(t)}
       <div><div class="who">${esc(LOAN_TEXT[t.type] || t.type)} ${esc(t.sub)}</div><div class="sub">${when}<span class="tag">${esc(t.type)}</span><span>${esc(t.account)}</span></div></div>
       <span class="amt ${inn ? "in" : "out"} num">${inn ? "+" : "−"}${fmt(t.amount)}</span></div>`;
   }
@@ -1261,7 +1301,7 @@ function itemHTML(t, showDate) {
   const title = t.desc || (t.type === "Transfer" ? "Transfer" : (t.sub || t.cat));
   const sub = t.type === "Transfer" ? `<span class="tag">${esc(t.account)} → ${esc(t.to)}</span>` : `<span class="tag">${esc(t.desc ? catLabel(t) : t.cat)}</span><span>${esc(t.account)}</span>`;
   const sign = t.type === "Income" ? "+" : t.type === "Expense" ? "−" : "";
-  return `<div class="item">${catTile(t)}
+  return `<div class="item tap" data-row="${t.row}" tabindex="0" role="button" aria-label="Edit or delete">${catTile(t)}
     <div><div class="who">${esc(title)}</div><div class="sub">${when}${sub}${t.notes ? `<span>${esc(t.notes)}</span>` : ""}</div></div>
     <span class="amt ${cls} num">${sign}${fmt(t.amount)}</span></div>`;
 }
@@ -1488,6 +1528,69 @@ wire("budgetForm", f => ({ action: "budget", category: f.category === "__new" ? 
     freq: f.cycle ? "" : f.freq, due: !f.cycle && f.freq !== "1" ? f.due : "" }),
   p => `budget for ${p.category}${p.cycle ? " (" + mShort(p.cycle) + " only)" : ""}`, null, () => { $("bCatNewWrap").hidden = true; fillForms(); syncBudgetForm(); });
 wire("accForm", f => ({ action: "account", ...f }), p => `account ${p.name}`);
+
+/* ===== Edit / delete an entry (tap it in Activity or Latest) ===== */
+let editing = null;
+function openEdit(row) {
+  const t = DATA && DATA.txns.find(x => x.row === row); if (!t) return;
+  editing = t;
+  const f = $("editForm"), loan = isLoan(t), tr = t.type === "Transfer", kind = t.type === "Income" ? "Income" : "Expense";
+  $("editType").innerHTML = `${catTile(t, "sm")}<span><b style="color:var(--ink)">${esc(t.type)}</b>${t.cat && !loan ? " · " + esc(catLabel(t)) : ""}${loan ? " · " + esc(t.sub) : ""}</span>`;
+  f.elements.amount.value = t.amount; f.elements.date.value = t.date;
+  f.elements.description.value = t.desc; f.elements.notes.value = t.notes;
+  const names = DATA.accounts.map(a => a.name);
+  $("eAcc").innerHTML = (loan ? `<option value="">No account (already in my balances)</option>` : "") + opts(names, t.account);
+  $("eAcc").value = t.account || "";
+  $("eTo").innerHTML = opts(names, t.to);
+  $("eCatWrap").hidden = $("eSubWrap").hidden = tr || loan;
+  $("ePersonWrap").hidden = !loan; $("ePerson").value = loan ? t.sub : ""; $("ePerson").required = loan;
+  $("eToWrap").hidden = !tr; $("eAccLbl").textContent = tr ? "From account" : "Account";
+  if (!tr && !loan) {
+    const cats = catsFor(kind).slice(); if (t.cat && !cats.includes(t.cat)) cats.push(t.cat);
+    $("eCat").innerHTML = opts(cats, t.cat); fillEditSubs(t.sub);
+  }
+  const shared = /shared with|'s share of|shared expense/i.test(t.notes + " " + t.desc);
+  $("editHint").hidden = !shared;
+  $("editHint").textContent = shared ? "This is one half of a shared expense. The other half is a separate entry: edit or delete that one too if needed." : "";
+  $("editMsg").textContent = "";
+  $("editSheet").hidden = false;
+}
+function fillEditSubs(keep) {
+  const list = subsFor($("eCat").value).slice(); if (keep && !list.includes(keep)) list.push(keep);
+  $("eSub").innerHTML = `<option value="">None</option>` + opts(list, keep || "");
+}
+$("eCat").addEventListener("change", () => fillEditSubs(""));
+const closeEdit = () => { $("editSheet").hidden = true; editing = null; };
+$("editCancel").addEventListener("click", closeEdit);
+$("editSheet").addEventListener("click", e => { if (e.target.id === "editSheet") closeEdit(); });
+// What the dashboard showed for the row; the script refuses the change if the sheet row no longer matches.
+const editCheck = t => ({ date: t.date, type: t.type, amount: t.amount, account: t.account });
+async function editCall(payload) {
+  const btns = document.querySelectorAll("#editSheet .edbtns button"); btns.forEach(b => b.disabled = true);
+  $("editMsg").textContent = "";
+  try { await api(payload); closeEdit(); refreshing = false; await refresh(); }
+  catch (err) { $("editMsg").textContent = err.message; }
+  finally { btns.forEach(b => b.disabled = false); }
+}
+$("editForm").addEventListener("submit", e => {
+  e.preventDefault(); if (!editing) return;
+  const f = Object.fromEntries(new FormData($("editForm"))), t = editing, loan = isLoan(t);
+  editCall({ action: "txnUpdate", row: t.row, check: editCheck(t), type: t.type, amount: f.amount, date: f.date,
+    description: f.description, notes: f.notes, account: f.account || "", noAccount: loan && !f.account ? "true" : "",
+    to: t.type === "Transfer" ? f.to : "", category: loan || t.type === "Transfer" ? "" : f.category,
+    sub: loan ? (f.person || "").trim() : t.type === "Transfer" ? "" : f.sub });
+});
+$("editDelete").addEventListener("click", () => {
+  const t = editing; if (!t) return;
+  if (!confirm(`Delete this ${t.type.toLowerCase()} of LKR ${fmt(t.amount)} on ${t.date}? This can't be undone.`)) return;
+  editCall({ action: "txnDelete", row: t.row, check: editCheck(t) });
+});
+document.addEventListener("click", e => { const it = e.target.closest(".item.tap"); if (it && !$("app").hidden) openEdit(+it.dataset.row); });
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && !$("editSheet").hidden) closeEdit();
+  const it = e.target.closest && e.target.closest(".item.tap");
+  if (it && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openEdit(+it.dataset.row); }
+});
 
 /* ===== Navigation ===== */
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
